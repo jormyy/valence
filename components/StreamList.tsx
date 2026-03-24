@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Stream } from "@/lib/types";
 
 interface Props {
@@ -9,6 +9,20 @@ interface Props {
 
 export default function StreamList({ streams }: Props) {
   const [active, setActive] = useState(0);
+
+  // Block popups opened by the iframe without using sandbox (which breaks players).
+  // Overrides window.open so any popup attempt is silently dropped.
+  // Also prevents the iframe from navigating the top-level frame away.
+  useEffect(() => {
+    window.open = () => null;
+
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, []);
 
   const current = streams[active];
 
@@ -23,8 +37,6 @@ export default function StreamList({ streams }: Props) {
           allowFullScreen
           allow="autoplay; fullscreen; encrypted-media"
           referrerPolicy="no-referrer"
-          // sandbox blocks popups/redirects while still allowing the player to run
-          sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock"
         />
       </div>
 
