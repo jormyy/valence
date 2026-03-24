@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import GameCard from "@/components/GameCard";
 import type { Game, League } from "@/lib/types";
 
@@ -21,10 +21,33 @@ const FILTERS = [
 
 type Filter = "all" | League;
 
+/** If ESPN still says "pre" but the start time has passed, treat it as live. */
+function effectiveStatus(game: GameWithStreams, now: number): Game["status"] {
+  if (game.status === "pre" && new Date(game.startTime).getTime() <= now) {
+    return "in";
+  }
+  return game.status;
+}
+
 export default function GameFeed({ games }: Props) {
   const [filter, setFilter] = useState<Filter>("all");
+  const [now, setNow] = useState(() => Date.now());
 
-  const visible = filter === "all" ? games : games.filter((g) => g.league === filter);
+  // Tick every 30 seconds so status flips promptly at start time
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const withEffectiveStatus = games.map((g) => ({
+    ...g,
+    status: effectiveStatus(g, now),
+  }));
+
+  const visible =
+    filter === "all"
+      ? withEffectiveStatus
+      : withEffectiveStatus.filter((g) => g.league === filter);
 
   const live = visible.filter((g) => g.status === "in");
   const upcoming = visible.filter((g) => g.status === "pre");
