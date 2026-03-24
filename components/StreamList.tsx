@@ -45,7 +45,8 @@ export default function StreamList({ streams }: Props) {
     setSandboxOff(saved);
   }, []);
 
-  const current = streams[active];
+  const ordered = isMobile ? [...streams].reverse() : streams;
+  const current = ordered[active];
   const useSandbox = isMobile && !sandboxOff[current.url];
 
   function handleDisableSandbox() {
@@ -83,7 +84,7 @@ export default function StreamList({ streams }: Props) {
       {/* Stream selector */}
       {streams.length > 1 && (
         <div className="flex flex-wrap gap-2 border-t border-white/10 bg-[#111] p-3">
-          {streams.map((stream, i) => (
+          {ordered.map((stream, i) => (
             <button
               key={i}
               onClick={() => setActive(i)}
