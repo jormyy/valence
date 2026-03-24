@@ -15,13 +15,6 @@ export default function StreamList({ streams }: Props) {
   // Also prevents the iframe from navigating the top-level frame away.
   useEffect(() => {
     window.open = () => null;
-
-    const onBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = "";
-    };
-    window.addEventListener("beforeunload", onBeforeUnload);
-    return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, []);
 
   const current = streams[active];
