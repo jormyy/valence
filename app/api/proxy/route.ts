@@ -34,12 +34,6 @@ export async function GET(request: NextRequest) {
     return new NextResponse("Invalid url", { status: 400 });
   }
 
-  // Only proxy known embed domains
-  const allowed = ["embedsports.top", "streamed.pk"];
-  if (!allowed.some((d) => url.hostname.endsWith(d))) {
-    return new NextResponse("Domain not allowed", { status: 403 });
-  }
-
   let res: Response;
   try {
     res = await fetch(raw, {
