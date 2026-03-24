@@ -1,0 +1,196 @@
+{
+  "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
+  "_date": "2026-03-24",
+  "mlb-401833330": [
+    {
+      "label": "MethStreams 1",
+      "url": "https://st.chatango.com/h5/gz/r0129260622/id.html",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 2",
+      "url": "https://streams.center/embed/ch20.php",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 3",
+      "url": "https://t.dtscout.com/idg/?su=6D0017743914677DEB85BF09796A2BFF",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "mlb-401833338": [
+    {
+      "label": "MethStreams 1",
+      "url": "https://st.chatango.com/h5/gz/r0129260622/id.html",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 2",
+      "url": "https://streams.center/embed/ch21.php",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 3",
+      "url": "https://t.dtscout.com/idg/?su=6D00177439229145146E36BAB2F9DF4B",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 4",
+      "url": "https://t.dtscout.com/idg/?su=6D001774392448D3661DA70ABEAE51D0",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "nba-401810902": [
+    {
+      "label": "MethStreams 1",
+      "url": "https://st.chatango.com/h5/gz/r0129260622/id.html",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 2",
+      "url": "https://sharkstreams.net/player.php?channel=1517",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 3",
+      "url": "https://sharkstreams.net/player.php?channel=1623",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "nba-401810903": [
+    {
+      "label": "MethStreams 1",
+      "url": "https://st.chatango.com/h5/gz/r0129260622/id.html",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 2",
+      "url": "https://streams.center/embed/ch66.php",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "nba-401810904": [
+    {
+      "label": "MethStreams 1",
+      "url": "https://st.chatango.com/h5/gz/r0129260622/id.html",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 2",
+      "url": "https://sharkstreams.net/player.php?channel=1514",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "mlb-401833334": [
+    {
+      "label": "MethStreams 1",
+      "url": "https://st.chatango.com/h5/gz/r0129260622/id.html",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 2",
+      "url": "https://streams.center/embed/ch22.php",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "nba-401810905": [
+    {
+      "label": "MethStreams 1",
+      "url": "https://st.chatango.com/h5/gz/r0129260622/id.html",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 2",
+      "url": "https://sharkstreams.net/player.php?channel=669",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "mlb-401833331": [
+    {
+      "label": "MethStreams 1",
+      "url": "https://st.chatango.com/h5/gz/r0129260622/id.html",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 2",
+      "url": "https://streams.center/embed/ch15.php",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "mlb-401833335": [
+    {
+      "label": "MethStreams 1",
+      "url": "https://st.chatango.com/h5/gz/r0129260622/id.html",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 2",
+      "url": "https://streams.center/embed/ch16.php",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "mlb-401833336": [
+    {
+      "label": "MethStreams 1",
+      "url": "https://st.chatango.com/h5/gz/r0129260622/id.html",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 2",
+      "url": "https://streams.center/embed/ch17.php",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "mlb-401833332": [
+    {
+      "label": "MethStreams 1",
+      "url": "https://st.chatango.com/h5/gz/r0129260622/id.html",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 2",
+      "url": "https://streams.center/embed/ch18.php",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "mlb-401833333": [
+    {
+      "label": "MethStreams 1",
+      "url": "https://st.chatango.com/h5/gz/r0129260622/id.html",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "MethStreams 2",
+      "url": "https://streams.center/embed/ch19.php",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ]
+}
