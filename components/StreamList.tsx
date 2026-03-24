@@ -18,15 +18,14 @@ export default function StreamList({ streams }: Props) {
   }, []);
 
   const current = streams[active];
-  const proxied = `/api/proxy?url=${encodeURIComponent(current.url)}`;
 
   return (
     <div className="flex h-full flex-col">
       {/* Player */}
       <div className="relative flex-1 bg-black">
         <iframe
-          key={proxied}
-          src={proxied}
+          key={current.url}
+          src={current.url}
           className="h-full w-full"
           allowFullScreen
           allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
