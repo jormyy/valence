@@ -1,4 +1,4 @@
-export type League = "nba" | "ncaab" | "mlb";
+export type League = "nba" | "ncaab" | "mlb" | "atp" | "wta";
 
 export interface Team {
   name: string;

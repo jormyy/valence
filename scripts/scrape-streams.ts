@@ -39,6 +39,8 @@ const CATEGORY: Record<string, string> = {
   nba:   "basketball",
   ncaab: "basketball",
   mlb:   "baseball",
+  atp:   "tennis",
+  wta:   "tennis",
 };
 
 // ---------------------------------------------------------------------------
