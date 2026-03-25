@@ -13,13 +13,14 @@ interface Props {
 }
 
 const FILTERS = [
-  { label: "All", value: "all" },
-  { label: "NBA", value: "nba" },
-  { label: "NCAAB", value: "ncaab" },
-  { label: "MLB", value: "mlb" },
+  { label: "All",    value: "all"   },
+  { label: "NBA",    value: "nba"   },
+  { label: "NCAAB",  value: "ncaab" },
+  { label: "MLB",    value: "mlb"   },
+  { label: "Tennis", value: "tennis" },
 ] as const;
 
-type Filter = "all" | League;
+type Filter = "all" | League | "tennis";
 
 /** If ESPN still says "pre" but the start time has passed, treat it as live. */
 function effectiveStatus(game: GameWithStreams, now: number): Game["status"] {
@@ -47,6 +48,8 @@ export default function GameFeed({ games }: Props) {
   const visible =
     filter === "all"
       ? withEffectiveStatus
+      : filter === "tennis"
+      ? withEffectiveStatus.filter((g) => g.league === "atp" || g.league === "wta")
       : withEffectiveStatus.filter((g) => g.league === filter);
 
   const live = visible.filter((g) => g.status === "in");
