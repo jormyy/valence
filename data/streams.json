@@ -160,5 +160,43 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401810905": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-denver-nuggets-vs-phoenix-suns/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-denver-nuggets-vs-phoenix-suns/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_suns-nuggets-live-streaming-1076328594/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/phoenix-suns-vs-denver-nuggets-basketball-470529/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/phoenix-suns-vs-denver-nuggets-basketball-470529/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/20922/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
