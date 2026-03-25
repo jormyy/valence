@@ -1,4 +1,82 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-03-25"
+  "_date": "2026-03-25",
+  "nba-401810906": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-atlanta-hawks-vs-detroit-pistons/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-atlanta-hawks-vs-detroit-pistons/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_pistons-hawks-live-streaming-1076368554/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/20933/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810907": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-lakers-vs-indiana-pacers/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-lakers-vs-indiana-pacers/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_pacers-lakers-live-streaming-1076369553/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/20934/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810908": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-bulls-vs-philadelphia-76-ers/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-bulls-vs-philadelphia-76-ers/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_76ers-bulls-live-streaming-1076370552/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/20935/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
