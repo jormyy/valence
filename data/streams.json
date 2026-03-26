@@ -304,5 +304,95 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401810918": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-knicks-vs-charlotte-hornets/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-knicks-vs-charlotte-hornets/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_hornets-knicks-live-streaming-1076442480/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/20980/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810919": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-new-orleans-pelicans-vs-detroit-pistons/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-new-orleans-pelicans-vs-detroit-pistons/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_pistons-pelicans-live-streaming-1076443479/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/detroit-pistons-vs-new-orleans-pelicans-basketball-470543/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/detroit-pistons-vs-new-orleans-pelicans-basketball-470543/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/20981/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810920": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-sacramento-kings-vs-orlando-magic/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-sacramento-kings-vs-orlando-magic/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_magic-kings-live-streaming-1076444478/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/20982/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
