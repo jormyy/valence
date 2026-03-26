@@ -329,6 +329,18 @@
       "url": "https://embedsports.top/embed/golf/20980/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/charlotte-hornets-vs-new-york-knicks-basketball-470542/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/charlotte-hornets-vs-new-york-knicks-basketball-470542/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "nba-401810919": [
@@ -393,6 +405,18 @@
       "url": "https://embedsports.top/embed/golf/20982/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/orlando-magic-vs-sacramento-kings-basketball-470544/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/orlando-magic-vs-sacramento-kings-basketball-470544/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ]
 }
