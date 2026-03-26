@@ -181,6 +181,214 @@
       "url": "https://embedsports.top/embed/golf/20945/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/delta/live_mlb_giants-yankees-live-streaming-1197459342/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/san-francisco-giants-vs-new-york-yankees-baseball-178011/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/san-francisco-giants-vs-new-york-yankees-baseball-178011/2",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "nba-401810912": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-wizards-vs-utah-jazz/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-wizards-vs-utah-jazz/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_jazz-wizards-live-streaming-1076374548/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/utah-jazz-vs-washington-wizards-basketball-470536/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/utah-jazz-vs-washington-wizards-basketball-470536/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/20939/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810913": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-houston-rockets-vs-minnesota-timberwolves/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-houston-rockets-vs-minnesota-timberwolves/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_timberwolves-rockets-live-streaming-1076375547/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/minnesota-timberwolves-vs-houston-rockets-basketball-470537/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/minnesota-timberwolves-vs-houston-rockets-basketball-470537/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/20940/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810914": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-dallas-mavericks-vs-denver-nuggets/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-dallas-mavericks-vs-denver-nuggets/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_nuggets-mavericks-live-streaming-1076376546/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/denver-nuggets-vs-dallas-mavericks-basketball-470538/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/denver-nuggets-vs-dallas-mavericks-basketball-470538/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/20941/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810915": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-brooklyn-nets-vs-golden-state-warriors/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-brooklyn-nets-vs-golden-state-warriors/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_warriors-nets-live-streaming-1076377545/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/golden-state-warriors-vs-brooklyn-nets-basketball-470539/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/golden-state-warriors-vs-brooklyn-nets-basketball-470539/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/20942/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810916": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-milwaukee-bucks-vs-portland-trail-blazers/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-milwaukee-bucks-vs-portland-trail-blazers/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_trail-blazers-bucks-live-streaming-1076378544/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/portland-trail-blazers-vs-milwaukee-bucks-basketball-470540/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/portland-trail-blazers-vs-milwaukee-bucks-basketball-470540/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/20943/1",
+      "quality": "HD",
+      "language": "English"
     }
   ]
 }
