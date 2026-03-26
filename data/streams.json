@@ -1,4 +1,42 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-03-26"
+  "_date": "2026-03-26",
+  "mlb-401814693": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-pittsburgh-pirates-vs-new-york-mets/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-pittsburgh-pirates-vs-new-york-mets/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mets-pirates-live-streaming-1197490311/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/new-york-mets-vs-pittsburgh-pirates-baseball-178012/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/new-york-mets-vs-pittsburgh-pirates-baseball-178012/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/20983/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
