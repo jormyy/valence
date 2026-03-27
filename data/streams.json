@@ -1,4 +1,48 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-03-27"
+  "_date": "2026-03-27",
+  "mlb-401814721": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-yankees-vs-san-francisco-giants/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-yankees-vs-san-francisco-giants/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_giants-yankees-live-streaming-1197515286/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/san-francisco-giants-vs-new-york-yankees-baseball-178027/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/san-francisco-giants-vs-new-york-yankees-baseball-178027/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/san-francisco-giants-vs-new-york-yankees-baseball-178027/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21006/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
