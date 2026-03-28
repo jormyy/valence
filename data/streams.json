@@ -597,6 +597,18 @@
       "url": "https://embedsports.top/embed/golf/21005/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-brooklyn-nets-basketball-470554/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-brooklyn-nets-basketball-470554/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ]
 }
