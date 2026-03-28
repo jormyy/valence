@@ -304,5 +304,81 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401810935": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-pistons-vs-minnesota-timberwolves/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-pistons-vs-minnesota-timberwolves/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_timberwolves-pistons-live-streaming-1076622300/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/minnesota-timberwolves-vs-detroit-pistons-basketball-470559/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/minnesota-timberwolves-vs-detroit-pistons-basketball-470559/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21030/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810932": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-philadelphia-76-ers-vs-charlotte-hornets/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-philadelphia-76-ers-vs-charlotte-hornets/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_hornets-76ers-live-streaming-1076619303/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/charlotte-hornets-vs-philadelphia-76ers-basketball-470556/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/charlotte-hornets-vs-philadelphia-76ers-basketball-470556/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21031/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
