@@ -486,5 +486,37 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401810943": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-houston-rockets-vs-new-orleans-pelicans/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-houston-rockets-vs-new-orleans-pelicans/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_pelicans-rockets-live-streaming-1077024897/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/new-orleans-pelicans-vs-houston-rockets-basketball-470567/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21062/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
