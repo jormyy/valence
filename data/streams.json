@@ -351,6 +351,140 @@
       "url": "https://embedsports.top/embed/golf/21057/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/indiana-pacers-vs-miami-heat-basketball-470562/2",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "nba-401810939": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-sacramento-kings-vs-brooklyn-nets/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-sacramento-kings-vs-brooklyn-nets/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_nets-kings-live-streaming-1077020901/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/brooklyn-nets-vs-sacramento-kings-basketball-470566/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21058/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810940": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-boston-celtics-vs-charlotte-hornets/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-boston-celtics-vs-charlotte-hornets/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_hornets-celtics-live-streaming-1077021900/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/charlotte-hornets-vs-boston-celtics-basketball-470565/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21059/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810941": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-orlando-magic-vs-toronto-raptors/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-orlando-magic-vs-toronto-raptors/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_raptors-magic-live-streaming-1077023898/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/toronto-raptors-vs-orlando-magic-basketball-470563/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21060/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810942": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-wizards-vs-portland-trail-blazers/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-wizards-vs-portland-trail-blazers/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_trail-blazers-wizards-live-streaming-1077022899/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/portland-trail-blazers-vs-washington-wizards-basketball-470564/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21061/1",
+      "quality": "HD",
+      "language": "English"
     }
   ]
 }
