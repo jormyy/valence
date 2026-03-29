@@ -320,5 +320,37 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401810938": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-miami-heat-vs-indiana-pacers/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-miami-heat-vs-indiana-pacers/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_pacers-heat-live-streaming-1077019902/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/indiana-pacers-vs-miami-heat-basketball-470562/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21057/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
