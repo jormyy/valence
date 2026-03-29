@@ -518,5 +518,69 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401814733": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-cleveland-guardians-vs-seattle-mariners/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-cleveland-guardians-vs-seattle-mariners/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mariners-guardians-live-streaming-1197937863/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/seattle-mariners-vs-cleveland-guardians-baseball-178049/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21076/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810944": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-knicks-vs-oklahoma-city-thunder/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-knicks-vs-oklahoma-city-thunder/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_thunder-knicks-live-streaming-1077025896/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/oklahoma-city-thunder-vs-new-york-knicks-basketball-470568/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21063/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
