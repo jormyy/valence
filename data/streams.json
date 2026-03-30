@@ -582,5 +582,43 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401810945": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-golden-state-warriors-vs-denver-nuggets/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-golden-state-warriors-vs-denver-nuggets/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_nuggets-warriors-live-streaming-1077026895/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/denver-nuggets-vs-golden-state-warriors-basketball-470569/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/denver-nuggets-vs-golden-state-warriors-basketball-470569/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21064/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
