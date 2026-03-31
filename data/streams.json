@@ -1,4 +1,228 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-03-31"
+  "_date": "2026-03-31",
+  "mlb-401814754": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-texas-rangers-vs-baltimore-orioles/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-texas-rangers-vs-baltimore-orioles/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_orioles-rangers-live-streaming-1198149651/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/baltimore-orioles-vs-texas-rangers-baseball-178084/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21148/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814751": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-white-sox-vs-miami-marlins/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-white-sox-vs-miami-marlins/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_marlins-white-sox-live-streaming-1198151649/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/miami-marlins-vs-chicago-white-sox-baseball-178080/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21149/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814753": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-pittsburgh-pirates-vs-cincinnati-reds/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-pittsburgh-pirates-vs-cincinnati-reds/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_reds-pirates-live-streaming-1198150650/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/cincinnati-reds-vs-pittsburgh-pirates-baseball-178082/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21150/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814755": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-nationals-vs-philadelphia-phillies/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-nationals-vs-philadelphia-phillies/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_phillies-nationals-live-streaming-1198152648/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/philadelphia-phillies-vs-washington-nationals-baseball-178078/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21151/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810954": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-phoenix-suns-vs-orlando-magic/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-phoenix-suns-vs-orlando-magic/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_magic-suns-live-streaming-1077195726/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/orlando-magic-vs-phoenix-suns-basketball-470578/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21117/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814752": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-colorado-rockies-vs-toronto-blue-jays/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-colorado-rockies-vs-toronto-blue-jays/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_blue-jays-rockies-live-streaming-1198153647/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/toronto-blue-jays-vs-colorado-rockies-baseball-178074/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21152/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814750": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-athletics-vs-atlanta-braves/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-athletics-vs-atlanta-braves/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_braves-athletics-live-streaming-1198154646/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/atlanta-braves-vs-athletics-baseball-178085/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21153/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
