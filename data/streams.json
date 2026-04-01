@@ -1,4 +1,56 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-01"
+  "_date": "2026-04-01",
+  "mlb-401814764": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_mlb_braves-athletics-live-streaming-1198314486/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/echo/atlanta-braves-vs-athletics-baseball-178101/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/atlanta-braves-vs-athletics-baseball-178101/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21162/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814768": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_mlb_orioles-rangers-live-streaming-1198315485/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/echo/baltimore-orioles-vs-texas-rangers-baseball-178100/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/baltimore-orioles-vs-texas-rangers-baseball-178100/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21163/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
