@@ -186,5 +186,77 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401814776": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_mlb_diamondbacks-tigers-live-streaming-1198324476/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/echo/arizona-diamondbacks-vs-detroit-tigers-baseball-178096/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/golf/21172/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814777": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mariners-yankees-live-streaming-1198326474/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/echo/seattle-mariners-vs-new-york-yankees-baseball-178090/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/seattle-mariners-vs-new-york-yankees-baseball-178090/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/seattle-mariners-vs-new-york-yankees-baseball-178090/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21173/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814778": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_mlb_padres-giants-live-streaming-1198325475/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/echo/san-diego-padres-vs-san-francisco-giants-baseball-178091/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/golf/21174/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
