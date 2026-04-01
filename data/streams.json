@@ -146,5 +146,45 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401814771": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_mlb_astros-red-sox-live-streaming-1198322478/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/echo/houston-astros-vs-boston-red-sox-baseball-178097/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/golf/21170/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814770": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_mlb_cubs-angels-live-streaming-1198323477/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/echo/chicago-cubs-vs-los-angeles-angels-baseball-178099/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/golf/21171/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
