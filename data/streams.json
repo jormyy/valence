@@ -52,5 +52,99 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401814767": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_mlb_reds-pirates-live-streaming-1198316484/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/golf/21164/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814769": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_mlb_phillies-nationals-live-streaming-1198317483/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/echo/philadelphia-phillies-vs-washington-nationals-baseball-178092/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/golf/21165/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814766": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_mlb_blue-jays-rockies-live-streaming-1198318482/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/echo/toronto-blue-jays-vs-colorado-rockies-baseball-178088/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/golf/21166/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814765": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_mlb_marlins-white-sox-live-streaming-1198319481/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/echo/miami-marlins-vs-chicago-white-sox-baseball-178087/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/golf/21167/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814774": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_mlb_brewers-rays-live-streaming-1198321479/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/echo/milwaukee-brewers-vs-tampa-bay-rays-baseball-178093/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/golf/21169/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
