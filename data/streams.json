@@ -258,5 +258,33 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401810960": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_nba_wizards-76ers-live-streaming-1077239682/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/golf/21124/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810962": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_nba_magic-hawks-live-streaming-1077241680/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/golf/21125/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
