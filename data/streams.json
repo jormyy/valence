@@ -38,5 +38,93 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401810969": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-phoenix-suns-vs-charlotte-hornets/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-phoenix-suns-vs-charlotte-hornets/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_hornets-suns-live-streaming-1083319596/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/charlotte-hornets-vs-phoenix-suns-basketball-470593/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/charlotte-hornets-vs-phoenix-suns-basketball-470593/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/charlotte-hornets-vs-phoenix-suns-basketball-470593/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21197/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810970": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-minnesota-timberwolves-vs-detroit-pistons/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-minnesota-timberwolves-vs-detroit-pistons/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_pistons-timberwolves-live-streaming-1083320595/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/detroit-pistons-vs-minnesota-timberwolves-basketball-470594/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/detroit-pistons-vs-minnesota-timberwolves-basketball-470594/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/detroit-pistons-vs-minnesota-timberwolves-basketball-470594/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21198/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
