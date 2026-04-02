@@ -361,6 +361,12 @@
       "url": "https://embedsports.top/embed/golf/21175/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21203/1",
+      "quality": "HD",
+      "language": "English"
     }
   ],
   "nba-401810858": [
@@ -463,6 +469,84 @@
     {
       "label": "HD 4",
       "url": "https://embedsports.top/embed/golf/21130/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814775": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_mlb_dodgers-guardians-live-streaming-1198328472/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/echo/los-angeles-dodgers-vs-cleveland-guardians-baseball-178094/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/los-angeles-dodgers-vs-cleveland-guardians-baseball-178094/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21176/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810967": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_nba_jazz-nuggets-live-streaming-1077246675/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/echo/utah-jazz-vs-denver-nuggets-basketball-470591/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/utah-jazz-vs-denver-nuggets-basketball-470591/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21131/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810968": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_nba_warriors-spurs-live-streaming-1077247674/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/echo/golden-state-warriors-vs-san-antonio-spurs-basketball-470592/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/golden-state-warriors-vs-san-antonio-spurs-basketball-470592/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21132/1",
       "quality": "HD",
       "language": "English"
     }
