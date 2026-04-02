@@ -1,4 +1,42 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-02"
+  "_date": "2026-04-02",
+  "mlb-401814779": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-minnesota-twins-vs-kansas-city-royals/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-minnesota-twins-vs-kansas-city-royals/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_royals-twins-live-streaming-1198366434/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/kansas-city-royals-vs-minnesota-twins-baseball-178104/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/kansas-city-royals-vs-minnesota-twins-baseball-178104/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21203/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
