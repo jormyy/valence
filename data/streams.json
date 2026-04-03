@@ -319,6 +319,18 @@
       "url": "https://embedsports.top/embed/golf/21209/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/charlotte-hornets-vs-indiana-pacers-basketball-470599/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/charlotte-hornets-vs-indiana-pacers-basketball-470599/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "nba-401810976": [
@@ -337,6 +349,214 @@
     {
       "label": "HD 3",
       "url": "https://embedsports.top/embed/golf/21210/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_76ers-timberwolves-live-streaming-1083369546/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/philadelphia-76ers-vs-minnesota-timberwolves-basketball-470600/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/philadelphia-76ers-vs-minnesota-timberwolves-basketball-470600/2",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "nba-401810977": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-atlanta-hawks-vs-brooklyn-nets/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-atlanta-hawks-vs-brooklyn-nets/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_nets-hawks-live-streaming-1083370545/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/brooklyn-nets-vs-atlanta-hawks-basketball-470602/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/brooklyn-nets-vs-atlanta-hawks-basketball-470602/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21211/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810978": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-bulls-vs-new-york-knicks/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-bulls-vs-new-york-knicks/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_knicks-bulls-live-streaming-1083371544/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/new-york-knicks-vs-chicago-bulls-basketball-470601/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/new-york-knicks-vs-chicago-bulls-basketball-470601/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21212/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810979": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-utah-jazz-vs-houston-rockets/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-utah-jazz-vs-houston-rockets/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_rockets-jazz-live-streaming-1083372543/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/houston-rockets-vs-utah-jazz-basketball-470605/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/houston-rockets-vs-utah-jazz-basketball-470605/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21213/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810980": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-raptors-vs-memphis-grizzlies/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-raptors-vs-memphis-grizzlies/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_grizzlies-raptors-live-streaming-1083373542/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/memphis-grizzlies-vs-toronto-raptors-basketball-470603/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/memphis-grizzlies-vs-toronto-raptors-basketball-470603/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21214/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810981": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-boston-celtics-vs-milwaukee-bucks/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-boston-celtics-vs-milwaukee-bucks/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_bucks-celtics-live-streaming-1083374541/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/milwaukee-bucks-vs-boston-celtics-basketball-470604/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/milwaukee-bucks-vs-boston-celtics-basketball-470604/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21215/1",
       "quality": "HD",
       "language": "English"
     }
