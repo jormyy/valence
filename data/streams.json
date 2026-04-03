@@ -294,5 +294,51 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401810975": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-indiana-pacers-vs-charlotte-hornets/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-indiana-pacers-vs-charlotte-hornets/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_hornets-pacers-live-streaming-1083368547/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21209/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810976": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-minnesota-timberwolves-vs-philadelphia-76-ers/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-minnesota-timberwolves-vs-philadelphia-76-ers/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/golf/21210/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
