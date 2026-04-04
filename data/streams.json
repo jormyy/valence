@@ -274,5 +274,31 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401810986": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-pistons-vs-philadelphia-76-ers/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-pistons-vs-philadelphia-76-ers/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_76ers-pistons-live-streaming-1083480435/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21249/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
