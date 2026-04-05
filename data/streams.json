@@ -707,6 +707,18 @@
       "url": "https://embedsports.top/embed/golf/21324/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/minnesota-timberwolves-vs-charlotte-hornets-basketball-470616/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/minnesota-timberwolves-vs-charlotte-hornets-basketball-470616/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "nba-401810993": [
@@ -733,6 +745,18 @@
       "url": "https://embedsports.top/embed/golf/21325/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/new-orleans-pelicans-vs-orlando-magic-basketball-470617/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/new-orleans-pelicans-vs-orlando-magic-basketball-470617/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "nba-401810994": [
@@ -757,6 +781,62 @@
     {
       "label": "HD 4",
       "url": "https://embedsports.top/embed/golf/21326/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/oklahoma-city-thunder-vs-utah-jazz-basketball-470618/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/oklahoma-city-thunder-vs-utah-jazz-basketball-470618/2",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "nba-401810995": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-lakers-vs-dallas-mavericks/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-lakers-vs-dallas-mavericks/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_mavericks-lakers-live-streaming-1083801114/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_mavericks-lakers-live-streaming-1083801114/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/dallas-mavericks-vs-los-angeles-lakers-basketball-470619/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/dallas-mavericks-vs-los-angeles-lakers-basketball-470619/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21327/1",
       "quality": "HD",
       "language": "English"
     }
