@@ -637,6 +637,12 @@
       "url": "https://embedsports.top/embed/delta/live_mlb_guardians-cubs-live-streaming-1254605139/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21439/1",
+      "quality": "HD",
+      "language": "English"
     }
   ],
   "nba-401810991": [
@@ -673,6 +679,84 @@
     {
       "label": "HD 6",
       "url": "https://embedsports.top/embed/golf/21323/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810992": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-charlotte-hornets-vs-minnesota-timberwolves/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-charlotte-hornets-vs-minnesota-timberwolves/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_timberwolves-hornets-live-streaming-1083798117/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21324/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810993": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-orlando-magic-vs-new-orleans-pelicans/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-orlando-magic-vs-new-orleans-pelicans/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_pelicans-magic-live-streaming-1083799116/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21325/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401810994": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-utah-jazz-vs-oklahoma-city-thunder/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-utah-jazz-vs-oklahoma-city-thunder/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_thunder-jazz-live-streaming-1083800115/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21326/1",
       "quality": "HD",
       "language": "English"
     }
