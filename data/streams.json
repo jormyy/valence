@@ -335,6 +335,18 @@
       "url": "https://embedsports.top/embed/golf/21422/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/los-angeles-angels-vs-atlanta-braves-baseball-178188/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/los-angeles-angels-vs-atlanta-braves-baseball-178188/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "mlb-401814855": [
@@ -367,6 +379,18 @@
       "url": "https://embedsports.top/embed/golf/21444/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/new-york-mets-vs-arizona-diamondbacks-baseball-178185/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/new-york-mets-vs-arizona-diamondbacks-baseball-178185/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ]
 }
