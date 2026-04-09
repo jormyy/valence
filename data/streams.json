@@ -1,4 +1,48 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-09"
+  "_date": "2026-04-09",
+  "mlb-401814872": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-cincinnati-reds-vs-miami-marlins/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-cincinnati-reds-vs-miami-marlins/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_marlins-reds-live-streaming-1199497302/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_marlins-reds-live-streaming-1199497302/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/miami-marlins-vs-cincinnati-reds-baseball-178197/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/miami-marlins-vs-cincinnati-reds-baseball-178197/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21475/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
