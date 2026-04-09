@@ -44,5 +44,93 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401814871": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-athletics-vs-new-york-yankees/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-athletics-vs-new-york-yankees/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_yankees-athletics-live-streaming-1199498301/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_yankees-athletics-live-streaming-1199498301/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/new-york-yankees-vs-athletics-baseball-178194/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/new-york-yankees-vs-athletics-baseball-178194/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21476/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814874": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-tigers-vs-minnesota-twins/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-tigers-vs-minnesota-twins/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-tigers-live-streaming-1199499300/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-tigers-live-streaming-1199499300/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-detroit-tigers-baseball-178195/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-detroit-tigers-baseball-178195/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21477/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
