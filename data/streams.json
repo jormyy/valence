@@ -157,6 +157,18 @@
       "url": "https://embedsports.top/embed/golf/21469/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/toronto-raptors-vs-miami-heat-basketball-473316/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/toronto-raptors-vs-miami-heat-basketball-473316/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "nba-401811021": [
@@ -183,6 +195,18 @@
       "url": "https://embedsports.top/embed/golf/21470/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/washington-wizards-vs-chicago-bulls-basketball-473317/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/washington-wizards-vs-chicago-bulls-basketball-473317/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "mlb-401814870": [
@@ -225,6 +249,182 @@
     {
       "label": "HD 7",
       "url": "https://embedsports.top/embed/golf/21478/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814873": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-white-sox-vs-kansas-city-royals/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-white-sox-vs-kansas-city-royals/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_royals-white-sox-live-streaming-1199501298/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_royals-white-sox-live-streaming-1199501298/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/kansas-city-royals-vs-chicago-white-sox-baseball-178198/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/kansas-city-royals-vs-chicago-white-sox-baseball-178198/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21479/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401811022": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-indiana-pacers-vs-brooklyn-nets/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-indiana-pacers-vs-brooklyn-nets/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_nets-pacers-live-streaming-1084015899/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_nets-pacers-live-streaming-1084015899/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/brooklyn-nets-vs-indiana-pacers-basketball-473318/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/brooklyn-nets-vs-indiana-pacers-basketball-473318/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21471/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401811023": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-boston-celtics-vs-new-york-knicks/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-boston-celtics-vs-new-york-knicks/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_knicks-celtics-live-streaming-1084016898/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_knicks-celtics-live-streaming-1084016898/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/new-york-knicks-vs-boston-celtics-basketball-473319/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/new-york-knicks-vs-boston-celtics-basketball-473319/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21472/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401811024": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-philadelphia-76-ers-vs-houston-rockets/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-philadelphia-76-ers-vs-houston-rockets/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_rockets-76ers-live-streaming-1084017897/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_rockets-76ers-live-streaming-1084017897/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/houston-rockets-vs-philadelphia-76ers-basketball-473473/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/houston-rockets-vs-philadelphia-76ers-basketball-473473/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21473/1",
       "quality": "HD",
       "language": "English"
     }
