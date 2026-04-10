@@ -1,4 +1,42 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-10"
+  "_date": "2026-04-10",
+  "mlb-401814886": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/delta/live_mlb_cubs-pirates-live-streaming-1199588211/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_cubs-pirates-live-streaming-1199588211/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/chicago-cubs-vs-pittsburgh-pirates-baseball-178211/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/chicago-cubs-vs-pittsburgh-pirates-baseball-178211/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/chicago-cubs-vs-pittsburgh-pirates-baseball-178211/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21496/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
