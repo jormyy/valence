@@ -1,4 +1,106 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-12"
+  "_date": "2026-04-12",
+  "mlb-401814915": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-white-sox-vs-kansas-city-royals/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-white-sox-vs-kansas-city-royals/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/kansas-city-royals-vs-chicago-white-sox-baseball-178237/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21569/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814907": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-arizona-diamondbacks-vs-philadelphia-phillies/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-arizona-diamondbacks-vs-philadelphia-phillies/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_phillies-diamondbacks-live-streaming-1199800998/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_phillies-diamondbacks-live-streaming-1199800998/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/philadelphia-phillies-vs-arizona-diamondbacks-baseball-178234/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21562/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814913": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-san-francisco-giants-vs-baltimore-orioles/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-san-francisco-giants-vs-baltimore-orioles/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_orioles-giants-live-streaming-1199799999/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_orioles-giants-live-streaming-1199799999/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/baltimore-orioles-vs-san-francisco-giants-baseball-178241/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21563/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
