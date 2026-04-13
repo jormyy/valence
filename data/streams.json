@@ -792,5 +792,43 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401811050": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-new-orleans-pelicans-vs-minnesota-timberwolves/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-new-orleans-pelicans-vs-minnesota-timberwolves/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_timberwolves-pelicans-live-streaming-1084414500/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/minnesota-timberwolves-vs-new-orleans-pelicans-basketball-473631/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/minnesota-timberwolves-vs-new-orleans-pelicans-basketball-473631/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21556/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
