@@ -1,4 +1,48 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-13"
+  "_date": "2026-04-13",
+  "mlb-401814928": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-houston-astros-vs-seattle-mariners/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-houston-astros-vs-seattle-mariners/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mariners-astros-live-streaming-1199944854/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mariners-astros-live-streaming-1199944854/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/seattle-mariners-vs-houston-astros-baseball-178246/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/seattle-mariners-vs-houston-astros-baseball-178246/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21587/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
