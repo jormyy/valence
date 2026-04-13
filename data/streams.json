@@ -213,6 +213,30 @@
       "url": "https://embedsports.top/embed/golf/21591/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-angels-vs-new-york-yankees/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-angels-vs-new-york-yankees/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/echo/new-york-yankees-vs-los-angeles-angels-baseball-178249/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 9",
+      "url": "https://embedsports.top/embed/echo/new-york-yankees-vs-los-angeles-angels-baseball-178249/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "mlb-401814924": [
@@ -243,6 +267,62 @@
     {
       "label": "HD 5",
       "url": "https://embedsports.top/embed/golf/21592/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/atlanta-braves-vs-miami-marlins-baseball-178252/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/atlanta-braves-vs-miami-marlins-baseball-178252/2",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "mlb-401814926": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-boston-red-sox-vs-minnesota-twins/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-boston-red-sox-vs-minnesota-twins/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-red-sox-live-streaming-1199950848/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-red-sox-live-streaming-1199950848/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-boston-red-sox-baseball-178248/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-boston-red-sox-baseball-178248/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21593/1",
       "quality": "HD",
       "language": "English"
     }
