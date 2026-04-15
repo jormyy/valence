@@ -119,6 +119,18 @@
       "url": "https://embedsports.top/embed/golf/21669/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/philadelphia-phillies-vs-chicago-cubs-baseball-178272/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/philadelphia-phillies-vs-chicago-cubs-baseball-178272/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "mlb-401814949": [
@@ -151,6 +163,18 @@
       "url": "https://embedsports.top/embed/golf/21670/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/detroit-tigers-vs-kansas-city-royals-baseball-178276/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/detroit-tigers-vs-kansas-city-royals-baseball-178276/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "mlb-401814951": [
@@ -183,6 +207,18 @@
       "url": "https://embedsports.top/embed/golf/21671/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/cincinnati-reds-vs-san-francisco-giants-baseball-178278/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/cincinnati-reds-vs-san-francisco-giants-baseball-178278/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "mlb-401814952": [
@@ -213,6 +249,166 @@
     {
       "label": "HD 5",
       "url": "https://embedsports.top/embed/golf/21672/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/pittsburgh-pirates-vs-washington-nationals-baseball-178271/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/pittsburgh-pirates-vs-washington-nationals-baseball-178271/2",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "mlb-401814946": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-angels-vs-new-york-yankees/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-angels-vs-new-york-yankees/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_yankees-angels-live-streaming-1200068730/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21673/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814950": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-miami-marlins-vs-atlanta-braves/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-miami-marlins-vs-atlanta-braves/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_braves-marlins-live-streaming-1200069729/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_braves-marlins-live-streaming-1200069729/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21674/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401866757": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-orlando-magic-vs-philadelphia-76-ers/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-orlando-magic-vs-philadelphia-76-ers/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_76ers-magic-live-streaming-1269734994/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21649/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814956": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-tampa-bay-rays-vs-chicago-white-sox/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-tampa-bay-rays-vs-chicago-white-sox/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_white-sox-rays-live-streaming-1200070728/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_white-sox-rays-live-streaming-1200070728/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21675/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814957": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-blue-jays-vs-milwaukee-brewers/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-blue-jays-vs-milwaukee-brewers/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_brewers-blue-jays-live-streaming-1200071727/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_brewers-blue-jays-live-streaming-1200071727/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21676/1",
       "quality": "HD",
       "language": "English"
     }
