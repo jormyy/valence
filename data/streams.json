@@ -273,6 +273,18 @@
       "url": "https://embedsports.top/embed/golf/21647/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/charlotte-hornets-vs-miami-heat-basketball-497760/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/charlotte-hornets-vs-miami-heat-basketball-497760/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "mlb-401814938": [
@@ -293,6 +305,18 @@
       "url": "https://embedsports.top/embed/golf/21658/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-boston-red-sox-baseball-178260/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-boston-red-sox-baseball-178260/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "mlb-401814941": [
@@ -325,6 +349,18 @@
       "url": "https://embedsports.top/embed/golf/21659/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/chicago-white-sox-vs-tampa-bay-rays-baseball-178266/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/chicago-white-sox-vs-tampa-bay-rays-baseball-178266/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "mlb-401814942": [
@@ -343,6 +379,62 @@
     {
       "label": "HD 3",
       "url": "https://embedsports.top/embed/golf/21660/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/milwaukee-brewers-vs-toronto-blue-jays-baseball-178254/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/milwaukee-brewers-vs-toronto-blue-jays-baseball-178254/2",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "mlb-401814940": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-colorado-rockies-vs-houston-astros/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-colorado-rockies-vs-houston-astros/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_astros-rockies-live-streaming-1199981817/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_astros-rockies-live-streaming-1199981817/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/houston-astros-vs-colorado-rockies-baseball-178263/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/houston-astros-vs-colorado-rockies-baseball-178263/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21662/1",
       "quality": "HD",
       "language": "English"
     }
