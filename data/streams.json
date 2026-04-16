@@ -1,4 +1,136 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-16"
+  "_date": "2026-04-16",
+  "mlb-401814965": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-nationals-vs-pittsburgh-pirates/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-nationals-vs-pittsburgh-pirates/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_pirates-nationals-live-streaming-1200147651/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_pirates-nationals-live-streaming-1200147651/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/pittsburgh-pirates-vs-washington-nationals-baseball-178286/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/pittsburgh-pirates-vs-washington-nationals-baseball-178286/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21681/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814964": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-san-francisco-giants-vs-cincinnati-reds/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-san-francisco-giants-vs-cincinnati-reds/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_reds-giants-live-streaming-1200148650/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_reds-giants-live-streaming-1200148650/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/cincinnati-reds-vs-san-francisco-giants-baseball-178291/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/cincinnati-reds-vs-san-francisco-giants-baseball-178291/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21682/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814963": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-kansas-city-royals-vs-detroit-tigers/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-kansas-city-royals-vs-detroit-tigers/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_tigers-royals-live-streaming-1200149649/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_tigers-royals-live-streaming-1200149649/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/detroit-tigers-vs-kansas-city-royals-baseball-178289/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/detroit-tigers-vs-kansas-city-royals-baseball-178289/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21683/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
