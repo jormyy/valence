@@ -289,6 +289,12 @@
       "url": "https://embedsports.top/embed/golf/21673/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/21684/1",
+      "quality": "HD",
+      "language": "English"
     }
   ],
   "mlb-401814950": [
@@ -321,6 +327,18 @@
       "url": "https://embedsports.top/embed/golf/21674/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/atlanta-braves-vs-miami-marlins-baseball-178281/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/atlanta-braves-vs-miami-marlins-baseball-178281/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "nba-401866757": [
@@ -409,6 +427,62 @@
     {
       "label": "HD 5",
       "url": "https://embedsports.top/embed/golf/21676/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/milwaukee-brewers-vs-toronto-blue-jays-baseball-178274/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/milwaukee-brewers-vs-toronto-blue-jays-baseball-178274/2",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "mlb-401814955": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-colorado-rockies-vs-houston-astros/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-colorado-rockies-vs-houston-astros/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_astros-rockies-live-streaming-1200072726/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_astros-rockies-live-streaming-1200072726/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/houston-astros-vs-colorado-rockies-baseball-178283/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/houston-astros-vs-colorado-rockies-baseball-178283/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21677/1",
       "quality": "HD",
       "language": "English"
     }
