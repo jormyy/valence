@@ -264,5 +264,43 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401814970": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-texas-rangers-vs-athletics/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-texas-rangers-vs-athletics/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_athletics-rangers-live-streaming-1200153645/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/athletics-vs-texas-rangers-baseball-178293/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/athletics-vs-texas-rangers-baseball-178293/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21687/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
