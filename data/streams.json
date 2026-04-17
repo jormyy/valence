@@ -1,4 +1,48 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-17"
+  "_date": "2026-04-17",
+  "mlb-401814979": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-mets-vs-chicago-cubs/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-mets-vs-chicago-cubs/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_cubs-mets-live-streaming-1200231567/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_cubs-mets-live-streaming-1200231567/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/chicago-cubs-vs-new-york-mets-baseball-178306/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/chicago-cubs-vs-new-york-mets-baseball-178306/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21710/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
