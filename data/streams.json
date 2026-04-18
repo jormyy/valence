@@ -37,6 +37,12 @@
       "url": "https://embedsports.top/embed/golf/21706/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/delta/live_nba_cavaliers-raptors-live-streaming-1269750978/2",
+      "quality": "HD",
+      "language": "English"
     }
   ],
   "mlb-401814989": [
@@ -79,6 +85,94 @@
     {
       "label": "HD 7",
       "url": "https://embedsports.top/embed/golf/21725/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814993": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-cincinnati-reds-vs-minnesota-twins/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-cincinnati-reds-vs-minnesota-twins/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-reds-live-streaming-1200327471/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-reds-live-streaming-1200327471/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-cincinnati-reds-baseball-178314/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-cincinnati-reds-baseball-178314/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21726/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814994": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-mets-vs-chicago-cubs/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-mets-vs-chicago-cubs/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_cubs-mets-live-streaming-1200328470/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_cubs-mets-live-streaming-1200328470/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/chicago-cubs-vs-new-york-mets-baseball-178319/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/chicago-cubs-vs-new-york-mets-baseball-178319/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21727/1",
       "quality": "HD",
       "language": "English"
     }
