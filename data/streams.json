@@ -1,4 +1,86 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-18"
+  "_date": "2026-04-18",
+  "nba-401869187": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-raptors-vs-cleveland-cavaliers/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-raptors-vs-cleveland-cavaliers/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_cavaliers-raptors-live-streaming-1269750978/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/cleveland-cavaliers-vs-toronto-raptors-basketball-497764/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/cleveland-cavaliers-vs-toronto-raptors-basketball-497764/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21706/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814989": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-kansas-city-royals-vs-new-york-yankees/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-kansas-city-royals-vs-new-york-yankees/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_yankees-royals-live-streaming-1200326472/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_yankees-royals-live-streaming-1200326472/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/new-york-yankees-vs-kansas-city-royals-baseball-178313/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/new-york-yankees-vs-kansas-city-royals-baseball-178313/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21725/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
