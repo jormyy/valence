@@ -358,5 +358,93 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815011": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-dodgers-vs-colorado-rockies/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-dodgers-vs-colorado-rockies/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rockies-dodgers-live-streaming-1200447351/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rockies-dodgers-live-streaming-1200447351/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/colorado-rockies-vs-los-angeles-dodgers-baseball-178331/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/colorado-rockies-vs-los-angeles-dodgers-baseball-178331/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21771/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401869192": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-phoenix-suns-vs-oklahoma-city-thunder/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-phoenix-suns-vs-oklahoma-city-thunder/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_thunder-suns-live-streaming-1274417307/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_thunder-suns-live-streaming-1274417307/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/oklahoma-city-thunder-vs-phoenix-suns-basketball-498067/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/oklahoma-city-thunder-vs-phoenix-suns-basketball-498067/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21791/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
