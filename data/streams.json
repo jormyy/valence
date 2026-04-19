@@ -610,5 +610,105 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401869190": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-houston-rockets-vs-los-angeles-lakers/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-houston-rockets-vs-los-angeles-lakers/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_lakers-rockets-live-streaming-1269953775/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_lakers-rockets-live-streaming-1269953775/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-houston-rockets-basketball-497767/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-houston-rockets-basketball-497767/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-houston-rockets-basketball-497767/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-houston-rockets-basketball-497767/4",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 9",
+      "url": "https://embedsports.top/embed/golf/21709/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401814998": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-san-diego-padres-vs-los-angeles-angels/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-san-diego-padres-vs-los-angeles-angels/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_angels-padres-live-streaming-1200340458/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_angels-padres-live-streaming-1200340458/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/los-angeles-angels-vs-san-diego-padres-baseball-178316/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/los-angeles-angels-vs-san-diego-padres-baseball-178316/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21739/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
