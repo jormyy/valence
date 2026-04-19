@@ -647,6 +647,12 @@
       "url": "https://embedsports.top/embed/golf/21762/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/golf/21812/1",
+      "quality": "HD",
+      "language": "English"
     }
   ],
   "nba-401869193": [
@@ -683,6 +689,38 @@
     {
       "label": "HD 6",
       "url": "https://embedsports.top/embed/golf/21792/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/delta/live_nba_pistons-magic-live-streaming-1274418306/2",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815001": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-atlanta-braves-vs-philadelphia-phillies/1",
+      "quality": "HD",
+      "language": "English - Peacock"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-atlanta-braves-vs-philadelphia-phillies/2",
+      "quality": "HD",
+      "language": "English - Peacock"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_phillies-braves-live-streaming-1200452346/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21776/1",
       "quality": "HD",
       "language": "English"
     }
