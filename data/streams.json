@@ -1,4 +1,48 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-20"
+  "_date": "2026-04-20",
+  "mlb-401815018": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-tigers-vs-boston-red-sox/1",
+      "quality": "HD",
+      "language": "English - NESN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-tigers-vs-boston-red-sox/2",
+      "quality": "HD",
+      "language": "English - NESN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_red-sox-tigers-live-streaming-1200570228/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_red-sox-tigers-live-streaming-1200570228/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/boston-red-sox-vs-detroit-tigers-baseball-178348/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/boston-red-sox-vs-detroit-tigers-baseball-178348/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21777/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
