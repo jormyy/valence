@@ -88,5 +88,137 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815017": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-cincinnati-reds-vs-tampa-bay-rays/1",
+      "quality": "HD",
+      "language": "English - Rays.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-cincinnati-reds-vs-tampa-bay-rays/2",
+      "quality": "HD",
+      "language": "English - Rays.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rays-reds-live-streaming-1200573225/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rays-reds-live-streaming-1200573225/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/tampa-bay-rays-vs-cincinnati-reds-baseball-178340/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/tampa-bay-rays-vs-cincinnati-reds-baseball-178340/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21779/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815016": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-atlanta-braves-vs-washington-nationals/1",
+      "quality": "HD",
+      "language": "English - Nationals.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-atlanta-braves-vs-washington-nationals/2",
+      "quality": "HD",
+      "language": "English - Nationals.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_nationals-braves-live-streaming-1200574224/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_nationals-braves-live-streaming-1200574224/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/washington-nationals-vs-atlanta-braves-baseball-178339/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/washington-nationals-vs-atlanta-braves-baseball-178339/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21781/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401869369": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-raptors-vs-cleveland-cavaliers/1",
+      "quality": "HD",
+      "language": "English - Peacock"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-raptors-vs-cleveland-cavaliers/2",
+      "quality": "HD",
+      "language": "English - Peacock"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_cavaliers-raptors-live-streaming-1270823904/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_cavaliers-raptors-live-streaming-1270823904/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/cleveland-cavaliers-vs-toronto-raptors-basketball-497901/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/cleveland-cavaliers-vs-toronto-raptors-basketball-497901/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21759/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
