@@ -132,5 +132,87 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815055": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-blue-jays-vs-los-angeles-angels/1",
+      "quality": "HD",
+      "language": "English - FanDuel SN West"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-blue-jays-vs-los-angeles-angels/2",
+      "quality": "HD",
+      "language": "English - FanDuel SN West"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_angels-blue-jays-live-streaming-1200820977/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/los-angeles-angels-vs-toronto-blue-jays-baseball-178371/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/los-angeles-angels-vs-toronto-blue-jays-baseball-178371/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21853/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815052": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-athletics-vs-seattle-mariners/1",
+      "quality": "HD",
+      "language": "English - Mariners.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-athletics-vs-seattle-mariners/2",
+      "quality": "HD",
+      "language": "English - Mariners.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mariners-athletics-live-streaming-1200821976/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mariners-athletics-live-streaming-1200821976/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/seattle-mariners-vs-athletics-baseball-178370/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/seattle-mariners-vs-athletics-baseball-178370/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21854/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
