@@ -396,5 +396,69 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401869375": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-cleveland-cavaliers-vs-toronto-raptors/1",
+      "quality": "HD",
+      "language": "English - Prime Video"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-cleveland-cavaliers-vs-toronto-raptors/2",
+      "quality": "HD",
+      "language": "English - Prime Video"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_raptors-cavaliers-live-streaming-1275425298/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/21869/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815061": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-pittsburgh-pirates-vs-texas-rangers/1",
+      "quality": "HD",
+      "language": "English - Rangers Sports Network"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-pittsburgh-pirates-vs-texas-rangers/2",
+      "quality": "HD",
+      "language": "English - Rangers Sports Network"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rangers-pirates-live-streaming-1200948849/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/texas-rangers-vs-pittsburgh-pirates-baseball-178381/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/texas-rangers-vs-pittsburgh-pirates-baseball-178381/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21882/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
