@@ -308,5 +308,93 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401869389": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-knicks-vs-atlanta-hawks/1",
+      "quality": "HD",
+      "language": "English - Prime Video"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-knicks-vs-atlanta-hawks/2",
+      "quality": "HD",
+      "language": "English - Prime Video"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_hawks-knicks-live-streaming-1275424299/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/atlanta-hawks-vs-new-york-knicks-basketball-497907/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/atlanta-hawks-vs-new-york-knicks-basketball-497907/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/atlanta-hawks-vs-new-york-knicks-basketball-497907/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21868/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815058": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-minnesota-twins-vs-new-york-mets/1",
+      "quality": "HD",
+      "language": "English - SNY"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-minnesota-twins-vs-new-york-mets/2",
+      "quality": "HD",
+      "language": "English - SNY"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mets-twins-live-streaming-1200947850/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mets-twins-live-streaming-1200947850/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/new-york-mets-vs-minnesota-twins-baseball-178379/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/new-york-mets-vs-minnesota-twins-baseball-178379/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21881/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
