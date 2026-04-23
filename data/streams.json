@@ -88,5 +88,49 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815060": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-philadelphia-phillies-vs-chicago-cubs/1",
+      "quality": "HD",
+      "language": "English - Marquee Sports Net"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-philadelphia-phillies-vs-chicago-cubs/2",
+      "quality": "HD",
+      "language": "English - Marquee Sports Net"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_cubs-phillies-live-streaming-1200942855/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_cubs-phillies-live-streaming-1200942855/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/chicago-cubs-vs-philadelphia-phillies-baseball-178385/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/chicago-cubs-vs-philadelphia-phillies-baseball-178385/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21876/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
