@@ -1,4 +1,92 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-23"
+  "_date": "2026-04-23",
+  "mlb-401815056": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-atlanta-braves-vs-washington-nationals/1",
+      "quality": "HD",
+      "language": "English - Nationals.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-atlanta-braves-vs-washington-nationals/2",
+      "quality": "HD",
+      "language": "English - Nationals.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_nationals-braves-live-streaming-1200940857/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_nationals-braves-live-streaming-1200940857/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/washington-nationals-vs-atlanta-braves-baseball-178380/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/washington-nationals-vs-atlanta-braves-baseball-178380/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21874/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815057": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-milwaukee-brewers-vs-detroit-tigers/1",
+      "quality": "HD",
+      "language": "English - Tigers.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-milwaukee-brewers-vs-detroit-tigers/2",
+      "quality": "HD",
+      "language": "English - Tigers.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_tigers-brewers-live-streaming-1200941856/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_tigers-brewers-live-streaming-1200941856/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/detroit-tigers-vs-milwaukee-brewers-baseball-178384/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/detroit-tigers-vs-milwaukee-brewers-baseball-178384/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21875/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
