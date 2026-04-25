@@ -308,5 +308,93 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401869391": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-knicks-vs-atlanta-hawks/1",
+      "quality": "HD",
+      "language": "English - NBC"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-knicks-vs-atlanta-hawks/2",
+      "quality": "HD",
+      "language": "English - NBC"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_hawks-knicks-live-streaming-1276368354/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/atlanta-hawks-vs-new-york-knicks-basketball-497913/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/atlanta-hawks-vs-new-york-knicks-basketball-497913/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/atlanta-hawks-vs-new-york-knicks-basketball-497913/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21916/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815094": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-san-diego-padres-vs-arizona-diamondbacks/1",
+      "quality": "HD",
+      "language": "English - DBACKS.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-san-diego-padres-vs-arizona-diamondbacks/2",
+      "quality": "HD",
+      "language": "English - DBACKS.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_diamondbacks-padres-live-streaming-1235294469/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_diamondbacks-padres-live-streaming-1235294469/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/arizona-diamondbacks-vs-san-diego-padres-baseball-178416/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/arizona-diamondbacks-vs-san-diego-padres-baseball-178416/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21929/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
