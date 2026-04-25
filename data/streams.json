@@ -132,5 +132,175 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401869370": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-oklahoma-city-thunder-vs-phoenix-suns/1",
+      "quality": "HD",
+      "language": "English - NBC"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-oklahoma-city-thunder-vs-phoenix-suns/2",
+      "quality": "HD",
+      "language": "English - NBC"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_suns-thunder-live-streaming-1276367355/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/phoenix-suns-vs-oklahoma-city-thunder-basketball-498072/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/phoenix-suns-vs-oklahoma-city-thunder-basketball-498072/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21915/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815093": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-miami-marlins-vs-san-francisco-giants/1",
+      "quality": "HD",
+      "language": "English - NBC Sports BA"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-miami-marlins-vs-san-francisco-giants/2",
+      "quality": "HD",
+      "language": "English - NBC Sports BA"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_giants-marlins-live-streaming-1235290473/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_giants-marlins-live-streaming-1235290473/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/san-francisco-giants-vs-miami-marlins-baseball-178406/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/san-francisco-giants-vs-miami-marlins-baseball-178406/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21925/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815084": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-minnesota-twins-vs-tampa-bay-rays/1",
+      "quality": "HD",
+      "language": "English - Rays.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-minnesota-twins-vs-tampa-bay-rays/2",
+      "quality": "HD",
+      "language": "English - Rays.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rays-twins-live-streaming-1235293470/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rays-twins-live-streaming-1235293470/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/tampa-bay-rays-vs-minnesota-twins-baseball-178404/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/tampa-bay-rays-vs-minnesota-twins-baseball-178404/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21927/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815091": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-nationals-vs-chicago-white-sox/1",
+      "quality": "HD",
+      "language": "English - CHSN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-nationals-vs-chicago-white-sox/2",
+      "quality": "HD",
+      "language": "English - CHSN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_white-sox-nationals-live-streaming-1235291472/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_white-sox-nationals-live-streaming-1235291472/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/chicago-white-sox-vs-washington-nationals-baseball-178413/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/chicago-white-sox-vs-washington-nationals-baseball-178413/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21928/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
