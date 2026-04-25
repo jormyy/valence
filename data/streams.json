@@ -477,6 +477,18 @@
       "url": "https://embedsports.top/embed/golf/21895/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/houston-rockets-vs-los-angeles-lakers-basketball-497911/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/houston-rockets-vs-los-angeles-lakers-basketball-497911/2",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "mlb-401815072": [
@@ -551,6 +563,138 @@
     {
       "label": "HD 5",
       "url": "https://embedsports.top/embed/golf/21910/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/houston-astros-vs-new-york-yankees-baseball-178398/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/houston-astros-vs-new-york-yankees-baseball-178398/2",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ],
+  "mlb-401815077": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-cubs-vs-los-angeles-dodgers/1",
+      "quality": "HD",
+      "language": "English - Apple TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-cubs-vs-los-angeles-dodgers/2",
+      "quality": "HD",
+      "language": "English - Apple TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_dodgers-cubs-live-streaming-1201040757/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/los-angeles-dodgers-vs-chicago-cubs-baseball-178395/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/los-angeles-dodgers-vs-chicago-cubs-baseball-178395/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21912/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815078": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-miami-marlins-vs-san-francisco-giants/1",
+      "quality": "HD",
+      "language": "English - NBC Sports BA"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-miami-marlins-vs-san-francisco-giants/2",
+      "quality": "HD",
+      "language": "English - NBC Sports BA"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_giants-marlins-live-streaming-1201041756/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_giants-marlins-live-streaming-1201041756/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/san-francisco-giants-vs-miami-marlins-baseball-178394/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/san-francisco-giants-vs-miami-marlins-baseball-178394/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21913/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401869382": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-san-antonio-spurs-vs-portland-trail-blazers/1",
+      "quality": "HD",
+      "language": "English - Prime Video"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-san-antonio-spurs-vs-portland-trail-blazers/2",
+      "quality": "HD",
+      "language": "English - Prime Video"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_trail-blazers-spurs-live-streaming-1276317405/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/portland-trail-blazers-vs-san-antonio-spurs-basketball-497912/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/portland-trail-blazers-vs-san-antonio-spurs-basketball-497912/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21896/1",
       "quality": "HD",
       "language": "English"
     }
