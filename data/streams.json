@@ -44,5 +44,43 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401869414": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-pistons-vs-orlando-magic/1",
+      "quality": "HD",
+      "language": "English - Peacock"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-pistons-vs-orlando-magic/2",
+      "quality": "HD",
+      "language": "English - Peacock"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_magic-pistons-live-streaming-1276366356/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/orlando-magic-vs-detroit-pistons-basketball-498071/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/orlando-magic-vs-detroit-pistons-basketball-498071/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/21914/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
