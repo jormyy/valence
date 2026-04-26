@@ -1,4 +1,54 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-26"
+  "_date": "2026-04-26",
+  "nba-401869377": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-cleveland-cavaliers-vs-toronto-raptors/1",
+      "quality": "HD",
+      "language": "English - ESPN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-cleveland-cavaliers-vs-toronto-raptors/2",
+      "quality": "HD",
+      "language": "English - ESPN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_raptors-cavaliers-live-streaming-1276440282/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_raptors-cavaliers-live-streaming-1276440282/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/toronto-raptors-vs-cleveland-cavaliers-basketball-497915/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/toronto-raptors-vs-cleveland-cavaliers-basketball-497915/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/toronto-raptors-vs-cleveland-cavaliers-basketball-497915/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/golf/21943/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
