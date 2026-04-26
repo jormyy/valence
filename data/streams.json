@@ -587,6 +587,24 @@
       "url": "https://embedsports.top/embed/delta/live_mlb_royals-angels-live-streaming-1255757985/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/kansas-city-royals-vs-los-angeles-angels-baseball-178428/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/echo/kansas-city-royals-vs-los-angeles-angels-baseball-178428/4",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 9",
+      "url": "https://embedsports.top/embed/echo/kansas-city-royals-vs-los-angeles-angels-baseball-178428/5",
+      "quality": "HD",
+      "language": "EN"
     }
   ],
   "mlb-401815107": [
@@ -655,6 +673,98 @@
     {
       "label": "HD 4",
       "url": "https://embedsports.top/embed/golf/21955/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mets-rockies-live-streaming-1286842869/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mets-rockies-live-streaming-1286842869/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/new-york-mets-vs-colorado-rockies-baseball-178407/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/echo/new-york-mets-vs-colorado-rockies-baseball-178407/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 9",
+      "url": "https://embedsports.top/embed/echo/new-york-mets-vs-colorado-rockies-baseball-178407/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 10",
+      "url": "https://embedsports.top/embed/golf/21981/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401869406": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-boston-celtics-vs-philadelphia-76-ers/1",
+      "quality": "HD",
+      "language": "English - NBC"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-boston-celtics-vs-philadelphia-76-ers/2",
+      "quality": "HD",
+      "language": "English - NBC"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_76ers-celtics-live-streaming-1276442280/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/philadelphia-76ers-vs-boston-celtics-basketball-497917/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/philadelphia-76ers-vs-boston-celtics-basketball-497917/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/philadelphia-76ers-vs-boston-celtics-basketball-497917/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/philadelphia-76ers-vs-boston-celtics-basketball-497917/4",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/echo/philadelphia-76ers-vs-boston-celtics-basketball-497917/5",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 9",
+      "url": "https://embedsports.top/embed/golf/21945/1",
       "quality": "HD",
       "language": "English"
     }
