@@ -94,5 +94,193 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815113": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-angels-vs-chicago-white-sox/1",
+      "quality": "HD",
+      "language": "English - CHSN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-angels-vs-chicago-white-sox/2",
+      "quality": "HD",
+      "language": "English - CHSN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_white-sox-angels-live-streaming-1256028714/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/chicago-white-sox-vs-los-angeles-angels-baseball-178438/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/chicago-white-sox-vs-los-angeles-angels-baseball-178438/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/chicago-white-sox-vs-los-angeles-angels-baseball-178438/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21990/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815115": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-seattle-mariners-vs-minnesota-twins/1",
+      "quality": "HD",
+      "language": "English - Twins.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-seattle-mariners-vs-minnesota-twins/2",
+      "quality": "HD",
+      "language": "English - Twins.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-mariners-live-streaming-1256029713/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-mariners-live-streaming-1256029713/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-seattle-mariners-baseball-178439/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-seattle-mariners-baseball-178439/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-seattle-mariners-baseball-178439/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/golf/21991/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401869415": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-pistons-vs-orlando-magic/1",
+      "quality": "HD",
+      "language": "English - NBC"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-pistons-vs-orlando-magic/2",
+      "quality": "HD",
+      "language": "English - NBC"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_magic-pistons-live-streaming-1276490232/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_magic-pistons-live-streaming-1276490232/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/orlando-magic-vs-detroit-pistons-basketball-498073/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/orlando-magic-vs-detroit-pistons-basketball-498073/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/orlando-magic-vs-detroit-pistons-basketball-498073/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/golf/21982/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815114": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-yankees-vs-texas-rangers/1",
+      "quality": "HD",
+      "language": "English - Rangers Sports Network"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-yankees-vs-texas-rangers/2",
+      "quality": "HD",
+      "language": "English - Rangers Sports Network"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rangers-yankees-live-streaming-1256031711/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rangers-yankees-live-streaming-1256031711/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/texas-rangers-vs-new-york-yankees-baseball-178434/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/texas-rangers-vs-new-york-yankees-baseball-178434/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21992/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
