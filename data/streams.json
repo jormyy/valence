@@ -1,4 +1,98 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-27"
+  "_date": "2026-04-27",
+  "mlb-401815112": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-tampa-bay-rays-vs-cleveland-guardians/1",
+      "quality": "HD",
+      "language": "English - CLEGuardians.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-tampa-bay-rays-vs-cleveland-guardians/2",
+      "quality": "HD",
+      "language": "English - CLEGuardians.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_guardians-rays-live-streaming-1256024718/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_guardians-rays-live-streaming-1256024718/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/cleveland-guardians-vs-tampa-bay-rays-baseball-178437/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/cleveland-guardians-vs-tampa-bay-rays-baseball-178437/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/cleveland-guardians-vs-tampa-bay-rays-baseball-178437/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/golf/21987/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815110": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-boston-red-sox-vs-toronto-blue-jays/1",
+      "quality": "HD",
+      "language": "English - Sportsnet One"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-boston-red-sox-vs-toronto-blue-jays/2",
+      "quality": "HD",
+      "language": "English - Sportsnet One"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_blue-jays-red-sox-live-streaming-1256027715/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_blue-jays-red-sox-live-streaming-1256027715/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/toronto-blue-jays-vs-boston-red-sox-baseball-178433/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/toronto-blue-jays-vs-boston-red-sox-baseball-178433/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/21989/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
