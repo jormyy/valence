@@ -1,4 +1,200 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-28"
+  "_date": "2026-04-28",
+  "mlb-401815124": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-tampa-bay-rays-vs-cleveland-guardians/1",
+      "quality": "HD",
+      "language": "English - CLEGuardians.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-tampa-bay-rays-vs-cleveland-guardians/2",
+      "quality": "HD",
+      "language": "English - CLEGuardians.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_guardians-rays-live-streaming-1256086656/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_guardians-rays-live-streaming-1256086656/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/cleveland-guardians-vs-tampa-bay-rays-baseball-178448/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22003/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815121": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-houston-astros-vs-baltimore-orioles/1",
+      "quality": "HD",
+      "language": "English - MASN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-houston-astros-vs-baltimore-orioles/2",
+      "quality": "HD",
+      "language": "English - MASN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_orioles-astros-live-streaming-1256087655/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_orioles-astros-live-streaming-1256087655/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/baltimore-orioles-vs-houston-astros-baseball-178451/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22004/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815119": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-colorado-rockies-vs-cincinnati-reds/1",
+      "quality": "HD",
+      "language": "English - Reds.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-colorado-rockies-vs-cincinnati-reds/2",
+      "quality": "HD",
+      "language": "English - Reds.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_reds-rockies-live-streaming-1256088654/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_reds-rockies-live-streaming-1256088654/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/cincinnati-reds-vs-colorado-rockies-baseball-178449/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22005/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815122": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-san-francisco-giants-vs-philadelphia-phillies/1",
+      "quality": "HD",
+      "language": "English - NBC Sports Phil"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-san-francisco-giants-vs-philadelphia-phillies/2",
+      "quality": "HD",
+      "language": "English - NBC Sports Phil"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_phillies-giants-live-streaming-1256090652/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/philadelphia-phillies-vs-san-francisco-giants-baseball-178445/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/22006/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401869408": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-philadelphia-76-ers-vs-boston-celtics/1",
+      "quality": "HD",
+      "language": "English - ESPN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-philadelphia-76-ers-vs-boston-celtics/2",
+      "quality": "HD",
+      "language": "English - ESPN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_celtics-76ers-live-streaming-1276520202/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_celtics-76ers-live-streaming-1276520202/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/boston-celtics-vs-philadelphia-76ers-basketball-498341/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/boston-celtics-vs-philadelphia-76ers-basketball-498341/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/boston-celtics-vs-philadelphia-76ers-basketball-498341/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/golf/21997/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
