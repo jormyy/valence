@@ -1,4 +1,74 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-04-29"
+  "_date": "2026-04-29",
+  "mlb-401815139": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-tampa-bay-rays-vs-cleveland-guardians/1",
+      "quality": "HD",
+      "language": "English - CLEGuardians.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-tampa-bay-rays-vs-cleveland-guardians/2",
+      "quality": "HD",
+      "language": "English - CLEGuardians.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_guardians-rays-live-streaming-1256316426/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_guardians-rays-live-streaming-1256316426/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/cleveland-guardians-vs-tampa-bay-rays-baseball-178462/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22029/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815141": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-angels-vs-chicago-white-sox/1",
+      "quality": "HD",
+      "language": "English - CHSN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-angels-vs-chicago-white-sox/2",
+      "quality": "HD",
+      "language": "English - CHSN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_white-sox-angels-live-streaming-1256315427/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/chicago-white-sox-vs-los-angeles-angels-baseball-178466/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/22030/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
