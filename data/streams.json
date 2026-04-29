@@ -70,5 +70,81 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815144": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-seattle-mariners-vs-minnesota-twins/1",
+      "quality": "HD",
+      "language": "English - Twins.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-seattle-mariners-vs-minnesota-twins/2",
+      "quality": "HD",
+      "language": "English - Twins.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-mariners-live-streaming-1256317425/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-mariners-live-streaming-1256317425/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-seattle-mariners-baseball-178455/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22031/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815143": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-yankees-vs-texas-rangers/1",
+      "quality": "HD",
+      "language": "English - Rangers Sports Network"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-yankees-vs-texas-rangers/2",
+      "quality": "HD",
+      "language": "English - Rangers Sports Network"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rangers-yankees-live-streaming-1256318424/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rangers-yankees-live-streaming-1256318424/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/texas-rangers-vs-new-york-yankees-baseball-178457/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22032/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
