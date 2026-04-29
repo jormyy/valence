@@ -348,5 +348,175 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815140": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-nationals-vs-new-york-mets/1",
+      "quality": "HD",
+      "language": "English - SNY"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-nationals-vs-new-york-mets/2",
+      "quality": "HD",
+      "language": "English - SNY"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mets-nationals-live-streaming-1256326416/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mets-nationals-live-streaming-1256326416/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/new-york-mets-vs-washington-nationals-baseball-178461/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22040/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815135": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-tigers-vs-atlanta-braves/1",
+      "quality": "HD",
+      "language": "English - BravesVision"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-tigers-vs-atlanta-braves/2",
+      "quality": "HD",
+      "language": "English - BravesVision"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_braves-tigers-live-streaming-1256327415/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_braves-tigers-live-streaming-1256327415/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/atlanta-braves-vs-detroit-tigers-baseball-178468/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22041/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401869380": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-raptors-vs-cleveland-cavaliers/1",
+      "quality": "HD",
+      "language": "English - ESPN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-raptors-vs-cleveland-cavaliers/2",
+      "quality": "HD",
+      "language": "English - ESPN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_cavaliers-raptors-live-streaming-1276554168/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_cavaliers-raptors-live-streaming-1276554168/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/cleveland-cavaliers-vs-toronto-raptors-basketball-498418/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/cleveland-cavaliers-vs-toronto-raptors-basketball-498418/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/cleveland-cavaliers-vs-toronto-raptors-basketball-498418/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/golf/22019/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815142": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-arizona-diamondbacks-vs-milwaukee-brewers/1",
+      "quality": "HD",
+      "language": "English - Brewers.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-arizona-diamondbacks-vs-milwaukee-brewers/2",
+      "quality": "HD",
+      "language": "English - Brewers.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_brewers-diamondbacks-live-streaming-1256328414/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_brewers-diamondbacks-live-streaming-1256328414/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/milwaukee-brewers-vs-arizona-diamondbacks-baseball-178463/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/milwaukee-brewers-vs-arizona-diamondbacks-baseball-178463/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/22042/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
