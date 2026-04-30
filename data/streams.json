@@ -386,5 +386,93 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815155": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-blue-jays-vs-minnesota-twins/1",
+      "quality": "HD",
+      "language": "English - Twins.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-blue-jays-vs-minnesota-twins/2",
+      "quality": "HD",
+      "language": "English - Twins.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-blue-jays-live-streaming-1256462280/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-blue-jays-live-streaming-1256462280/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-toronto-blue-jays-baseball-178473/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22060/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401869410": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-boston-celtics-vs-philadelphia-76-ers/1",
+      "quality": "HD",
+      "language": "English - NBCSN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-boston-celtics-vs-philadelphia-76-ers/2",
+      "quality": "HD",
+      "language": "English - NBCSN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_76ers-celtics-live-streaming-1276598124/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_76ers-celtics-live-streaming-1276598124/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/philadelphia-76ers-vs-boston-celtics-basketball-498628/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/philadelphia-76ers-vs-boston-celtics-basketball-498628/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/philadelphia-76ers-vs-boston-celtics-basketball-498628/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/golf/22047/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
