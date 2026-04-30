@@ -518,5 +518,105 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815146": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-kansas-city-royals-vs-athletics/1",
+      "quality": "HD",
+      "language": "English - NBC Sports CA"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-kansas-city-royals-vs-athletics/2",
+      "quality": "HD",
+      "language": "English - NBC Sports CA"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_athletics-royals-live-streaming-1256329413/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_athletics-royals-live-streaming-1256329413/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/athletics-vs-kansas-city-royals-baseball-178469/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/athletics-vs-kansas-city-royals-baseball-178469/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/22043/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401869407": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-houston-rockets-vs-los-angeles-lakers/1",
+      "quality": "HD",
+      "language": "English - ESPN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-houston-rockets-vs-los-angeles-lakers/2",
+      "quality": "HD",
+      "language": "English - ESPN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_lakers-rockets-live-streaming-1276556166/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_lakers-rockets-live-streaming-1276556166/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-houston-rockets-basketball-498626/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-houston-rockets-basketball-498626/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-houston-rockets-basketball-498626/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-houston-rockets-basketball-498626/4",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 9",
+      "url": "https://embedsports.top/embed/golf/22021/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
