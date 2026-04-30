@@ -297,6 +297,44 @@
       "url": "https://embedsports.top/embed/golf/22053/1",
       "quality": "HD",
       "language": "English"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/22072/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401871107": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-san-francisco-giants-vs-philadelphia-phillies/1",
+      "quality": "HD",
+      "language": "English - NBC Sports Phil"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-san-francisco-giants-vs-philadelphia-phillies/2",
+      "quality": "HD",
+      "language": "English - NBC Sports Phil"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_phillies-giants-live-streaming-1292307399/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/philadelphia-phillies-vs-san-francisco-giants-baseball-178460/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/22073/1",
+      "quality": "HD",
+      "language": "English"
     }
   ]
 }
