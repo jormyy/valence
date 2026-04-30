@@ -336,5 +336,55 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401869393": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-knicks-vs-atlanta-hawks/1",
+      "quality": "HD",
+      "language": "English - ESPN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-knicks-vs-atlanta-hawks/2",
+      "quality": "HD",
+      "language": "English - ESPN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_hawks-knicks-live-streaming-1276596126/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_hawks-knicks-live-streaming-1276596126/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/atlanta-hawks-vs-new-york-knicks-basketball-498567/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/atlanta-hawks-vs-new-york-knicks-basketball-498567/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/atlanta-hawks-vs-new-york-knicks-basketball-498567/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/golf/22046/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
