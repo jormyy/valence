@@ -474,5 +474,55 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401869402": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-denver-nuggets-vs-minnesota-timberwolves/1",
+      "quality": "HD",
+      "language": "English - ESPN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-denver-nuggets-vs-minnesota-timberwolves/2",
+      "quality": "HD",
+      "language": "English - ESPN"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_timberwolves-nuggets-live-streaming-1276597125/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_nba_timberwolves-nuggets-live-streaming-1276597125/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/minnesota-timberwolves-vs-denver-nuggets-basketball-498627/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/minnesota-timberwolves-vs-denver-nuggets-basketball-498627/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/minnesota-timberwolves-vs-denver-nuggets-basketball-498627/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/golf/22048/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
