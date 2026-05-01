@@ -1,4 +1,48 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-05-01"
+  "_date": "2026-05-01",
+  "mlb-401815164": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-arizona-diamondbacks-vs-chicago-cubs/1",
+      "quality": "HD",
+      "language": "English - Marquee Sports Net"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-arizona-diamondbacks-vs-chicago-cubs/2",
+      "quality": "HD",
+      "language": "English - Marquee Sports Net"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_cubs-diamondbacks-live-streaming-1265869863/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_cubs-diamondbacks-live-streaming-1265869863/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/chicago-cubs-vs-arizona-diamondbacks-baseball-178491/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/chicago-cubs-vs-arizona-diamondbacks-baseball-178491/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/22074/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
