@@ -44,5 +44,131 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815163": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-texas-rangers-vs-detroit-tigers/1",
+      "quality": "HD",
+      "language": "English - Tigers.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-texas-rangers-vs-detroit-tigers/2",
+      "quality": "HD",
+      "language": "English - Tigers.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_tigers-rangers-live-streaming-1265870862/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_tigers-rangers-live-streaming-1265870862/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/detroit-tigers-vs-texas-rangers-baseball-178489/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/detroit-tigers-vs-texas-rangers-baseball-178489/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/22076/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815158": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-cincinnati-reds-vs-pittsburgh-pirates/1",
+      "quality": "HD",
+      "language": "English - Apple TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-cincinnati-reds-vs-pittsburgh-pirates/2",
+      "quality": "HD",
+      "language": "English - Apple TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_pirates-reds-live-streaming-1265871861/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/pittsburgh-pirates-vs-cincinnati-reds-baseball-178479/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/pittsburgh-pirates-vs-cincinnati-reds-baseball-178479/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22075/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815160": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-milwaukee-brewers-vs-washington-nationals/1",
+      "quality": "HD",
+      "language": "English - Nationals.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-milwaukee-brewers-vs-washington-nationals/2",
+      "quality": "HD",
+      "language": "English - Nationals.TV"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_nationals-brewers-live-streaming-1265872860/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/delta/live_mlb_nationals-brewers-live-streaming-1265872860/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/washington-nationals-vs-milwaukee-brewers-baseball-178480/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/washington-nationals-vs-milwaukee-brewers-baseball-178480/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/22077/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
