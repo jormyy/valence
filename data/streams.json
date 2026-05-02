@@ -342,5 +342,51 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815178": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-texas-rangers-vs-detroit-tigers/1",
+      "quality": "HD",
+      "language": "English - MLB.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_tigers-rangers-live-streaming-1266173559/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/golf/22104/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401869412": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-philadelphia-76-ers-vs-boston-celtics/1",
+      "quality": "HD",
+      "language": "English - NBC"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_nba_celtics-76ers-live-streaming-1276706016/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_celtics-76ers-live-streaming-1276706016/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/22092/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
