@@ -304,5 +304,43 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815177": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-san-francisco-giants-vs-tampa-bay-rays/1",
+      "quality": "HD",
+      "language": "English - Rays.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rays-giants-live-streaming-1266172560/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rays-giants-live-streaming-1266172560/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/tampa-bay-rays-vs-san-francisco-giants-baseball-178496/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/tampa-bay-rays-vs-san-francisco-giants-baseball-178496/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22103/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
