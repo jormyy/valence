@@ -76,5 +76,43 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815179": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-arizona-diamondbacks-vs-chicago-cubs/1",
+      "quality": "HD",
+      "language": "English - Marquee Sports Net"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_cubs-diamondbacks-live-streaming-1266166566/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_cubs-diamondbacks-live-streaming-1266166566/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/chicago-cubs-vs-arizona-diamondbacks-baseball-178507/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/chicago-cubs-vs-arizona-diamondbacks-baseball-178507/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22097/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
