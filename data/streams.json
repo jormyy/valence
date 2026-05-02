@@ -1,4 +1,80 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-05-02"
+  "_date": "2026-05-02",
+  "mlb-401815172": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-baltimore-orioles-vs-new-york-yankees/1",
+      "quality": "HD",
+      "language": "English - YES"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_yankees-orioles-live-streaming-1266165567/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_yankees-orioles-live-streaming-1266165567/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/new-york-yankees-vs-baltimore-orioles-baseball-178494/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/new-york-yankees-vs-baltimore-orioles-baseball-178494/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22095/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815181": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-blue-jays-vs-minnesota-twins/1",
+      "quality": "HD",
+      "language": "English - Twins.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-blue-jays-live-streaming-1266171561/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-blue-jays-live-streaming-1266171561/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-toronto-blue-jays-baseball-178502/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-toronto-blue-jays-baseball-178502/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22096/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
