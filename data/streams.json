@@ -298,5 +298,99 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815197": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-atlanta-braves-vs-colorado-rockies/1",
+      "quality": "HD",
+      "language": "English - Rockies.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rockies-braves-live-streaming-1266439293/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rockies-braves-live-streaming-1266439293/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/colorado-rockies-vs-atlanta-braves-baseball-178521/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/colorado-rockies-vs-atlanta-braves-baseball-178521/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22142/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401869418": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-orlando-magic-vs-detroit-pistons/1",
+      "quality": "HD",
+      "language": "English - ABC"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_nba_pistons-magic-live-streaming-1276725996/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_pistons-magic-live-streaming-1276725996/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/detroit-pistons-vs-orlando-magic-basketball-498794/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/detroit-pistons-vs-orlando-magic-basketball-498794/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/detroit-pistons-vs-orlando-magic-basketball-498794/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/detroit-pistons-vs-orlando-magic-basketball-498794/4",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/echo/detroit-pistons-vs-orlando-magic-basketball-498794/5",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 9",
+      "url": "https://embedsports.top/embed/golf/22128/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
