@@ -1,4 +1,264 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-05-03"
+  "_date": "2026-05-03",
+  "mlb-401815196": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-blue-jays-vs-minnesota-twins/1",
+      "quality": "HD",
+      "language": "English - Peacock"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-blue-jays-live-streaming-1266430302/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-toronto-blue-jays-baseball-178516/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-toronto-blue-jays-baseball-178516/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/22133/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815187": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-baltimore-orioles-vs-new-york-yankees/1",
+      "quality": "HD",
+      "language": "English - YES"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_yankees-orioles-live-streaming-1266432300/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_yankees-orioles-live-streaming-1266432300/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/new-york-yankees-vs-baltimore-orioles-baseball-178509/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/new-york-yankees-vs-baltimore-orioles-baseball-178509/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22134/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815188": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-cincinnati-reds-vs-pittsburgh-pirates/1",
+      "quality": "HD",
+      "language": "English - MLB.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_pirates-reds-live-streaming-1266433299/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_pirates-reds-live-streaming-1266433299/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/pittsburgh-pirates-vs-cincinnati-reds-baseball-178514/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/pittsburgh-pirates-vs-cincinnati-reds-baseball-178514/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22135/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815189": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-houston-astros-vs-boston-red-sox/1",
+      "quality": "HD",
+      "language": "English - NESN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_red-sox-astros-live-streaming-1266431301/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_red-sox-astros-live-streaming-1266431301/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/boston-red-sox-vs-houston-astros-baseball-178518/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/boston-red-sox-vs-houston-astros-baseball-178518/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22136/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815190": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-milwaukee-brewers-vs-washington-nationals/1",
+      "quality": "HD",
+      "language": "English - Nationals.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_nationals-brewers-live-streaming-1266434298/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_nationals-brewers-live-streaming-1266434298/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/washington-nationals-vs-milwaukee-brewers-baseball-178510/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/washington-nationals-vs-milwaukee-brewers-baseball-178510/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22137/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815191": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-philadelphia-phillies-vs-miami-marlins/1",
+      "quality": "HD",
+      "language": "English - Marlins.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_marlins-phillies-live-streaming-1266435297/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_marlins-phillies-live-streaming-1266435297/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/miami-marlins-vs-philadelphia-phillies-baseball-178520/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/miami-marlins-vs-philadelphia-phillies-baseball-178520/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22138/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815192": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-san-francisco-giants-vs-tampa-bay-rays/1",
+      "quality": "HD",
+      "language": "English - Rays.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rays-giants-live-streaming-1266436296/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rays-giants-live-streaming-1266436296/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/tampa-bay-rays-vs-san-francisco-giants-baseball-178511/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/tampa-bay-rays-vs-san-francisco-giants-baseball-178511/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22139/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
