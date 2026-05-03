@@ -550,5 +550,87 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815193": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-texas-rangers-vs-detroit-tigers/1",
+      "quality": "HD",
+      "language": "English - Peacock"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_tigers-rangers-live-streaming-1266444288/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/detroit-tigers-vs-texas-rangers-baseball-178523/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/detroit-tigers-vs-texas-rangers-baseball-178523/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/22147/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401869384": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-raptors-vs-cleveland-cavaliers/1",
+      "quality": "HD",
+      "language": "English - NBC"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_nba_cavaliers-raptors-live-streaming-1276724997/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_cavaliers-raptors-live-streaming-1276724997/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/cleveland-cavaliers-vs-toronto-raptors-basketball-498795/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/cleveland-cavaliers-vs-toronto-raptors-basketball-498795/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/cleveland-cavaliers-vs-toronto-raptors-basketball-498795/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/cleveland-cavaliers-vs-toronto-raptors-basketball-498795/4",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/golf/22129/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
