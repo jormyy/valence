@@ -330,5 +330,139 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401871152": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-minnesota-timberwolves-vs-san-antonio-spurs/1",
+      "quality": "HD",
+      "language": "English - NBCSN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_nba_spurs-timberwolves-live-streaming-1293817887/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/san-antonio-spurs-vs-minnesota-timberwolves-basketball-498796/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/san-antonio-spurs-vs-minnesota-timberwolves-basketball-498796/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/san-antonio-spurs-vs-minnesota-timberwolves-basketball-498796/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/san-antonio-spurs-vs-minnesota-timberwolves-basketball-498796/4",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/san-antonio-spurs-vs-minnesota-timberwolves-basketball-498796/5",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/golf/22149/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815212": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-white-sox-vs-los-angeles-angels/1",
+      "quality": "HD",
+      "language": "English - KCOP"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_angels-white-sox-live-streaming-1266581151/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/los-angeles-angels-vs-chicago-white-sox-baseball-178535/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/22163/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815211": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-atlanta-braves-vs-seattle-mariners/1",
+      "quality": "HD",
+      "language": "English - Mariners.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mariners-braves-live-streaming-1266582150/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mariners-braves-live-streaming-1266582150/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/seattle-mariners-vs-atlanta-braves-baseball-178527/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/22164/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815213": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-san-diego-padres-vs-san-francisco-giants/1",
+      "quality": "HD",
+      "language": "English - NBC Sports BA"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_giants-padres-live-streaming-1266583149/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/san-francisco-giants-vs-san-diego-padres-baseball-178529/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/22165/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
