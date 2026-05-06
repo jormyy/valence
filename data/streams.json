@@ -380,5 +380,145 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815226": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-white-sox-vs-los-angeles-angels/1",
+      "quality": "HD",
+      "language": "English - CHSN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_angels-white-sox-live-streaming-1266649083/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/los-angeles-angels-vs-chicago-white-sox-baseball-178543/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/los-angeles-angels-vs-chicago-white-sox-baseball-178543/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/22182/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815225": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-atlanta-braves-vs-seattle-mariners/1",
+      "quality": "HD",
+      "language": "English - Mariners.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mariners-braves-live-streaming-1266652080/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mariners-braves-live-streaming-1266652080/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/seattle-mariners-vs-atlanta-braves-baseball-178540/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/seattle-mariners-vs-atlanta-braves-baseball-178540/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22183/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815227": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-pittsburgh-pirates-vs-arizona-diamondbacks/1",
+      "quality": "HD",
+      "language": "English - DBACKS.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_diamondbacks-pirates-live-streaming-1266651081/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/arizona-diamondbacks-vs-pittsburgh-pirates-baseball-178549/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/arizona-diamondbacks-vs-pittsburgh-pirates-baseball-178549/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/22184/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815228": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-san-diego-padres-vs-san-francisco-giants/1",
+      "quality": "HD",
+      "language": "English - NBC Sports BA"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_giants-padres-live-streaming-1266650082/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_giants-padres-live-streaming-1266650082/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/san-francisco-giants-vs-san-diego-padres-baseball-178541/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/san-francisco-giants-vs-san-diego-padres-baseball-178541/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22185/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
