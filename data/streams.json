@@ -1,4 +1,80 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-05-06"
+  "_date": "2026-05-06",
+  "mlb-401815234": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-blue-jays-vs-tampa-bay-rays/1",
+      "quality": "HD",
+      "language": "English - Rays.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rays-blue-jays-live-streaming-1266753978/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rays-blue-jays-live-streaming-1266753978/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/tampa-bay-rays-vs-toronto-blue-jays-baseball-178553/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/tampa-bay-rays-vs-toronto-blue-jays-baseball-178553/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22191/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815237": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-dodgers-vs-houston-astros/1",
+      "quality": "HD",
+      "language": "English - Space City Home Network"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_astros-dodgers-live-streaming-1266755976/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_astros-dodgers-live-streaming-1266755976/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/houston-astros-vs-los-angeles-dodgers-baseball-178561/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/houston-astros-vs-los-angeles-dodgers-baseball-178561/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22193/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
