@@ -76,5 +76,113 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815243": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-san-diego-padres-vs-san-francisco-giants/1",
+      "quality": "HD",
+      "language": "English - NBC Sports BA"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_giants-padres-live-streaming-1266757974/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_giants-padres-live-streaming-1266757974/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/san-francisco-giants-vs-san-diego-padres-baseball-178556/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/san-francisco-giants-vs-san-diego-padres-baseball-178556/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22195/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815241": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-chicago-white-sox-vs-los-angeles-angels/1",
+      "quality": "HD",
+      "language": "English - Angels.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_angels-white-sox-live-streaming-1266758973/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/los-angeles-angels-vs-chicago-white-sox-baseball-178560/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/los-angeles-angels-vs-chicago-white-sox-baseball-178560/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/22196/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815240": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-atlanta-braves-vs-seattle-mariners/1",
+      "quality": "HD",
+      "language": "English - Mariners.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mariners-braves-live-streaming-1266759972/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mariners-braves-live-streaming-1266759972/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/seattle-mariners-vs-atlanta-braves-baseball-178555/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/seattle-mariners-vs-atlanta-braves-baseball-178555/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22197/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
