@@ -210,5 +210,151 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815244": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-athletics-vs-philadelphia-phillies/1",
+      "quality": "HD",
+      "language": "English - NBC Sports Phil"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_phillies-athletics-live-streaming-1266867864/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/philadelphia-phillies-vs-athletics-baseball-178568/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/philadelphia-phillies-vs-athletics-baseball-178568/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/22216/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815245": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-baltimore-orioles-vs-miami-marlins/1",
+      "quality": "HD",
+      "language": "English - Marlins.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_marlins-orioles-live-streaming-1266866865/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_marlins-orioles-live-streaming-1266866865/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/miami-marlins-vs-baltimore-orioles-baseball-178570/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/miami-marlins-vs-baltimore-orioles-baseball-178570/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22217/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401871334": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-cleveland-cavaliers-vs-detroit-pistons/1",
+      "quality": "HD",
+      "language": "English - Prime Video"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_nba_pistons-cavaliers-live-streaming-1300199499/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/detroit-pistons-vs-cleveland-cavaliers-basketball-498883/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/detroit-pistons-vs-cleveland-cavaliers-basketball-498883/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/detroit-pistons-vs-cleveland-cavaliers-basketball-498883/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22206/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815247": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-tampa-bay-rays-vs-boston-red-sox/1",
+      "quality": "HD",
+      "language": "English - ESPN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_red-sox-rays-live-streaming-1266868863/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_red-sox-rays-live-streaming-1266868863/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/boston-red-sox-vs-tampa-bay-rays-baseball-178574/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/boston-red-sox-vs-tampa-bay-rays-baseball-178574/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22218/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
