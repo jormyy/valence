@@ -1,4 +1,68 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-05-07"
+  "_date": "2026-05-07",
+  "mlb-401815248": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-texas-rangers-vs-new-york-yankees/1",
+      "quality": "HD",
+      "language": "English - Rangers Sports Network"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_yankees-rangers-live-streaming-1266861870/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/new-york-yankees-vs-texas-rangers-baseball-178566/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/golf/22210/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815246": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-minnesota-twins-vs-washington-nationals/1",
+      "quality": "HD",
+      "language": "English - Nationals.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_nationals-twins-live-streaming-1266862869/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_nationals-twins-live-streaming-1266862869/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/washington-nationals-vs-minnesota-twins-baseball-178569/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/washington-nationals-vs-minnesota-twins-baseball-178569/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22211/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
