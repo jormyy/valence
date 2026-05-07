@@ -482,5 +482,119 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815239": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-mets-vs-colorado-rockies/1",
+      "quality": "HD",
+      "language": "English - Rockies.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rockies-mets-live-streaming-1266756975/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rockies-mets-live-streaming-1266756975/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/colorado-rockies-vs-new-york-mets-baseball-178563/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/colorado-rockies-vs-new-york-mets-baseball-178563/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22209/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401871153": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-minnesota-timberwolves-vs-san-antonio-spurs/1",
+      "quality": "HD",
+      "language": "English - ESPN"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_nba_spurs-timberwolves-live-streaming-1293842862/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_spurs-timberwolves-live-streaming-1293842862/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/san-antonio-spurs-vs-minnesota-timberwolves-basketball-498798/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/san-antonio-spurs-vs-minnesota-timberwolves-basketball-498798/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/san-antonio-spurs-vs-minnesota-timberwolves-basketball-498798/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/golf/22188/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815242": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-pittsburgh-pirates-vs-arizona-diamondbacks/1",
+      "quality": "HD",
+      "language": "English - DBACKS.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_diamondbacks-pirates-live-streaming-1266767964/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/arizona-diamondbacks-vs-pittsburgh-pirates-baseball-178565/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/arizona-diamondbacks-vs-pittsburgh-pirates-baseball-178565/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/22205/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
