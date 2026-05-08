@@ -1,4 +1,100 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-05-08"
+  "_date": "2026-05-08",
+  "mlb-401815256": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-houston-astros-vs-cincinnati-reds/1",
+      "quality": "HD",
+      "language": "English - Reds.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_reds-astros-live-streaming-1266969762/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_reds-astros-live-streaming-1266969762/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/cincinnati-reds-vs-houston-astros-baseball-178584/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/cincinnati-reds-vs-houston-astros-baseball-178584/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22232/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815255": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-colorado-rockies-vs-philadelphia-phillies/1",
+      "quality": "HD",
+      "language": "English - NBC Sports Phil"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_phillies-rockies-live-streaming-1266970761/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_phillies-rockies-live-streaming-1266970761/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/philadelphia-phillies-vs-colorado-rockies-baseball-178581/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/philadelphia-phillies-vs-colorado-rockies-baseball-178581/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22233/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401871161": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-new-york-knicks-vs-philadelphia-76-ers/1",
+      "quality": "HD",
+      "language": "English - Prime Video"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_nba_76ers-knicks-live-streaming-1297284417/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/golf/22225/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
