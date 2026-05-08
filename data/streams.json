@@ -356,5 +356,43 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401871327": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-los-angeles-lakers-vs-oklahoma-city-thunder/1",
+      "quality": "HD",
+      "language": "English - Prime Video"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_nba_thunder-lakers-live-streaming-1295647056/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/oklahoma-city-thunder-vs-los-angeles-lakers-basketball-498799/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/oklahoma-city-thunder-vs-los-angeles-lakers-basketball-498799/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/oklahoma-city-thunder-vs-los-angeles-lakers-basketball-498799/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22207/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
