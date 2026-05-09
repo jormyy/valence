@@ -184,5 +184,81 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815270": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-colorado-rockies-vs-philadelphia-phillies/1",
+      "quality": "HD",
+      "language": "English - NBC Sports Phil"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_phillies-rockies-live-streaming-1267116615/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_phillies-rockies-live-streaming-1267116615/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/philadelphia-phillies-vs-colorado-rockies-baseball-178595/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/philadelphia-phillies-vs-colorado-rockies-baseball-178595/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22264/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815272": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-minnesota-twins-vs-cleveland-guardians/1",
+      "quality": "HD",
+      "language": "English - CLEGuardians.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_guardians-twins-live-streaming-1267117614/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_guardians-twins-live-streaming-1267117614/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/cleveland-guardians-vs-minnesota-twins-baseball-178604/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/cleveland-guardians-vs-minnesota-twins-baseball-178604/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22265/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
