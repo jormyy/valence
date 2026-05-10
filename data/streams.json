@@ -444,5 +444,61 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "nba-401871328": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-oklahoma-city-thunder-vs-los-angeles-lakers/1",
+      "quality": "HD",
+      "language": "English - ABC"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_nba_lakers-thunder-live-streaming-1296960741/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_nba_lakers-thunder-live-streaming-1296960741/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-oklahoma-city-thunder-basketball-498801/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-oklahoma-city-thunder-basketball-498801/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-oklahoma-city-thunder-basketball-498801/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 7",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-oklahoma-city-thunder-basketball-498801/4",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 8",
+      "url": "https://embedsports.top/embed/echo/los-angeles-lakers-vs-oklahoma-city-thunder-basketball-498801/5",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 9",
+      "url": "https://embedsports.top/embed/golf/22252/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
