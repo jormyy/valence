@@ -1,4 +1,30 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-05-10"
+  "_date": "2026-05-10",
+  "mlb-401815289": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-nationals-vs-miami-marlins/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-nationals-vs-miami-marlins/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/miami-marlins-vs-washington-nationals-baseball-178605/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/miami-marlins-vs-washington-nationals-baseball-178605/2",
+      "quality": "HD",
+      "language": "EN"
+    }
+  ]
 }
