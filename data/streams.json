@@ -76,5 +76,151 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815300": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-tampa-bay-rays-vs-toronto-blue-jays/1",
+      "quality": "HD",
+      "language": "English - Sportsnet One"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_blue-jays-rays-live-streaming-1267407324/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_blue-jays-rays-live-streaming-1267407324/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/toronto-blue-jays-vs-tampa-bay-rays-baseball-178620/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/toronto-blue-jays-vs-tampa-bay-rays-baseball-178620/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22310/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "nba-401871336": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-pistons-vs-cleveland-cavaliers/1",
+      "quality": "HD",
+      "language": "English - NBC"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_nba_cavaliers-pistons-live-streaming-1301175522/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/cleveland-cavaliers-vs-detroit-pistons-basketball-498885/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/cleveland-cavaliers-vs-detroit-pistons-basketball-498885/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/cleveland-cavaliers-vs-detroit-pistons-basketball-498885/3",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22304/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815301": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-arizona-diamondbacks-vs-texas-rangers/1",
+      "quality": "HD",
+      "language": "English - Rangers Sports Network"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_rangers-diamondbacks-live-streaming-1267408323/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/echo/texas-rangers-vs-arizona-diamondbacks-baseball-178621/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/texas-rangers-vs-arizona-diamondbacks-baseball-178621/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/22311/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815302": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-seattle-mariners-vs-houston-astros/1",
+      "quality": "HD",
+      "language": "English - Space City Home Network"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_astros-mariners-live-streaming-1267409322/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_astros-mariners-live-streaming-1267409322/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/houston-astros-vs-seattle-mariners-baseball-178622/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/houston-astros-vs-seattle-mariners-baseball-178622/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22312/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
