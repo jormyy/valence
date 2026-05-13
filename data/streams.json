@@ -544,5 +544,43 @@
       "quality": "HD",
       "language": "English"
     }
+  ],
+  "mlb-401815317": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-san-francisco-giants-vs-los-angeles-dodgers/1",
+      "quality": "HD",
+      "language": "English - Sportsnet LA"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_dodgers-giants-live-streaming-1276870851/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_dodgers-giants-live-streaming-1276870851/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/los-angeles-dodgers-vs-san-francisco-giants-baseball-178626/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/los-angeles-dodgers-vs-san-francisco-giants-baseball-178626/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22339/1",
+      "quality": "HD",
+      "language": "English"
+    }
   ]
 }
