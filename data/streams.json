@@ -1,4 +1,182 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-05-14"
+  "_date": "2026-05-14",
+  "mlb-401815335": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-colorado-rockies-vs-pittsburgh-pirates/1",
+      "quality": "HD",
+      "language": "English - MLB.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_pirates-rockies-live-streaming-1277060661/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_pirates-rockies-live-streaming-1277060661/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/pittsburgh-pirates-vs-colorado-rockies-baseball-178656/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/22374/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815338": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-washington-nationals-vs-cincinnati-reds/1",
+      "quality": "HD",
+      "language": "English - Reds.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_reds-nationals-live-streaming-1277061660/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_reds-nationals-live-streaming-1277061660/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/cincinnati-reds-vs-washington-nationals-baseball-178662/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/golf/22375/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815336": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-detroit-tigers-vs-new-york-mets/1",
+      "quality": "HD",
+      "language": "English - Tigers.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mets-tigers-live-streaming-1277062659/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_mets-tigers-live-streaming-1277062659/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/new-york-mets-vs-detroit-tigers-baseball-178657/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/new-york-mets-vs-detroit-tigers-baseball-178657/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22376/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815340": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-miami-marlins-vs-minnesota-twins/1",
+      "quality": "HD",
+      "language": "English - Twins.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-marlins-live-streaming-1277064657/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_twins-marlins-live-streaming-1277064657/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-miami-marlins-baseball-178658/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/minnesota-twins-vs-miami-marlins-baseball-178658/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22377/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ],
+  "mlb-401815341": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-san-diego-padres-vs-milwaukee-brewers/1",
+      "quality": "HD",
+      "language": "English - Brewers.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_brewers-padres-live-streaming-1277063658/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_brewers-padres-live-streaming-1277063658/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/milwaukee-brewers-vs-san-diego-padres-baseball-178659/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/milwaukee-brewers-vs-san-diego-padres-baseball-178659/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22378/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
