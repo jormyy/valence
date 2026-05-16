@@ -1,4 +1,42 @@
 {
   "_comment": "Keys are '{league}-{espn_event_id}'. Auto-populated by scrape-streams.ts.",
-  "_date": "2026-05-16"
+  "_date": "2026-05-16",
+  "mlb-401815366": [
+    {
+      "label": "HD 1",
+      "url": "https://embedsports.top/embed/admin/ppv-toronto-blue-jays-vs-detroit-tigers/1",
+      "quality": "HD",
+      "language": "English - Tigers.TV"
+    },
+    {
+      "label": "HD 2",
+      "url": "https://embedsports.top/embed/delta/live_mlb_tigers-blue-jays-live-streaming-1277308413/1",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 3",
+      "url": "https://embedsports.top/embed/delta/live_mlb_tigers-blue-jays-live-streaming-1277308413/2",
+      "quality": "HD",
+      "language": "English"
+    },
+    {
+      "label": "HD 4",
+      "url": "https://embedsports.top/embed/echo/detroit-tigers-vs-toronto-blue-jays-baseball-178691/1",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 5",
+      "url": "https://embedsports.top/embed/echo/detroit-tigers-vs-toronto-blue-jays-baseball-178691/2",
+      "quality": "HD",
+      "language": "EN"
+    },
+    {
+      "label": "HD 6",
+      "url": "https://embedsports.top/embed/golf/22413/1",
+      "quality": "HD",
+      "language": "English"
+    }
+  ]
 }
