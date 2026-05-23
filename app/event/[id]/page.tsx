@@ -17,7 +17,7 @@ export default async function EventPage({ params }: Props) {
 
   if (!game) notFound();
 
-  const streams = getStreams(game.id);
+  const streams = await getStreams(game);
   const leagueLabel = game.league.toUpperCase();
   const isLive = game.status === "in";
 

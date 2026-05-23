@@ -1,5 +1,5 @@
 import { getAllGames } from "@/lib/espn";
-import { getStreams } from "@/lib/streams";
+import { getStreamCount } from "@/lib/streams";
 import GameFeed from "@/components/GameFeed";
 
 export const revalidate = 60;
@@ -15,9 +15,10 @@ export default async function Home() {
     );
   }
 
-  const gamesWithStreams = games.map((g) => ({
+  const streamCounts = await Promise.all(games.map((g) => getStreamCount(g)));
+  const gamesWithStreams = games.map((g, i) => ({
     ...g,
-    streamCount: getStreams(g.id).length,
+    streamCount: streamCounts[i],
   }));
 
   return <GameFeed games={gamesWithStreams} />;
