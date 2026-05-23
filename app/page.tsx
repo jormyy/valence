@@ -1,25 +1,14 @@
 import { getAllGames } from "@/lib/espn";
-import { getStreamCount } from "@/lib/streams";
+import { attachStreamCounts } from "@/lib/streams";
 import App from "@/components/App";
 
 export const revalidate = 60;
 
 export default async function Home() {
   const games = await getAllGames();
-
   if (games.length === 0) {
-    return (
-      <div className="py-20 text-center text-white/40">
-        No games scheduled today.
-      </div>
-    );
+    return <div className="empty-page">No games scheduled today.</div>;
   }
-
-  const streamCounts = await Promise.all(games.map((g) => getStreamCount(g)));
-  const gamesWithStreams = games.map((g, i) => ({
-    ...g,
-    streamCount: streamCounts[i],
-  }));
-
+  const gamesWithStreams = await attachStreamCounts(games);
   return <App initialGames={gamesWithStreams} />;
 }

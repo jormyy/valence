@@ -12,11 +12,13 @@ const LEAGUE_CONFIGS: Record<string, { sport: string; path: string }> = {
   wta:   { sport: "tennis",     path: "wta" },
 };
 
-const PT = "America/Los_Angeles";
+export const PT_TZ = "America/Los_Angeles";
+
+export const STATUS_ORDER: Record<Game["status"], number> = { in: 0, pre: 1, post: 2 };
 
 export function formatTimePT(isoDate: string): string {
   return new Intl.DateTimeFormat("en-US", {
-    timeZone: PT,
+    timeZone: PT_TZ,
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
@@ -24,7 +26,7 @@ export function formatTimePT(isoDate: string): string {
 }
 
 export function todayInPT(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: PT }).format(new Date());
+  return new Intl.DateTimeFormat("en-CA", { timeZone: PT_TZ }).format(new Date());
 }
 
 // "20260521" → "2026-05-21"
@@ -33,7 +35,7 @@ function formatDateStr(dateStr: string): string {
 }
 
 function gameDateInPT(isoDate: string): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: PT }).format(new Date(isoDate));
+  return new Intl.DateTimeFormat("en-CA", { timeZone: PT_TZ }).format(new Date(isoDate));
 }
 
 function parseTeam(c: EspnCompetitor): Team {
@@ -142,12 +144,9 @@ export async function getGames(league: League, dateStr?: string): Promise<Game[]
 export async function getAllGames(dateStr?: string): Promise<Game[]> {
   const leagues: League[] = ["nba", "ncaab", "mlb", "atp", "wta"];
   const results = await Promise.all(leagues.map((l) => getGames(l, dateStr)));
-  const all = results.flat();
-
-  const order = { in: 0, pre: 1, post: 2 };
-  return all.sort((a, b) => {
-    const statusDiff = order[a.status] - order[b.status];
-    if (statusDiff !== 0) return statusDiff;
+  return results.flat().sort((a, b) => {
+    const diff = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
+    if (diff !== 0) return diff;
     return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
   });
 }

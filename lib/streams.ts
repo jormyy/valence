@@ -1,4 +1,4 @@
-import type { Game, Stream } from "./types";
+import type { Game, GameWithStreams, Stream } from "./types";
 
 const STREAMED_BASE = "https://streamed.pk/api";
 
@@ -117,4 +117,12 @@ export async function getStreamCount(game: Game): Promise<number> {
   const events = await fetchTodayEvents();
   const match = findMatch(events, game);
   return match?.sources.length ?? 0;
+}
+
+// streamed.pk only carries today's events; skip the fetch for other dates.
+export async function attachStreamCounts(games: Game[], dateStr?: string): Promise<GameWithStreams[]> {
+  const counts = dateStr
+    ? games.map(() => 0)
+    : await Promise.all(games.map((g) => getStreamCount(g)));
+  return games.map((g, i) => ({ ...g, streamCount: counts[i] }));
 }

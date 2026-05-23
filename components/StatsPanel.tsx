@@ -24,7 +24,8 @@ export default function StatsPanel({ gameId, status }: Props) {
           setLoading(false);
         }
       })
-      .catch(() => {
+      .catch((e) => {
+        console.error("Failed to fetch stats:", e);
         if (!cancelled) {
           setStats([]);
           setLoading(false);

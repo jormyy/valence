@@ -848,6 +848,8 @@ input { font: inherit; color: inherit; }
   }
 }
 
+.empty-page { padding: 80px 0; text-align: center; color: var(--muted); }
+
 /* WatchPanel internal helpers (extracted from inline styles) */
 .dim { color: var(--subtle); }
 .live-dot.inline { display: inline-block; margin-right: 4px; }

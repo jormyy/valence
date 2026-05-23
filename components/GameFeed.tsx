@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import type { GameWithStreams, League } from "@/lib/types";
 import { LEAGUES, LEAGUE_BY_ID } from "@/lib/metadata";
+import { STATUS_ORDER } from "@/lib/espn";
 import { SportIcon } from "@/components/icons";
 import GameCard from "@/components/GameCard";
 
@@ -14,7 +15,10 @@ interface Props {
   search: string;
 }
 
-const STATUS_ORDER: Record<string, number> = { in: 0, pre: 1, post: 2 };
+const LEAGUE_ORDER: Record<string, number> = LEAGUES.reduce((acc, l, i) => {
+  acc[l.id] = i;
+  return acc;
+}, {} as Record<string, number>);
 
 export default function GameFeed({ games, activeGameId, onPick, statusFilter, search }: Props) {
   const visible = useMemo(() => {
@@ -23,16 +27,14 @@ export default function GameFeed({ games, activeGameId, onPick, statusFilter, se
       if (statusFilter === "live" && g.status !== "in") return false;
       if (statusFilter === "upcoming" && g.status !== "pre") return false;
       if (statusFilter === "final" && g.status !== "post") return false;
-      if (q) {
-        const lg = LEAGUE_BY_ID[g.league];
-        const hay = [
-          g.awayTeam.name, g.awayTeam.abbreviation,
-          g.homeTeam.name, g.homeTeam.abbreviation,
-          lg?.label, lg?.short,
-        ].filter(Boolean).join(" ").toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
+      if (!q) return true;
+      const lg = LEAGUE_BY_ID[g.league];
+      const hay = [
+        g.awayTeam.name, g.awayTeam.abbreviation,
+        g.homeTeam.name, g.homeTeam.abbreviation,
+        lg?.label, lg?.short,
+      ].filter(Boolean).join(" ").toLowerCase();
+      return hay.includes(q);
     });
   }, [games, statusFilter, search]);
 
@@ -43,22 +45,18 @@ export default function GameFeed({ games, activeGameId, onPick, statusFilter, se
       out.get(g.league)!.push(g);
     }
 
-    const leagueOrder = LEAGUES.reduce((acc, l, i) => { acc[l.id] = i; return acc; }, {} as Record<string, number>);
-
     return [...out.entries()]
       .map(([lid, gs]) => {
-        const lg = LEAGUE_BY_ID[lid];
-        const live = gs.filter((x) => x.status === "in").length;
         gs.sort((a, b) => {
           const diff = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
-          if (diff !== 0) return diff;
-          return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+          return diff !== 0 ? diff : new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
         });
-        return { lg, games: gs, live };
+        const live = gs.filter((x) => x.status === "in").length;
+        return { lg: LEAGUE_BY_ID[lid], games: gs, live };
       })
       .sort((a, b) => {
         if (a.live !== b.live) return b.live - a.live;
-        return (leagueOrder[a.lg.id] ?? 99) - (leagueOrder[b.lg.id] ?? 99);
+        return (LEAGUE_ORDER[a.lg.id] ?? 99) - (LEAGUE_ORDER[b.lg.id] ?? 99);
       });
   }, [visible]);
 

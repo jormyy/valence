@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import type { Game, GameWithStreams, Stream } from "@/lib/types";
-import { LEAGUE_BY_ID } from "@/lib/metadata";
+import type { Game, GameWithStreams } from "@/lib/types";
+import { PT_TZ } from "@/lib/espn";
+import { applyScope, statusCounts } from "@/lib/scope";
+import { useGameStreams } from "@/lib/hooks";
 import TopBar from "@/components/TopBar";
 import Sidebar from "@/components/Sidebar";
 import GameFeed from "@/components/GameFeed";
@@ -13,10 +15,8 @@ interface Props {
   initialGames: GameWithStreams[];
 }
 
-const PT = "America/Los_Angeles";
-
 function ptCalendarDate(): { y: number; m: number; d: number } {
-  const s = new Intl.DateTimeFormat("en-CA", { timeZone: PT }).format(new Date());
+  const s = new Intl.DateTimeFormat("en-CA", { timeZone: PT_TZ }).format(new Date());
   const [y, m, d] = s.split("-").map(Number);
   return { y, m, d };
 }
@@ -43,6 +43,8 @@ function makeDateLabels(): [string, string, string] {
   return [fmt(-1), fmt(0), fmt(1)];
 }
 
+const DATE_LABELS = makeDateLabels();
+
 interface GamesResponse { games: GameWithStreams[] }
 
 export default function App({ initialGames }: Props) {
@@ -56,8 +58,6 @@ export default function App({ initialGames }: Props) {
   const [fetchedGames, setFetchedGames] = useState<GameWithStreams[] | null>(null);
   const [dateLoading, setDateLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-
-  const dateLabels = useMemo(() => makeDateLabels(), []);
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 30_000);
@@ -83,7 +83,8 @@ export default function App({ initialGames }: Props) {
           setDateLoading(false);
         }
       })
-      .catch(() => {
+      .catch((e) => {
+        console.error("Failed to fetch games for date:", dateIdx, e);
         if (!cancelled) {
           setFetchedGames([]);
           setDateLoading(false);
@@ -94,6 +95,7 @@ export default function App({ initialGames }: Props) {
 
   const rawGames = fetchedGames ?? initialGames;
 
+  // Promote scheduled-but-started games from "pre" to "in" via wall clock
   const games = useMemo(() =>
     rawGames.map((g) => ({
       ...g,
@@ -104,12 +106,10 @@ export default function App({ initialGames }: Props) {
     [rawGames, now]
   );
 
-  // Auto-select first live game on mount
+  // Auto-select first live game once on mount (intentionally empty deps)
   useEffect(() => {
-    if (!activeGameId) {
-      const live = games.find((g) => g.status === "in");
-      if (live) setActiveGameId(live.id);
-    }
+    const live = games.find((g) => g.status === "in");
+    if (live) setActiveGameId(live.id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -132,43 +132,22 @@ export default function App({ initialGames }: Props) {
     return () => { cancelled = true; clearInterval(id); };
   }, [dateIdx, hasLive]);
 
-  const filteredGames = useMemo(() => {
-    return games.filter((g) => {
-      if (activeLeague) return g.league === activeLeague;
-      if (activeSport === "live") return g.status === "in";
-      if (activeSport === "upcoming") return g.status === "pre";
-      if (activeSport !== "all") return LEAGUE_BY_ID[g.league]?.sport === activeSport;
-      return true;
-    });
-  }, [games, activeSport, activeLeague]);
+  const filteredGames = useMemo(
+    () => applyScope(games, activeSport, activeLeague),
+    [games, activeSport, activeLeague]
+  );
 
   const counts = useMemo(() => {
     const scope = activeLeague
       ? games.filter((g) => g.league === activeLeague)
       : activeSport === "all" || activeSport === "live" || activeSport === "upcoming"
         ? games
-        : games.filter((g) => LEAGUE_BY_ID[g.league]?.sport === activeSport);
-    let live = 0, upcoming = 0, final = 0;
-    for (const g of scope) {
-      if (g.status === "in") live++;
-      else if (g.status === "pre") upcoming++;
-      else final++;
-    }
-    return { live, upcoming, final, total: scope.length };
+        : applyScope(games, activeSport, null);
+    return statusCounts(scope);
   }, [games, activeSport, activeLeague]);
 
-  const activeGame = games.find((g) => g.id === activeGameId) || null;
-
-  const [activeStreams, setActiveStreams] = useState<Stream[]>([]);
-  useEffect(() => {
-    if (!activeGame) { setActiveStreams([]); return; }
-    let cancelled = false;
-    fetch(`/api/streams/${activeGame.id}`)
-      .then((r) => r.json())
-      .then((data: { streams?: Stream[] }) => { if (!cancelled) setActiveStreams(data.streams ?? []); })
-      .catch(() => { if (!cancelled) setActiveStreams([]); });
-    return () => { cancelled = true; };
-  }, [activeGame?.id]);
+  const activeGame = games.find((g) => g.id === activeGameId) ?? null;
+  const activeStreams = useGameStreams(activeGame?.id ?? null);
 
   return (
     <div className="shell">
@@ -177,7 +156,7 @@ export default function App({ initialGames }: Props) {
         setSearch={setSearch}
         dateIdx={dateIdx}
         setDateIdx={setDateIdx}
-        dateLabels={dateLabels}
+        dateLabels={DATE_LABELS}
         liveCount={counts.live}
         dateLoading={dateLoading}
         lastUpdated={lastUpdated}

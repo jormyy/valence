@@ -2,6 +2,7 @@
 
 import type { GameWithStreams } from "@/lib/types";
 import { formatTimePT } from "@/lib/espn";
+import { scoreView } from "@/lib/game";
 import { teamColor } from "@/lib/metadata";
 import { StreamIcon } from "@/components/icons";
 
@@ -13,12 +14,7 @@ interface Props {
 
 export default function GameCard({ game, active, onPick }: Props) {
   const s = game.status;
-  const showScore =
-    s !== "pre" && game.awayTeam.score != null && game.homeTeam.score != null;
-  const aScore = parseInt(game.awayTeam.score || "0");
-  const hScore = parseInt(game.homeTeam.score || "0");
-  const aWin = showScore && aScore > hScore;
-  const hWin = showScore && hScore > aScore;
+  const sv = scoreView(game);
 
   return (
     <div
@@ -36,15 +32,15 @@ export default function GameCard({ game, active, onPick }: Props) {
       </div>
 
       <div className="g-teams">
-        <div className={`team-row ${aWin ? "winner" : showScore ? "loser" : ""}`}>
+        <div className={`team-row ${sv.awayWin ? "winner" : sv.show ? "loser" : ""}`}>
           <TeamBadge abbr={game.awayTeam.abbreviation} />
           <span className="name">{game.awayTeam.name}</span>
-          {showScore && <span className="score">{game.awayTeam.score}</span>}
+          {sv.show && <span className="score">{game.awayTeam.score}</span>}
         </div>
-        <div className={`team-row ${hWin ? "winner" : showScore ? "loser" : ""}`}>
+        <div className={`team-row ${sv.homeWin ? "winner" : sv.show ? "loser" : ""}`}>
           <TeamBadge abbr={game.homeTeam.abbreviation} />
           <span className="name">{game.homeTeam.name}</span>
-          {showScore && <span className="score">{game.homeTeam.score}</span>}
+          {sv.show && <span className="score">{game.homeTeam.score}</span>}
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import type { GameWithStreams, Stream } from "@/lib/types";
 import { LEAGUE_BY_ID, teamColor } from "@/lib/metadata";
 import { formatTimePT } from "@/lib/espn";
+import { scoreView } from "@/lib/game";
 import { CloseIcon, FullscreenIcon, PlayIcon } from "@/components/icons";
 import StatsPanel from "@/components/StatsPanel";
 import RelatedGames from "@/components/RelatedGames";
@@ -30,11 +31,7 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
 
   const lg = LEAGUE_BY_ID[game.league];
   const s = game.status;
-  const showScore = s !== "pre" && game.awayTeam.score != null && game.homeTeam.score != null;
-  const aScore = parseInt(game.awayTeam.score || "0");
-  const hScore = parseInt(game.homeTeam.score || "0");
-  const aWin = showScore && aScore > hScore;
-  const hWin = showScore && hScore > aScore;
+  const sv = scoreView(game);
   const current = streams[activeStream];
 
   return (
@@ -111,9 +108,9 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
             <div className="name">{game.awayTeam.name}</div>
           </div>
           <div className="scores">
-            <span className={aWin ? "winner" : "loser"}>{showScore ? game.awayTeam.score : "—"}</span>
+            <span className={sv.awayWin ? "winner" : "loser"}>{sv.show ? game.awayTeam.score : "—"}</span>
             <span className="dash">:</span>
-            <span className={hWin ? "winner" : "loser"}>{showScore ? game.homeTeam.score : "—"}</span>
+            <span className={sv.homeWin ? "winner" : "loser"}>{sv.show ? game.homeTeam.score : "—"}</span>
           </div>
           <div className="side">
             <div className="badge-lg" style={{ background: teamColor(game.homeTeam.abbreviation) }}>
