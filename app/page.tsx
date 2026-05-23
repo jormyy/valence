@@ -1,6 +1,6 @@
 import { getAllGames } from "@/lib/espn";
 import { getStreamCount } from "@/lib/streams";
-import GameFeed from "@/components/GameFeed";
+import App from "@/components/App";
 
 export const revalidate = 60;
 
@@ -21,5 +21,5 @@ export default async function Home() {
     streamCount: streamCounts[i],
   }));
 
-  return <GameFeed games={gamesWithStreams} />;
+  return <App initialGames={gamesWithStreams} />;
 }

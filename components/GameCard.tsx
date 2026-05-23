@@ -1,68 +1,98 @@
-import Link from "next/link";
-import Image from "next/image";
+"use client";
+
 import type { Game } from "@/lib/types";
+import { LEAGUE_BY_ID } from "@/lib/metadata";
+import { formatTimePT } from "@/lib/espn";
 
 interface Props {
-  game: Game;
-  streamCount: number;
+  game: Game & { streamCount?: number };
+  active: boolean;
+  onPick: (id: string) => void;
 }
 
-export default function GameCard({ game, streamCount }: Props) {
-  const { homeTeam, awayTeam, status, statusDisplay, league } = game;
+export default function GameCard({ game, active, onPick }: Props) {
+  const s = game.status;
+  const lg = LEAGUE_BY_ID[game.league];
+  const showScore =
+    s !== "pre" && game.awayTeam.score != null && game.homeTeam.score != null;
+  const aScore = parseInt(game.awayTeam.score || "0");
+  const hScore = parseInt(game.homeTeam.score || "0");
+  const aWin = showScore && aScore > hScore;
+  const hWin = showScore && hScore > aScore;
+  const startMin = game.startTime
+    ? (() => {
+        const d = new Date(game.startTime);
+        return d.getHours() * 60 + d.getMinutes();
+      })()
+    : 0;
+  const timeStr = formatTimePT(game.startTime);
 
-  const leagueLabel = league.toUpperCase();
-  const isLive = status === "in";
-  const isFinal = status === "post";
-  const showScore = isLive || isFinal;
-
-  const inner = (
-    <>
-      {/* Teams */}
-      <div className="flex flex-1 flex-col gap-2">
-        <TeamRow team={awayTeam} showScore={showScore} />
-        <TeamRow team={homeTeam} showScore={showScore} />
+  return (
+    <div
+      className={`game ${active ? "active" : ""} ${s === "post" ? "final" : ""}`}
+      onClick={() => onPick(game.id)}
+    >
+      {/* Time column */}
+      <div className="g-time">
+        {s === "in" ? (
+          <>
+            {game.period && <span className="period">{game.period}</span>}
+            {game.clock && <span className="clock">{game.clock}</span>}
+            {!game.clock && <span className="clock">LIVE</span>}
+          </>
+        ) : s === "pre" ? (
+          <span className="when">{timeStr}</span>
+        ) : (
+          <span className="final">Final</span>
+        )}
       </div>
 
-      {/* Status + meta */}
-      <div className="ml-6 flex flex-col items-end gap-1.5">
-        <span className={`text-xs font-medium ${isLive ? "text-red-400" : "text-white/50"}`}>
-          {isLive ? "● LIVE" : statusDisplay}
-        </span>
-        <span className="rounded bg-white/10 px-1.5 py-0.5 text-xs text-white/60">
-          {leagueLabel}
-        </span>
-        {!isFinal && streamCount > 0 && (
-          <span className="text-xs text-emerald-400">
-            {streamCount} stream{streamCount !== 1 ? "s" : ""}
+      {/* Teams */}
+      <div className="g-teams">
+        <div className={`team-row ${aWin ? "winner" : showScore ? "loser" : ""}`}>
+          <TeamBadge abbr={game.awayTeam.abbreviation} />
+          <span className="name">{game.awayTeam.name}</span>
+          {showScore && <span className="score">{game.awayTeam.score}</span>}
+        </div>
+        <div className={`team-row ${hWin ? "winner" : showScore ? "loser" : ""}`}>
+          <TeamBadge abbr={game.homeTeam.abbreviation} />
+          <span className="name">{game.homeTeam.name}</span>
+          {showScore && <span className="score">{game.homeTeam.score}</span>}
+        </div>
+      </div>
+
+      {/* Meta */}
+      <div className="g-meta">
+        {s !== "post" && (
+          <span className={`g-streams ${(game.streamCount ?? 0) === 0 ? "zero" : ""}`}>
+            <StreamIcon />
+            {game.streamCount ?? "—"}
           </span>
         )}
       </div>
-    </>
-  );
-
-  const baseClass = "flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-5 py-4";
-
-  if (isFinal) {
-    return <div className={`${baseClass} opacity-60`}>{inner}</div>;
-  }
-
-  return (
-    <Link href={`/event/${game.id}`} className={`${baseClass} transition hover:border-white/20 hover:bg-white/10`}>
-      {inner}
-    </Link>
+    </div>
   );
 }
 
-function TeamRow({ team, showScore }: { team: Game["homeTeam"]; showScore: boolean }) {
+function TeamBadge({ abbr }: { abbr: string }) {
+  let h = 0;
+  for (let i = 0; i < abbr.length; i++) h = (h * 31 + abbr.charCodeAt(i)) >>> 0;
+  const hue = h % 360;
   return (
-    <div className="flex items-center gap-3">
-      {team.logo && (
-        <Image src={team.logo} alt={team.abbreviation} width={24} height={24} className="object-contain" />
-      )}
-      <span className="text-sm font-medium">{team.name}</span>
-      {showScore && team.score && (
-        <span className="ml-auto text-sm font-bold tabular-nums">{team.score}</span>
-      )}
+    <div
+      className="badge"
+      style={{ background: `oklch(0.62 0.14 ${hue})` }}
+    >
+      {abbr.slice(0, 3)}
     </div>
+  );
+}
+
+function StreamIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 16 16" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="4" width="9" height="8" rx="1" />
+      <path d="M11 7l3-2v6l-3-2z" />
+    </svg>
   );
 }
