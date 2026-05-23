@@ -1,4 +1,8 @@
-import type { Game, League, Team } from "./types";
+import type {
+  Game, League, Team,
+  EspnCompetitor, EspnCompetition, EspnEvent,
+  EspnScoreboard, EspnTennisScoreboard, EspnSummary,
+} from "./types";
 
 const LEAGUE_CONFIGS: Record<string, { sport: string; path: string }> = {
   nba:   { sport: "basketball", path: "nba" },
@@ -32,21 +36,20 @@ function gameDateInPT(isoDate: string): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: PT }).format(new Date(isoDate));
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function parseTeam(competitor: any): Team {
+function parseTeam(c: EspnCompetitor): Team {
+  const t = c.team!;
   return {
-    name: competitor.team.displayName,
-    abbreviation: competitor.team.abbreviation,
-    logo: competitor.team.logo,
-    score: competitor.score,
+    name: t.displayName,
+    abbreviation: t.abbreviation,
+    logo: t.logo,
+    score: c.score,
   };
 }
 
 // Tennis competitors have `athlete` instead of `team`
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function parseTennisPlayer(competitor: any): Team {
-  const athlete = competitor.athlete ?? {};
-  const name: string = athlete.displayName ?? "Unknown";
+function parseTennisPlayer(c: EspnCompetitor): Team {
+  const a = c.athlete ?? {};
+  const name = a.displayName ?? "Unknown";
   const parts = name.split(" ");
   const abbr = parts.length > 1
     ? (parts[0][0] + parts[parts.length - 1].slice(0, 3)).toUpperCase()
@@ -54,17 +57,16 @@ function parseTennisPlayer(competitor: any): Team {
   return {
     name,
     abbreviation: abbr,
-    logo: athlete.headshot?.href ?? "",
-    score: competitor.score,
+    logo: a.headshot?.href ?? "",
+    score: c.score,
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function parseGame(event: any, league: League): Game {
+function parseGame(event: EspnEvent, league: League): Game {
   const competition = event.competitions[0];
-  const home = competition.competitors.find((c: any) => c.homeAway === "home")
+  const home = competition.competitors.find((c) => c.homeAway === "home")
     ?? competition.competitors[1];
-  const away = competition.competitors.find((c: any) => c.homeAway === "away")
+  const away = competition.competitors.find((c) => c.homeAway === "away")
     ?? competition.competitors[0];
   const status = event.status;
 
@@ -75,8 +77,9 @@ function parseGame(event: any, league: League): Game {
   const isTennis = league === "atp" || league === "wta";
   const parsePlayer = isTennis ? parseTennisPlayer : parseTeam;
 
-  let statusDisplay: string = status.type.shortDetail;
-  if (gameStatus === "pre") statusDisplay = formatTimePT(event.date);
+  const statusDisplay = gameStatus === "pre"
+    ? formatTimePT(event.date)
+    : status.type.shortDetail;
 
   return {
     id: `${league}-${event.id}`,
@@ -93,29 +96,26 @@ function parseGame(event: any, league: League): Game {
 }
 
 // Tennis scoreboard nests matches inside tournament groupings — flatten them
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function flattenTennisEvents(data: any, league: League, targetDate: string): Game[] {
+function flattenTennisEvents(data: EspnTennisScoreboard, league: League, targetDate: string): Game[] {
   const games: Game[] = [];
-
   for (const tournament of data.events ?? []) {
     for (const grouping of tournament.groupings ?? []) {
       for (const competition of grouping.competitions ?? []) {
         if (gameDateInPT(competition.date) !== targetDate) continue;
-        const synthetic = {
+        const synthetic: EspnEvent = {
           id: competition.id,
           date: competition.date,
           status: competition.status,
-          competitions: [competition],
+          competitions: [competition as EspnCompetition],
         };
         try {
           games.push(parseGame(synthetic, league));
         } catch {
-          // skip malformed competitions
+          // Skip malformed competitions from ESPN API
         }
       }
     }
   }
-
   return games;
 }
 
@@ -132,25 +132,17 @@ export async function getGames(league: League, dateStr?: string): Promise<Game[]
   const isTennis = league === "atp" || league === "wta";
   const targetDate = dateStr ? formatDateStr(dateStr) : todayInPT();
 
-  if (isTennis) return flattenTennisEvents(data, league, targetDate);
+  if (isTennis) return flattenTennisEvents(data as EspnTennisScoreboard, league, targetDate);
 
-  return (data.events ?? [])
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .filter((e: any) => gameDateInPT(e.date) === targetDate)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .map((e: any) => parseGame(e, league));
+  return ((data as EspnScoreboard).events ?? [])
+    .filter((e) => gameDateInPT(e.date) === targetDate)
+    .map((e) => parseGame(e, league));
 }
 
 export async function getAllGames(dateStr?: string): Promise<Game[]> {
-  const [nba, ncaab, mlb, atp, wta] = await Promise.all([
-    getGames("nba", dateStr),
-    getGames("ncaab", dateStr),
-    getGames("mlb", dateStr),
-    getGames("atp", dateStr),
-    getGames("wta", dateStr),
-  ]);
-
-  const all = [...nba, ...ncaab, ...mlb, ...atp, ...wta];
+  const leagues: League[] = ["nba", "ncaab", "mlb", "atp", "wta"];
+  const results = await Promise.all(leagues.map((l) => getGames(l, dateStr)));
+  const all = results.flat();
 
   const order = { in: 0, pre: 1, post: 2 };
   return all.sort((a, b) => {
@@ -160,7 +152,7 @@ export async function getAllGames(dateStr?: string): Promise<Game[]> {
   });
 }
 
-export async function getEspnSummary(gameId: string): Promise<Record<string, unknown> | null> {
+export async function getEspnSummary(gameId: string): Promise<EspnSummary | null> {
   const dashIdx = gameId.indexOf("-");
   if (dashIdx === -1) return null;
   const league = gameId.slice(0, dashIdx);

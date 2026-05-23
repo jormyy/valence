@@ -1,17 +1,13 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import type { Game, Stream } from "@/lib/types";
+import type { Game, GameWithStreams, Stream } from "@/lib/types";
 import { LEAGUE_BY_ID } from "@/lib/metadata";
 import TopBar from "@/components/TopBar";
 import Sidebar from "@/components/Sidebar";
 import GameFeed from "@/components/GameFeed";
 import LiveTicker from "@/components/LiveTicker";
 import WatchPanel from "@/components/WatchPanel";
-
-interface GameWithStreams extends Game {
-  streamCount?: number;
-}
 
 interface Props {
   initialGames: GameWithStreams[];
@@ -25,7 +21,7 @@ function ptCalendarDate(): { y: number; m: number; d: number } {
   return { y, m, d };
 }
 
-// Returns YYYYMMDD in PT tz: idx 0=yesterday, 1=today, 2=tomorrow
+// idx 0=yesterday, 1=today, 2=tomorrow → "YYYYMMDD" in PT
 function dateStrForIdx(idx: number): string {
   const { y, m, d } = ptCalendarDate();
   const date = new Date(y, m - 1, d + (idx - 1));
@@ -47,6 +43,8 @@ function makeDateLabels(): [string, string, string] {
   return [fmt(-1), fmt(0), fmt(1)];
 }
 
+interface GamesResponse { games: GameWithStreams[] }
+
 export default function App({ initialGames }: Props) {
   const [search, setSearch] = useState("");
   const [dateIdx, setDateIdx] = useState(1);
@@ -61,13 +59,11 @@ export default function App({ initialGames }: Props) {
 
   const dateLabels = useMemo(() => makeDateLabels(), []);
 
-  // Tick clock every 30s for pre→in promotion
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 30_000);
     return () => clearInterval(id);
   }, []);
 
-  // Fetch games when navigating to non-today dates
   useEffect(() => {
     if (dateIdx === 1) {
       setFetchedGames(null);
@@ -75,16 +71,15 @@ export default function App({ initialGames }: Props) {
       return;
     }
     let cancelled = false;
-    setFetchedGames(null); // clear stale data from previous non-today date immediately
+    setFetchedGames(null);
     setDateLoading(true);
     setActiveGameId(null);
     setStatusFilter("all");
-    const dateStr = dateStrForIdx(dateIdx);
-    fetch(`/api/games?date=${dateStr}`)
+    fetch(`/api/games?date=${dateStrForIdx(dateIdx)}`)
       .then((r) => r.json())
-      .then((data) => {
+      .then((data: GamesResponse) => {
         if (!cancelled) {
-          setFetchedGames(data.games || []);
+          setFetchedGames(data.games ?? []);
           setDateLoading(false);
         }
       })
@@ -120,15 +115,13 @@ export default function App({ initialGames }: Props) {
 
   const hasLive = useMemo(() => games.some((g) => g.status === "in"), [games]);
 
-  // Poll for live score updates when viewing today and live games exist
   useEffect(() => {
     if (dateIdx !== 1 || !hasLive) return;
     let cancelled = false;
     const id = setInterval(() => {
       fetch("/api/games")
         .then((r) => r.json())
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .then((data: any) => {
+        .then((data: GamesResponse) => {
           if (!cancelled && Array.isArray(data.games) && data.games.length > 0) {
             setFetchedGames(data.games);
             setLastUpdated(new Date());
@@ -172,7 +165,7 @@ export default function App({ initialGames }: Props) {
     let cancelled = false;
     fetch(`/api/streams/${activeGame.id}`)
       .then((r) => r.json())
-      .then((data) => { if (!cancelled) setActiveStreams(data.streams || []); })
+      .then((data: { streams?: Stream[] }) => { if (!cancelled) setActiveStreams(data.streams ?? []); })
       .catch(() => { if (!cancelled) setActiveStreams([]); });
     return () => { cancelled = true; };
   }, [activeGame?.id]);

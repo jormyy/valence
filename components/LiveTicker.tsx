@@ -1,10 +1,10 @@
 "use client";
 
-import type { Game } from "@/lib/types";
+import type { GameWithStreams } from "@/lib/types";
 import { LEAGUE_BY_ID } from "@/lib/metadata";
 
 interface Props {
-  games: (Game & { streamCount?: number })[];
+  games: GameWithStreams[];
   activeGameId: string | null;
   onPick: (id: string) => void;
 }
@@ -33,12 +33,12 @@ export default function LiveTicker({ games, activeGameId, onPick }: Props) {
           >
             <span className="league">{lg.short}</span>
             <span className="matchup">
-              <span style={{ color: aWin ? "var(--fg)" : "var(--muted)" }}>
+              <span className={aWin ? "team-w" : "team-l"}>
                 {g.awayTeam.abbreviation}
               </span>{" "}
               <span className="score">{g.awayTeam.score}</span>
-              <span style={{ color: "var(--subtle)", margin: "0 4px" }}>·</span>
-              <span style={{ color: !aWin ? "var(--fg)" : "var(--muted)" }}>
+              <span className="sep">·</span>
+              <span className={!aWin ? "team-w" : "team-l"}>
                 {g.homeTeam.abbreviation}
               </span>{" "}
               <span className="score">{g.homeTeam.score}</span>

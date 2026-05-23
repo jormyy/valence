@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import type { Game } from "@/lib/types";
+import type { GameWithStreams } from "@/lib/types";
 import { SPORTS, LEAGUES, LEAGUE_BY_ID } from "@/lib/metadata";
+import { SportIcon, GridIcon, BellIcon } from "@/components/icons";
 
 interface Props {
-  games: (Game & { streamCount?: number })[];
+  games: GameWithStreams[];
   activeSport: string;
   setActiveSport: (v: string) => void;
   activeLeague: string | null;
@@ -15,7 +16,6 @@ interface Props {
 export default function Sidebar({ games, activeSport, setActiveSport, activeLeague, setActiveLeague }: Props) {
   const [expanded, setExpanded] = useState(new Set(SPORTS.map((s) => s.id)));
 
-  // Count by sport
   const sCounts: Record<string, { live: number; upcoming: number; total: number }> = {};
   const lCounts: Record<string, { live: number; total: number }> = {};
   for (const g of games) {
@@ -76,7 +76,7 @@ export default function Sidebar({ games, activeSport, setActiveSport, activeLeag
       <div className="rail-section">
         <div className="rail-label">
           <span>Sports</span>
-          <span style={{ fontFamily: "monospace", color: "var(--subtle)" }}>{SPORTS.length}</span>
+          <span className="sport-count">{SPORTS.length}</span>
         </div>
         {SPORTS.map((sport) => {
           const c = sCounts[sport.id];
@@ -119,7 +119,7 @@ export default function Sidebar({ games, activeSport, setActiveSport, activeLeag
                           setActiveLeague(lg.id);
                         }}
                       >
-                        <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{lg.label}</span>
+                        <span className="rail-sub-label">{lg.label}</span>
                         <span className="rail-count">
                           {lc.live > 0 && <span className="live-n">{lc.live}</span>}
                           <span>{lc.total}</span>
@@ -134,37 +134,5 @@ export default function Sidebar({ games, activeSport, setActiveSport, activeLeag
         })}
       </div>
     </aside>
-  );
-}
-
-function SportIcon({ sport }: { sport: string }) {
-  const s = 15;
-  const st = { stroke: "currentColor", strokeWidth: 1.4, fill: "none", strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-  switch (sport) {
-    case "basketball":
-      return <svg width={s} height={s} viewBox="0 0 16 16" {...st}><circle cx="8" cy="8" r="6" /><path d="M2 8h12 M8 2v12 M3.5 3.5l9 9 M12.5 3.5l-9 9" /></svg>;
-    case "baseball":
-      return <svg width={s} height={s} viewBox="0 0 16 16" {...st}><circle cx="8" cy="8" r="6" /><path d="M3.5 4.5c2 1 2.5 4 2 6.5 M12.5 4.5c-2 1-2.5 4-2 6.5" /></svg>;
-    case "tennis":
-      return <svg width={s} height={s} viewBox="0 0 16 16" {...st}><circle cx="8" cy="8" r="6" /><path d="M2.5 5.5c3 1.5 7 1.5 11 0 M2.5 10.5c3-1.5 7-1.5 11 0" /></svg>;
-    default:
-      return <svg width={s} height={s} viewBox="0 0 16 16" {...st}><circle cx="8" cy="8" r="5" /></svg>;
-  }
-}
-
-function GridIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="2" width="5" height="5" /><rect x="9" y="2" width="5" height="5" />
-      <rect x="2" y="9" width="5" height="5" /><rect x="9" y="9" width="5" height="5" />
-    </svg>
-  );
-}
-
-function BellIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 16 16" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 11V7a4 4 0 018 0v4l1 1H3z M7 13a1 1 0 002 0" />
-    </svg>
   );
 }

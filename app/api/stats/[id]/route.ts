@@ -1,16 +1,6 @@
 import { NextResponse } from "next/server";
 import { getEspnSummary } from "@/lib/espn";
-
-interface StatLeader {
-  athlete: string;
-  value: string;
-  category: string;
-}
-
-interface TeamStats {
-  teamName: string;
-  leaders: StatLeader[];
-}
+import type { StatLeader, TeamStats } from "@/lib/types";
 
 export async function GET(
   _req: Request,
@@ -21,23 +11,18 @@ export async function GET(
 
   if (!summary) return NextResponse.json({ leaders: [] });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rawLeaders = (summary as any).leaders ?? [];
-  const teamStats: TeamStats[] = rawLeaders
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .map((teamLeader: any): TeamStats => ({
-      teamName: teamLeader.team?.displayName ?? "Unknown",
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      leaders: (teamLeader.leaders ?? []).flatMap((cat: any): StatLeader[] =>
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (cat.leaders ?? []).slice(0, 1).map((l: any): StatLeader => ({
+  const teamStats: TeamStats[] = (summary.leaders ?? [])
+    .map((t): TeamStats => ({
+      teamName: t.team?.displayName ?? "Unknown",
+      leaders: (t.leaders ?? []).flatMap((cat): StatLeader[] =>
+        (cat.leaders ?? []).slice(0, 1).map((l): StatLeader => ({
           athlete: l.athlete?.displayName ?? "Unknown",
           value: l.displayValue ?? "",
           category: cat.displayName ?? "",
         }))
       ),
     }))
-    .filter((t: TeamStats) => t.leaders.length > 0);
+    .filter((t) => t.leaders.length > 0);
 
   return NextResponse.json({ leaders: teamStats });
 }
