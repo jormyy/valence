@@ -43,9 +43,7 @@ export default function LiveTicker({ games, activeGameId, onPick }: Props) {
               </span>{" "}
               <span className="score">{g.homeTeam.score}</span>
             </span>
-            <span className="clk">
-              {g.period}{g.clock ? " " + g.clock : ""}
-            </span>
+            <span className="clk">{g.statusDisplay || "LIVE"}</span>
           </div>
         );
       })}

@@ -1,7 +1,6 @@
 "use client";
 
 import type { Game } from "@/lib/types";
-import { LEAGUE_BY_ID } from "@/lib/metadata";
 import { formatTimePT } from "@/lib/espn";
 
 interface Props {
@@ -12,19 +11,12 @@ interface Props {
 
 export default function GameCard({ game, active, onPick }: Props) {
   const s = game.status;
-  const lg = LEAGUE_BY_ID[game.league];
   const showScore =
     s !== "pre" && game.awayTeam.score != null && game.homeTeam.score != null;
   const aScore = parseInt(game.awayTeam.score || "0");
   const hScore = parseInt(game.homeTeam.score || "0");
   const aWin = showScore && aScore > hScore;
   const hWin = showScore && hScore > aScore;
-  const startMin = game.startTime
-    ? (() => {
-        const d = new Date(game.startTime);
-        return d.getHours() * 60 + d.getMinutes();
-      })()
-    : 0;
   const timeStr = formatTimePT(game.startTime);
 
   return (
@@ -35,11 +27,7 @@ export default function GameCard({ game, active, onPick }: Props) {
       {/* Time column */}
       <div className="g-time">
         {s === "in" ? (
-          <>
-            {game.period && <span className="period">{game.period}</span>}
-            {game.clock && <span className="clock">{game.clock}</span>}
-            {!game.clock && <span className="clock">LIVE</span>}
-          </>
+          <span className="clock">{game.statusDisplay || "LIVE"}</span>
         ) : s === "pre" ? (
           <span className="when">{timeStr}</span>
         ) : (

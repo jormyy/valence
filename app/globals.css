@@ -718,3 +718,129 @@ input { font: inherit; color: inherit; }
   white-space: nowrap;
 }
 .watch-tab.active { color: var(--fg); border-bottom-color: var(--accent); }
+
+/* Stats panel */
+.stats-panel { padding: 4px 0; }
+.stats-team { margin-bottom: 14px; }
+.stats-team + .stats-team { padding-top: 14px; border-top: 1px solid var(--border); }
+.stats-team-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.stats-row {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 6px;
+  align-items: center;
+  padding: 3px 0;
+  font-size: 11.5px;
+}
+.stats-row + .stats-row { border-top: 1px dashed var(--border); }
+.stats-cat { color: var(--subtle); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+.stats-athlete { color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stats-val { font-family: monospace; font-weight: 700; color: var(--fg); font-size: 13px; }
+
+/* Player fullscreen button */
+.player-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px;
+  border-radius: var(--radius);
+  color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  flex-shrink: 0;
+}
+.player-btn:hover { background: rgba(255,255,255,0.16); color: #fff; }
+
+/* TopBar loading/updated indicators */
+.updated-label {
+  font-size: 10px;
+  color: var(--subtle);
+  font-family: monospace;
+}
+.date-loading {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border: 1.5px solid var(--subtle);
+  border-top-color: var(--fg);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Mobile (≤768px) ─────────────────────────────── */
+@media (max-width: 768px) {
+  /* Shell: let topbar size naturally when it wraps */
+  .shell { grid-template-rows: auto 1fr; }
+
+  /* Topbar: allow wrapping on narrow screens */
+  .topbar { flex-wrap: wrap; height: auto; padding: 6px 10px; gap: 6px; min-height: 52px; }
+  .searchbox { max-width: none; flex: 1; min-width: 0; }
+  .date-nav { order: 10; width: 100%; }
+  .date-nav button { flex: 1; text-align: center; }
+  .top-meta { margin-left: 0; }
+  .updated-label { display: none; }
+
+  /* Main: collapse to single column */
+  .main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  .main.with-watch {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr) minmax(0, 40vh);
+  }
+
+  /* Sidebar → horizontal scrolling pill strip */
+  .rail {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 42px;
+    min-height: 42px;
+    padding: 0 8px;
+    gap: 0;
+    scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+    padding: 0 8px;
+    border-top: none;
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .rail-section:last-child { border-right: none; }
+  .rail-label { display: none; }
+  /* Unwrap sport-group so sub-buttons flow inline */
+  .sport-group { display: contents; }
+  .sport-leagues { display: none; }
+  .rail-icon { display: none; }
+  .rail-item {
+    width: auto;
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    gap: 5px;
+  }
+  .rail-count { font-size: 9.5px; }
+
+  /* WatchPanel: full-width, stacks below center */
+  .watch {
+    border-left: none;
+    border-top: 1px solid var(--border);
+    overflow-y: auto;
+    min-height: 0;
+  }
+}
