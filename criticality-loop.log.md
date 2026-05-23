@@ -8,3 +8,4 @@ source LOC: 1665 across 17 files (app/ + components/ + lib/)
 | # | verdict | findings (C/I/O) | commits | LOC Δ | tests | notes |
 |---|---|---|---|---|---|---|
 | 1 | BLOCK | 5/3/1 + 2 slop | 1 | -262 | ✅ build + ✅ agent-browser | killed /event/[id] (-141), centralized ESPN types (-10 any disables), extracted icons.tsx, decomposed WatchPanel 270→128, used teamColor from metadata everywhere, GameWithStreams to types.ts |
+| 2 | BLOCK | 5/5/5 + 4 slop | 1 | +32 | ✅ build + ✅ agent-browser | new lib/game.ts (scoreView), lib/scope.ts (applyScope/statusCounts), lib/hooks.ts (useGameStreams), attachStreamCounts helper; export PT_TZ + STATUS_ORDER; icons stroke split; log fetch errors |

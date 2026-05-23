@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { GameWithStreams } from "@/lib/types";
 import { SPORTS, LEAGUES, LEAGUE_BY_ID } from "@/lib/metadata";
+import { statusCounts } from "@/lib/scope";
 import { SportIcon, GridIcon, BellIcon } from "@/components/icons";
 
 interface Props {
@@ -16,24 +17,21 @@ interface Props {
 export default function Sidebar({ games, activeSport, setActiveSport, activeLeague, setActiveLeague }: Props) {
   const [expanded, setExpanded] = useState(new Set(SPORTS.map((s) => s.id)));
 
-  const sCounts: Record<string, { live: number; upcoming: number; total: number }> = {};
-  const lCounts: Record<string, { live: number; total: number }> = {};
-  for (const g of games) {
-    const lg = LEAGUE_BY_ID[g.league];
-    if (!lg) continue;
-    const sp = lg.sport;
-    if (!sCounts[sp]) sCounts[sp] = { live: 0, upcoming: 0, total: 0 };
-    sCounts[sp].total++;
-    if (g.status === "in") sCounts[sp].live++;
-    else if (g.status === "pre") sCounts[sp].upcoming++;
-
-    if (!lCounts[g.league]) lCounts[g.league] = { live: 0, total: 0 };
-    lCounts[g.league].total++;
-    if (g.status === "in") lCounts[g.league].live++;
-  }
-
-  const totalLive = Object.values(sCounts).reduce((a, b) => a + b.live, 0);
-  const totalUp = Object.values(sCounts).reduce((a, b) => a + b.upcoming, 0);
+  const { sportCounts, leagueCounts, totalLive, totalUp } = useMemo(() => {
+    const sportGroups = new Map<string, GameWithStreams[]>();
+    const leagueGroups = new Map<string, GameWithStreams[]>();
+    for (const g of games) {
+      const lg = LEAGUE_BY_ID[g.league];
+      if (!lg) continue;
+      (sportGroups.get(lg.sport) ?? sportGroups.set(lg.sport, []).get(lg.sport)!).push(g);
+      (leagueGroups.get(g.league) ?? leagueGroups.set(g.league, []).get(g.league)!).push(g);
+    }
+    const sportCounts = new Map([...sportGroups].map(([k, gs]) => [k, statusCounts(gs)]));
+    const leagueCounts = new Map([...leagueGroups].map(([k, gs]) => [k, statusCounts(gs)]));
+    let totalLive = 0, totalUp = 0;
+    for (const c of sportCounts.values()) { totalLive += c.live; totalUp += c.upcoming; }
+    return { sportCounts, leagueCounts, totalLive, totalUp };
+  }, [games]);
 
   function toggleSport(id: string) {
     setExpanded((prev) => {
@@ -79,12 +77,12 @@ export default function Sidebar({ games, activeSport, setActiveSport, activeLeag
           <span className="sport-count">{SPORTS.length}</span>
         </div>
         {SPORTS.map((sport) => {
-          const c = sCounts[sport.id];
+          const c = sportCounts.get(sport.id);
           if (!c || c.total === 0) return null;
           const isOpen = expanded.has(sport.id);
           const sportActive = activeSport === sport.id && !activeLeague;
           const sportLeagues = LEAGUES.filter(
-            (l) => l.sport === sport.id && lCounts[l.id]?.total > 0
+            (l) => l.sport === sport.id && (leagueCounts.get(l.id)?.total ?? 0) > 0
           );
 
           return (
@@ -107,7 +105,7 @@ export default function Sidebar({ games, activeSport, setActiveSport, activeLeag
               {isOpen && sportLeagues.length > 0 && (
                 <div className="sport-leagues">
                   {sportLeagues.map((lg) => {
-                    const lc = lCounts[lg.id] || { live: 0, total: 0 };
+                    const lc = leagueCounts.get(lg.id);
                     const lActive = activeLeague === lg.id;
                     return (
                       <button
@@ -121,8 +119,8 @@ export default function Sidebar({ games, activeSport, setActiveSport, activeLeag
                       >
                         <span className="rail-sub-label">{lg.label}</span>
                         <span className="rail-count">
-                          {lc.live > 0 && <span className="live-n">{lc.live}</span>}
-                          <span>{lc.total}</span>
+                          {(lc?.live ?? 0) > 0 && <span className="live-n">{lc!.live}</span>}
+                          <span>{lc?.total ?? 0}</span>
                         </span>
                       </button>
                     );

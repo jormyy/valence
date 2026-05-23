@@ -43,8 +43,6 @@ function makeDateLabels(): [string, string, string] {
   return [fmt(-1), fmt(0), fmt(1)];
 }
 
-const DATE_LABELS = makeDateLabels();
-
 interface GamesResponse { games: GameWithStreams[] }
 
 export default function App({ initialGames }: Props) {
@@ -63,6 +61,10 @@ export default function App({ initialGames }: Props) {
     const id = setInterval(() => setNow(Date.now()), 30_000);
     return () => clearInterval(id);
   }, []);
+
+  // Recompute labels with `now` so the "Today" pivot follows the clock past midnight
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const dateLabels = useMemo(makeDateLabels, [now]);
 
   useEffect(() => {
     if (dateIdx === 1) {
@@ -127,7 +129,7 @@ export default function App({ initialGames }: Props) {
             setLastUpdated(new Date());
           }
         })
-        .catch(() => {});
+        .catch((e) => console.error("Live poll failed:", e));
     }, 30_000);
     return () => { cancelled = true; clearInterval(id); };
   }, [dateIdx, hasLive]);
@@ -137,13 +139,11 @@ export default function App({ initialGames }: Props) {
     [games, activeSport, activeLeague]
   );
 
+  // Counts ignore the live/upcoming filter pseudo-sports — those filter the feed,
+  // not the count scope. League filter still narrows; "all" sport shows everything.
   const counts = useMemo(() => {
-    const scope = activeLeague
-      ? games.filter((g) => g.league === activeLeague)
-      : activeSport === "all" || activeSport === "live" || activeSport === "upcoming"
-        ? games
-        : applyScope(games, activeSport, null);
-    return statusCounts(scope);
+    const sport = activeSport === "live" || activeSport === "upcoming" ? "all" : activeSport;
+    return statusCounts(applyScope(games, sport, activeLeague));
   }, [games, activeSport, activeLeague]);
 
   const activeGame = games.find((g) => g.id === activeGameId) ?? null;
@@ -156,7 +156,7 @@ export default function App({ initialGames }: Props) {
         setSearch={setSearch}
         dateIdx={dateIdx}
         setDateIdx={setDateIdx}
-        dateLabels={DATE_LABELS}
+        dateLabels={dateLabels}
         liveCount={counts.live}
         dateLoading={dateLoading}
         lastUpdated={lastUpdated}
