@@ -31,10 +31,6 @@ export const LEAGUE_BY_ID: Record<League, LeagueInfo> = Object.fromEntries(
   LEAGUES.map((l) => [l.id, l])
 ) as Record<League, LeagueInfo>;
 
-export const SPORT_BY_ID: Record<string, SportInfo> = Object.fromEntries(
-  SPORTS.map((s) => [s.id, s])
-);
-
 export function teamColor(abbr: string): string {
   let h = 0;
   for (let i = 0; i < abbr.length; i++) h = (h * 31 + abbr.charCodeAt(i)) >>> 0;

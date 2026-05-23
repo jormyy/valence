@@ -23,8 +23,12 @@ export default function Sidebar({ games, activeSport, setActiveSport, activeLeag
     for (const g of games) {
       const lg = LEAGUE_BY_ID[g.league];
       if (!lg) continue;
-      (sportGroups.get(lg.sport) ?? sportGroups.set(lg.sport, []).get(lg.sport)!).push(g);
-      (leagueGroups.get(g.league) ?? leagueGroups.set(g.league, []).get(g.league)!).push(g);
+      let sportBucket = sportGroups.get(lg.sport);
+      if (!sportBucket) { sportBucket = []; sportGroups.set(lg.sport, sportBucket); }
+      sportBucket.push(g);
+      let leagueBucket = leagueGroups.get(g.league);
+      if (!leagueBucket) { leagueBucket = []; leagueGroups.set(g.league, leagueBucket); }
+      leagueBucket.push(g);
     }
     const sportCounts = new Map([...sportGroups].map(([k, gs]) => [k, statusCounts(gs)]));
     const leagueCounts = new Map([...leagueGroups].map(([k, gs]) => [k, statusCounts(gs)]));
