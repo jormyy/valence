@@ -17,9 +17,11 @@ export default function GameCard({ game, active, onPick }: Props) {
   const sv = scoreView(game);
 
   return (
-    <div
+    <button
+      type="button"
       className={`game ${active ? "active" : ""} ${s === "post" ? "final" : ""}`}
       onClick={() => onPick(game.id)}
+      aria-pressed={active}
     >
       <div className="g-time">
         {s === "in" ? (
@@ -52,7 +54,7 @@ export default function GameCard({ game, active, onPick }: Props) {
           </span>
         )}
       </div>
-    </div>
+    </button>
   );
 }
 

@@ -20,13 +20,69 @@ interface Props {
 export default function WatchPanel({ game, streams, onClose, allGames, onPick }: Props) {
   const [activeStream, setActiveStream] = useState(0);
   const [tab, setTab] = useState<"info" | "stats">("info");
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [fullscreenFallback, setFullscreenFallback] = useState(false);
+  const playerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { setActiveStream(0); setTab("info"); }, [game.id]);
+  useEffect(() => {
+    setActiveStream(0);
+    setTab("info");
+    setFullscreenFallback(false);
+  }, [game.id]);
 
-  function handleFullscreen() {
-    // requestFullscreen may reject in sandboxed/iframe contexts — swallow silently
-    iframeRef.current?.requestFullscreen?.().catch(() => {});
+  useEffect(() => {
+    function syncNativeFullscreen() {
+      const doc = document as Document & { webkitFullscreenElement?: Element | null };
+      if (!document.fullscreenElement && !doc.webkitFullscreenElement) {
+        setFullscreenFallback(false);
+      }
+    }
+
+    document.addEventListener("fullscreenchange", syncNativeFullscreen);
+    document.addEventListener("webkitfullscreenchange", syncNativeFullscreen);
+    return () => {
+      document.removeEventListener("fullscreenchange", syncNativeFullscreen);
+      document.removeEventListener("webkitfullscreenchange", syncNativeFullscreen);
+    };
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle("player-fullscreen-open", fullscreenFallback);
+    return () => document.body.classList.remove("player-fullscreen-open");
+  }, [fullscreenFallback]);
+
+  async function handleFullscreen() {
+    const doc = document as Document & {
+      webkitExitFullscreen?: () => Promise<void> | void;
+      webkitFullscreenElement?: Element | null;
+    };
+    const player = playerRef.current as (HTMLDivElement & {
+      webkitRequestFullscreen?: () => Promise<void> | void;
+    }) | null;
+
+    if (fullscreenFallback) {
+      setFullscreenFallback(false);
+      return;
+    }
+
+    if (document.fullscreenElement || doc.webkitFullscreenElement) {
+      await (document.exitFullscreen?.() ?? doc.webkitExitFullscreen?.());
+      return;
+    }
+
+    try {
+      if (player?.requestFullscreen) {
+        await player.requestFullscreen();
+        return;
+      }
+      if (player?.webkitRequestFullscreen) {
+        await player.webkitRequestFullscreen();
+        return;
+      }
+    } catch {
+      // Fall through to the CSS fullscreen path used by mobile Safari/iframe embeds.
+    }
+
+    setFullscreenFallback(true);
   }
 
   const lg = LEAGUE_BY_ID[game.league];
@@ -52,10 +108,9 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
         </button>
       </div>
 
-      <div className="player">
+      <div ref={playerRef} className={`player ${fullscreenFallback ? "fullscreen-fallback" : ""}`}>
         {current ? (
           <iframe
-            ref={iframeRef}
             key={current.url}
             src={current.url}
             className="player-iframe"
@@ -77,7 +132,11 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
           {s === "post" && <span>FINAL</span>}
           <span className="spacer" />
           {current && (
-            <button className="player-btn" onClick={handleFullscreen} aria-label="Fullscreen">
+            <button
+              className="player-btn"
+              onClick={handleFullscreen}
+              aria-label={fullscreenFallback ? "Exit fullscreen" : "Fullscreen"}
+            >
               <FullscreenIcon />
             </button>
           )}

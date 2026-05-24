@@ -25,7 +25,8 @@ export default function LiveTicker({ games, activeGameId, onPick }: Props) {
         const sv = scoreView(g);
 
         return (
-          <div
+          <button
+            type="button"
             key={g.id}
             className={`ticker-chip ${activeGameId === g.id ? "active" : ""}`}
             onClick={() => onPick(g.id)}
@@ -39,7 +40,7 @@ export default function LiveTicker({ games, activeGameId, onPick }: Props) {
               <span className="score">{g.homeTeam.score}</span>
             </span>
             <span className="clk">{g.statusDisplay || "LIVE"}</span>
-          </div>
+          </button>
         );
       })}
     </div>
