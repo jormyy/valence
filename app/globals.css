@@ -514,22 +514,6 @@ input { font: inherit; color: inherit; }
   border: 1px solid color-mix(in oklch, var(--pos), transparent 75%);
 }
 .g-streams.zero { color: var(--subtle); background: transparent; border-color: var(--border); }
-.g-note {
-  font-size: 10px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.g-watch {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--accent);
-  color: var(--accent-fg);
-}
-.game:hover .g-watch { background: oklch(0.92 0.18 125); }
 
 .empty {
   padding: 40px;
