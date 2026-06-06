@@ -1,6 +1,6 @@
 import type { Game, Stream } from "../types";
 import type { Provider } from "./types";
-import { LEAGUE_SPORT, teamInText } from "./match";
+import { LEAGUE_SPORT, gameInText } from "./match";
 
 // embedsportex.site serves one JSON keyed by sport; each match carries its embeds inline
 // (an `iframes` array), so no per-match detail call is needed.
@@ -31,10 +31,7 @@ async function fetchAll(): Promise<EsxResponse> {
 function findMatch(data: EsxResponse, game: Game): EsxMatch | undefined {
   const arr = data[LEAGUE_SPORT[game.league]];
   if (!Array.isArray(arr)) return undefined;
-  return arr.find((m) => {
-    const text = m.tag ?? "";
-    return teamInText(text, game.homeTeam.name) && teamInText(text, game.awayTeam.name);
-  });
+  return arr.find((m) => gameInText(m.tag ?? "", game));
 }
 
 function quality(server?: string): Stream["quality"] {

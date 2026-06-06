@@ -1,6 +1,6 @@
 import type { Game, Stream } from "../types";
 import type { Provider } from "./types";
-import { LEAGUE_SPORT, teamInText } from "./match";
+import { LEAGUE_SPORT, gameInText } from "./match";
 
 // sportsrc.org is a streamed.pk-shaped mirror: a per-category match list, then a
 // per-match `detail` call that returns the same {embedUrl, hd, language} sources
@@ -37,10 +37,7 @@ function matchText(m: SportsrcMatch): string {
 }
 
 function findMatch(matches: SportsrcMatch[], game: Game): SportsrcMatch | undefined {
-  return matches.find((m) => {
-    const text = matchText(m);
-    return teamInText(text, game.homeTeam.name) && teamInText(text, game.awayTeam.name);
-  });
+  return matches.find((m) => gameInText(matchText(m), game));
 }
 
 async function fetchDetail(category: string, id: string): Promise<SportsrcSource[]> {

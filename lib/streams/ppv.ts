@@ -1,20 +1,12 @@
-import type { Game, League, Stream } from "../types";
+import type { Game, Stream } from "../types";
 import type { Provider } from "./types";
-import { teamInText } from "./match";
+import { LEAGUE_SPORT, gameInText } from "./match";
 
 // ppv.land's public backend. The ppv.land front-end is mid-relaunch ("Coming Soon"),
 // but api.ppv.to is live: a listing groups events under named categories, and each
 // event's iframe comes from a per-id detail call (sources[].type === "iframe").
+// Its category names match the shared sport buckets (basketball/baseball/tennis).
 const BASE = "https://api.ppv.to/api";
-
-// ppv category names (lowercased) that correspond to each Valence league's sport.
-const PPV_CATEGORY: Record<League, string> = {
-  nba:   "basketball",
-  ncaab: "basketball",
-  mlb:   "baseball",
-  atp:   "tennis",
-  wta:   "tennis",
-};
 
 interface PpvEvent {
   id: number;
@@ -43,14 +35,11 @@ async function fetchListing(): Promise<PpvCategory[]> {
 }
 
 function findEvent(listing: PpvCategory[], game: Game): PpvEvent | undefined {
-  const want = PPV_CATEGORY[game.league];
+  const want = LEAGUE_SPORT[game.league];
   for (const cat of listing) {
     if ((cat.category ?? "").toLowerCase() !== want) continue;
     for (const ev of cat.streams ?? []) {
-      const text = ev.name ?? "";
-      if (teamInText(text, game.homeTeam.name) && teamInText(text, game.awayTeam.name)) {
-        return ev;
-      }
+      if (gameInText(ev.name ?? "", game)) return ev;
     }
   }
   return undefined;

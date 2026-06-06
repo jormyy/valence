@@ -1,6 +1,6 @@
 import type { Game, Stream } from "../types";
 import type { Provider } from "./types";
-import { LEAGUE_SPORT, teamInText } from "./match";
+import { LEAGUE_SPORT, gameInText } from "./match";
 
 // streamed.pk — the original backend. A single "all-today" listing carries source
 // references; each (source, id) pair is resolved to embed URLs via a per-source call.
@@ -50,12 +50,7 @@ async function fetchTodayEvents(): Promise<StreamedEvent[]> {
 
 function matchEvent(events: StreamedEvent[], game: Game): StreamedEvent | undefined {
   const category = LEAGUE_SPORT[game.league];
-  return events.find(
-    (e) =>
-      e.category === category &&
-      teamInText(e.id, game.homeTeam.name) &&
-      teamInText(e.id, game.awayTeam.name),
-  );
+  return events.find((e) => e.category === category && gameInText(e.id, game));
 }
 
 async function fetchSourceStreams(source: string, id: string): Promise<StreamedStream[]> {
