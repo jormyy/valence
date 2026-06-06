@@ -580,7 +580,8 @@ input { font: inherit; color: inherit; }
   flex-shrink: 0;
   overflow: hidden;
 }
-.player:fullscreen {
+.player:fullscreen,
+.player.fullscreen-fallback {
   width: 100vw;
   height: 100vh;
   height: 100dvh;
@@ -590,13 +591,8 @@ input { font: inherit; color: inherit; }
 .player.fullscreen-fallback {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  aspect-ratio: auto;
   z-index: 1000;
   border: 0;
-  background: #000;
 }
 .player::before {
   content: "";
