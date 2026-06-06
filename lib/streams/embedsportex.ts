@@ -16,7 +16,7 @@ interface EsxMatch {
   iframes?: EsxIframe[];
 }
 
-type EsxResponse = Record<string, unknown>;
+type EsxResponse = Record<string, EsxMatch[]>;
 
 async function fetchAll(): Promise<EsxResponse> {
   try {
@@ -31,7 +31,7 @@ async function fetchAll(): Promise<EsxResponse> {
 function findMatch(data: EsxResponse, game: Game): EsxMatch | undefined {
   const arr = data[LEAGUE_SPORT[game.league]];
   if (!Array.isArray(arr)) return undefined;
-  return (arr as EsxMatch[]).find((m) => {
+  return arr.find((m) => {
     const text = m.tag ?? "";
     return teamInText(text, game.homeTeam.name) && teamInText(text, game.awayTeam.name);
   });

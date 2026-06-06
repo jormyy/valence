@@ -25,7 +25,7 @@ async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
 
 export async function getStreams(game: Game): Promise<Stream[]> {
   const groups = await Promise.all(
-    PROVIDERS.map((p) => safe(() => p.getStreams(game), [] as Stream[])),
+    PROVIDERS.map((p) => safe(() => p.getStreams(game), [])),
   );
 
   // Pool every provider's streams into one list, deduped by embed URL. Labels are assigned
