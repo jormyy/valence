@@ -612,16 +612,21 @@ input { font: inherit; color: inherit; }
   margin-bottom: 14px;
 }
 .player-controls {
-  position: absolute; bottom: 0; left: 0; right: 0;
+  /* Anchored to the TOP so the bottom is left free for the embedded stream's
+     own native controls (incl. its fullscreen button — the only one that gives
+     true fullscreen on iPhone). pointer-events: none lets taps fall through to
+     those controls; only our actual buttons opt back into receiving taps. */
+  position: absolute; top: 0; left: 0; right: 0;
   display: flex; align-items: center; gap: 10px;
   padding: 8px 12px;
-  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
   color: var(--fg-2);
   font-family: monospace;
   font-size: 11px;
   z-index: 3;
-  pointer-events: auto;
+  pointer-events: none;
 }
+.player-controls .player-btn { pointer-events: auto; }
 .player-controls .live-marker {
   display: inline-flex; align-items: center; gap: 5px;
   color: var(--live);
@@ -964,7 +969,7 @@ input { font: inherit; color: inherit; }
   .player-controls {
     min-height: 48px;
     padding: 8px 10px;
-    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    padding-top: max(8px, env(safe-area-inset-top));
   }
   .player-btn {
     width: 44px;
