@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Valence — Offline</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #0b0c0f;
+        color: #eceef2;
+        font-family: system-ui, -apple-system, sans-serif;
+        text-align: center;
+      }
+      img { width: 72px; height: 72px; margin-bottom: 16px; }
+      h1 { font-size: 20px; margin: 0 0 8px; }
+      p { color: rgba(236, 238, 242, 0.6); margin: 0 0 20px; font-size: 14px; }
+      button {
+        background: #b4f264;
+        color: #0b0c0f;
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/favicon.svg" alt="" />
+      <h1>You're offline</h1>
+      <p>Valence needs a connection to load live games and streams.</p>
+      <button onclick="location.reload()">Retry</button>
+    </main>
+  </body>
+</html>
