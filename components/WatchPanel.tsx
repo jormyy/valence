@@ -8,6 +8,7 @@ import { scoreView } from "@/lib/game";
 import { CloseIcon, FullscreenIcon, PlayIcon } from "@/components/icons";
 import StatsPanel from "@/components/StatsPanel";
 import RelatedGames from "@/components/RelatedGames";
+import ShieldedPlayer from "@/components/ShieldedPlayer";
 
 interface Props {
   game: GameWithStreams;
@@ -110,13 +111,7 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
 
       <div ref={playerRef} className={`player ${fullscreenFallback ? "fullscreen-fallback" : ""}`}>
         {current ? (
-          <iframe
-            key={current.url}
-            src={current.url}
-            className="player-iframe"
-            allowFullScreen
-            allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-          />
+          <ShieldedPlayer url={current.url} />
         ) : (
           <div className="player-empty">
             <div className="player-play"><PlayIcon /></div>
