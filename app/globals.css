@@ -1083,14 +1083,6 @@ input { font: inherit; color: inherit; }
 }
 .shield-info strong { color: var(--fg); }
 .shield-info em { color: var(--live); font-style: normal; }
-.shield-hint {
-  position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 4;
-  padding: 5px 11px; border-radius: 999px;
-  background: rgba(10,11,15,0.8); border: 1px solid var(--border-2);
-  color: var(--fg-2); font-size: 11px; white-space: nowrap;
-  pointer-events: none; animation: hint-fade 0.3s ease;
-}
-@keyframes hint-fade { from { opacity: 0; } to { opacity: 1; } }
 .player-empty { display: flex; flex-direction: column; align-items: center; z-index: 1; }
 .related-matchup { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .stats-empty { padding: 20px 6px; color: var(--subtle); font-size: 12px; line-height: 1.5; }
