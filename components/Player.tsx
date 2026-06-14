@@ -31,15 +31,28 @@ export default function Player({ url }: { url: string }) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // New stream → re-arm, re-show the hint, and pull keyboard focus to the frame so Space starts it.
+  // New stream → re-arm, re-show the hint, and aggressively keep keyboard focus on the frame so a
+  // Space press reaches the embed's keydown handler (which starts it with no click → no pop). We
+  // re-focus on mount, after boot, on the frame's load, and on hover — and if the user presses Space
+  // while focus is still on our page, we redirect it to the frame so the next press lands.
   useEffect(() => {
     setArmed(true);
     setHint(true);
     const f = iframeRef.current;
     const focus = () => { try { f?.contentWindow?.focus(); } catch {} f?.focus(); };
     focus();
-    const t = setTimeout(focus, 1200); // again once the embed has booted
-    return () => { clearTimeout(t); if (timer.current) clearTimeout(timer.current); };
+    const timers = [setTimeout(focus, 400), setTimeout(focus, 1500), setTimeout(focus, 3500)];
+    f?.addEventListener("load", focus);
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.code === "Space" || e.key === " " || e.code === "KeyK") && document.activeElement !== f) focus();
+    };
+    document.addEventListener("keydown", onKey, true);
+    return () => {
+      timers.forEach(clearTimeout);
+      f?.removeEventListener("load", focus);
+      document.removeEventListener("keydown", onKey, true);
+      if (timer.current) clearTimeout(timer.current);
+    };
   }, [url]);
 
   function dropForTap() {
@@ -75,6 +88,7 @@ export default function Player({ url }: { url: string }) {
         <div
           className="ad-guard"
           style={{ bottom: CONTROL_BAR_BAND }}
+          onMouseEnter={() => { try { iframeRef.current?.contentWindow?.focus(); } catch {} iframeRef.current?.focus(); }}
           onClickCapture={absorb}
           onMouseDownCapture={absorb}
           onPointerDownCapture={absorb}
