@@ -27,13 +27,52 @@ const INTERACT_WINDOW_MS = 6000;
 
 export default function Player({ url, clean }: { url: string; clean?: boolean }) {
   // Clean (non-Adcash) sources have no pointerdown pop-under, so a normal click/tap plays them with
-  // zero pop-ups — render the bare embed and let its own controls work. No guard, no keyboard path.
-  // This is the path to a true click-to-play-zero-pop: the moment lib/streams surfaces a clean
-  // source for a game, it lands here automatically. (Separate components keep hooks unconditional.)
-  return clean ? <CleanPlayer url={url} /> : <GuardedPlayer url={url} />;
+  // zero pop-ups — no guard, no keyboard path. A direct .m3u8 plays in OUR OWN <video>+hls.js (the
+  // most natural case: native click-to-play/volume/fullscreen, zero ads); a clean EMBED (YouTube/
+  // Twitch) renders as a bare iframe. The Adcash family keeps the guard + Space-to-play. (Separate
+  // components keep hooks unconditional.)
+  if (clean) {
+    return /\.m3u8(\?|$)/i.test(url) ? <CleanHlsPlayer url={url} /> : <CleanEmbed url={url} />;
+  }
+  return <GuardedPlayer url={url} />;
 }
 
-function CleanPlayer({ url }: { url: string }) {
+// Our own player for a clean direct HLS stream — a plain click on the native controls plays it,
+// zero pop-ups. hls.js is dynamically imported so it never weighs down the Adcash path.
+function CleanHlsPlayer({ url }: { url: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = url; // native HLS (Safari/iOS)
+      return;
+    }
+    let destroyed = false;
+    let hls: { destroy: () => void } | null = null;
+    import("hls.js").then(({ default: Hls }) => {
+      if (destroyed || !Hls.isSupported()) return;
+      const h = new Hls({ maxBufferLength: 20 });
+      h.loadSource(url);
+      h.attachMedia(video);
+      hls = h;
+    });
+    return () => { destroyed = true; hls?.destroy(); };
+  }, [url]);
+  return (
+    <video
+      ref={videoRef}
+      key={url}
+      className="player-iframe"
+      controls
+      autoPlay
+      muted
+      playsInline
+    />
+  );
+}
+
+function CleanEmbed({ url }: { url: string }) {
   return (
     <iframe
       key={url}
