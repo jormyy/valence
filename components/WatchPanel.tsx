@@ -111,7 +111,7 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
 
       <div ref={playerRef} className={`player ${fullscreenFallback ? "fullscreen-fallback" : ""}`}>
         {current ? (
-          <Player url={current.url} />
+          <Player url={current.url} clean={current.clean} />
         ) : (
           <div className="player-empty">
             <div className="player-play"><PlayIcon /></div>

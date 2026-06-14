@@ -29,6 +29,11 @@ export interface Stream {
   url: string;
   quality: "HD" | "SD" | "4K";
   language?: string;
+  // True for non-Adcash players (e.g. YouTube/Twitch/official, or any host whose embed doesn't fire
+  // a pointerdown pop-under). Such sources get a plain iframe — a normal click plays them with zero
+  // pop-ups, so they need neither the ad-guard nor the keyboard-start. Providers set this; the
+  // Adcash family (embed.st / streamapi / embedindia) leaves it falsy and gets the guarded player.
+  clean?: boolean;
 }
 
 export interface StatLeader {

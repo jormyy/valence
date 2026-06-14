@@ -25,7 +25,28 @@ import { useState, useEffect, useRef } from "react";
 const CONTROL_BAR_BAND = "max(52px, 11%)";
 const INTERACT_WINDOW_MS = 6000;
 
-export default function Player({ url }: { url: string }) {
+export default function Player({ url, clean }: { url: string; clean?: boolean }) {
+  // Clean (non-Adcash) sources have no pointerdown pop-under, so a normal click/tap plays them with
+  // zero pop-ups — render the bare embed and let its own controls work. No guard, no keyboard path.
+  // This is the path to a true click-to-play-zero-pop: the moment lib/streams surfaces a clean
+  // source for a game, it lands here automatically. (Separate components keep hooks unconditional.)
+  return clean ? <CleanPlayer url={url} /> : <GuardedPlayer url={url} />;
+}
+
+function CleanPlayer({ url }: { url: string }) {
+  return (
+    <iframe
+      key={url}
+      src={url}
+      className="player-iframe"
+      title="Live stream"
+      allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+      allowFullScreen
+    />
+  );
+}
+
+function GuardedPlayer({ url }: { url: string }) {
   const [armed, setArmed] = useState(true);
   const [hint, setHint] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
