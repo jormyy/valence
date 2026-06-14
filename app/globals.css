@@ -1069,6 +1069,23 @@ input { font: inherit; color: inherit; }
 }
 .guard-toggle.off { color: var(--live); }
 .guard-toggle:hover { opacity: 1; }
+/* Ad-free keyboard-start hint: centred over the guard. Pressing Space (frame focused) starts the
+   embed via its keydown handler — no click, so the pop-under never fires. */
+.kbd-start {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5;
+  display: inline-flex; align-items: center; gap: 7px;
+  border: 1px solid var(--border-2); border-radius: 999px;
+  background: rgba(10,11,15,0.82); color: var(--fg-2);
+  font-family: monospace; font-size: 12px; letter-spacing: 0.02em;
+  padding: 8px 14px; cursor: pointer;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+}
+.kbd-start:hover { color: var(--fg); }
+.kbd-key {
+  border: 1px solid var(--border-2); border-bottom-width: 2px; border-radius: 5px;
+  background: rgba(255,255,255,0.06); color: var(--fg);
+  padding: 2px 8px; font-size: 11px;
+}
 .player-empty { display: flex; flex-direction: column; align-items: center; z-index: 1; }
 .related-matchup { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .stats-empty { padding: 20px 6px; color: var(--subtle); font-size: 12px; line-height: 1.5; }
