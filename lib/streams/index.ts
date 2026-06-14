@@ -1,6 +1,5 @@
 import type { Game, GameWithStreams, Stream } from "../types";
 import type { Provider } from "./types";
-import { youtube } from "./youtube";
 import { streamed } from "./streamed";
 import { sportsrc } from "./sportsrc";
 import { embedsportex } from "./embedsportex";
@@ -13,9 +12,7 @@ import { ppv } from "./ppv";
 // topembed.pw is intentionally omitted — it sits behind Cloudflare and answers server-side
 // requests with a JS challenge (not JSON), so it can't be fetched from a Next.js route.
 // ppv.land's own domain is mid-relaunch; we hit its live backend (api.ppv.to) directly.
-// youtube is first so a CLEAN (non-Adcash) stream, when one exists for a game, becomes the default
-// tab — a plain click plays it with zero pop-ups. The streamed.pk family (Adcash) follows.
-const PROVIDERS: Provider[] = [youtube, streamed, sportsrc, embedsportex, ppv];
+const PROVIDERS: Provider[] = [streamed, sportsrc, embedsportex, ppv];
 
 // Runs a provider call, swallowing failures so one bad backend never breaks the rest.
 async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {

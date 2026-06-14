@@ -8,7 +8,7 @@ import { scoreView } from "@/lib/game";
 import { CloseIcon, FullscreenIcon, PlayIcon } from "@/components/icons";
 import StatsPanel from "@/components/StatsPanel";
 import RelatedGames from "@/components/RelatedGames";
-import Player from "@/components/Player";
+import ShieldedPlayer from "@/components/ShieldedPlayer";
 
 interface Props {
   game: GameWithStreams;
@@ -111,7 +111,7 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
 
       <div ref={playerRef} className={`player ${fullscreenFallback ? "fullscreen-fallback" : ""}`}>
         {current ? (
-          <Player url={current.url} clean={current.clean} />
+          <ShieldedPlayer url={current.url} />
         ) : (
           <div className="player-empty">
             <div className="player-play"><PlayIcon /></div>

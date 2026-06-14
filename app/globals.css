@@ -1056,36 +1056,33 @@ input { font: inherit; color: inherit; }
 .live-dot.inline { display: inline-block; margin-right: 4px; }
 .watch-matchup { font-size: 12px; color: var(--fg); font-weight: 500; }
 .player-iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 0; }
-/* Ad-guard (see components/Player.tsx): a transparent layer over the video BODY that absorbs taps
-   so the embed's pop-under ad-catcher can't fire. `bottom` is set inline to leave the embed's own
-   control bar exposed. Sits below the player chrome (z-index 3) so our fullscreen button works. */
-.ad-guard { position: absolute; top: 0; left: 0; right: 0; z-index: 2; background: transparent; cursor: default; }
-.guard-toggle {
-  position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 5;
+/* Transparent layer over the embed that absorbs every tap so its pop-up ads can't fire.
+   Sits below the player-controls (z-index 3) so our fullscreen button stays usable. */
+.click-shield { position: absolute; inset: 0; z-index: 2; background: transparent; cursor: default; }
+.shield-bar {
+  position: absolute; bottom: 8px; right: 8px; z-index: 4;
+  display: flex; align-items: flex-end; gap: 6px;
+}
+.shield-toggle, .shield-info-btn {
   border: 0; border-radius: 6px;
   background: rgba(0,0,0,0.55); color: var(--fg-2);
   font-family: monospace; font-size: 10px; letter-spacing: 0.02em;
-  padding: 4px 9px; cursor: pointer; opacity: 0.7; transition: opacity 0.15s;
+  cursor: pointer; opacity: 0.65; transition: opacity 0.15s;
 }
-.guard-toggle.off { color: var(--live); }
-.guard-toggle:hover { opacity: 1; }
-/* Ad-free keyboard-start hint: centred over the guard. Pressing Space (frame focused) starts the
-   embed via its keydown handler — no click, so the pop-under never fires. */
-.kbd-start {
-  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5;
-  display: inline-flex; align-items: center; gap: 7px;
-  border: 1px solid var(--border-2); border-radius: 999px;
-  background: rgba(10,11,15,0.82); color: var(--fg-2);
-  font-family: monospace; font-size: 12px; letter-spacing: 0.02em;
-  padding: 8px 14px; cursor: pointer;
+.shield-toggle { padding: 4px 8px; }
+.shield-toggle.off { color: var(--live); }
+.shield-info-btn { width: 22px; height: 22px; font-size: 12px; line-height: 1; }
+.shield-toggle:hover, .shield-info-btn:hover { opacity: 1; }
+.shield-info {
+  position: absolute; bottom: 30px; right: 0; z-index: 5;
+  width: 240px; max-width: 70vw;
+  padding: 9px 11px; border-radius: 8px;
+  background: rgba(10,11,15,0.94); border: 1px solid var(--border-2);
+  color: var(--fg-2); font-size: 11px; line-height: 1.45;
   box-shadow: 0 6px 24px rgba(0,0,0,0.5);
 }
-.kbd-start:hover { color: var(--fg); }
-.kbd-key {
-  border: 1px solid var(--border-2); border-bottom-width: 2px; border-radius: 5px;
-  background: rgba(255,255,255,0.06); color: var(--fg);
-  padding: 2px 8px; font-size: 11px;
-}
+.shield-info strong { color: var(--fg); }
+.shield-info em { color: var(--live); font-style: normal; }
 .player-empty { display: flex; flex-direction: column; align-items: center; z-index: 1; }
 .related-matchup { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .stats-empty { padding: 20px 6px; color: var(--subtle); font-size: 12px; line-height: 1.5; }
