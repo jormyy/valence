@@ -99,7 +99,7 @@ function GuardedPlayer({ url }: { url: string }) {
     setArmed(true);
     setHint(true);
     const f = iframeRef.current;
-    const focus = () => { try { f?.contentWindow?.focus(); } catch {} f?.focus(); };
+    const focus = () => { try { f?.contentWindow?.focus(); } catch {} f?.focus({ preventScroll: true }); };
     focus();
     const timers = [setTimeout(focus, 400), setTimeout(focus, 1500), setTimeout(focus, 3500)];
     f?.addEventListener("load", focus);
@@ -107,10 +107,22 @@ function GuardedPlayer({ url }: { url: string }) {
       if ((e.code === "Space" || e.key === " " || e.code === "KeyK") && document.activeElement !== f) focus();
     };
     document.addEventListener("keydown", onKey, true);
+    // Our own chrome (fullscreen button, stream tabs, the guard toggle) is focusable, so clicking it
+    // would steal keyboard focus and make Space activate THAT button instead of playing. After any
+    // click on a watch-panel control, pull focus back to the frame so Space keeps controlling the
+    // player. (Mouse clicks only — keyboard Tab through controls is untouched, so a11y still works.)
+    const onClick = (e: MouseEvent) => {
+      const t = e.target;
+      if (t instanceof Element && t !== f && t.closest(".watch") && t.closest("button")) {
+        setTimeout(focus, 0);
+      }
+    };
+    document.addEventListener("click", onClick, true);
     return () => {
       timers.forEach(clearTimeout);
       f?.removeEventListener("load", focus);
       document.removeEventListener("keydown", onKey, true);
+      document.removeEventListener("click", onClick, true);
       if (timer.current) clearTimeout(timer.current);
     };
   }, [url]);
