@@ -72,4 +72,5 @@
 .rail-sub:hover { color: var(--fg); background: var(--bg-2); }
 .rail-sub.active { color: var(--fg); background: var(--bg-2); }
 .rail-sub .rail-count { font-size: 10px; }
-
+.sport-count { font-family: monospace; color: var(--subtle); }
+.sport-leagues .rail-sub-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

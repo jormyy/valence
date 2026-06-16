@@ -36,3 +36,4 @@ body {
 body.player-fullscreen-open { overflow: hidden; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 input { font: inherit; color: inherit; }
+.dim { color: var(--subtle); }

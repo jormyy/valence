@@ -61,10 +61,6 @@ export async function getStreamCounts(games: readonly StreamLookup[]): Promise<S
   return totals;
 }
 
-export async function getStreamCount(game: StreamLookup): Promise<number> {
-  return (await getStreamCounts([game])).get(game.id) ?? 0;
-}
-
 // The aggregated backends only carry today's events; skip the fetch for other dates.
 export async function attachStreamCounts(
   games: Game[],

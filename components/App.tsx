@@ -147,7 +147,8 @@ export default function App({ initialGames }: Props) {
   }, [games, activeSport, activeLeague]);
 
   const activeGame = games.find((g) => g.id === activeGameId) ?? null;
-  const activeStreams = useGameStreams(activeGame);
+  const streamState = useGameStreams(activeGame);
+  const activeStreams = streamState.gameId === activeGame?.id ? streamState.streams : [];
 
   return (
     <div className="shell">
