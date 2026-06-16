@@ -1,14 +1,23 @@
 import type { Game } from "./types";
+import type { Sport } from "./metadata";
 import { LEAGUE_BY_ID } from "./metadata";
 
-export function applyScope<T extends Game>(games: T[], sport: string, league: string | null): T[] {
+export type SportScope = "all" | Sport;
+export type StatusFilter = "all" | "live" | "upcoming" | "final";
+
+export function applyScope<T extends Game>(games: T[], sport: SportScope, league: Game["league"] | null): T[] {
   return games.filter((g) => {
     if (league) return g.league === league;
-    if (sport === "live") return g.status === "in";
-    if (sport === "upcoming") return g.status === "pre";
     if (sport !== "all") return LEAGUE_BY_ID[g.league]?.sport === sport;
     return true;
   });
+}
+
+export function applyStatusFilter<T extends Game>(games: T[], status: StatusFilter): T[] {
+  if (status === "live") return games.filter((g) => g.status === "in");
+  if (status === "upcoming") return games.filter((g) => g.status === "pre");
+  if (status === "final") return games.filter((g) => g.status === "post");
+  return games;
 }
 
 export interface StatusCounts {

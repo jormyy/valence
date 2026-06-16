@@ -9,10 +9,16 @@ interface Props {
 }
 
 export default function StatsPanel({ gameId, status }: Props) {
-  const [stats, setStats] = useState<TeamStats[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<TeamStats[] | null>(status === "pre" ? [] : null);
+  const [loading, setLoading] = useState(status !== "pre");
 
   useEffect(() => {
+    if (status === "pre") {
+      setStats([]);
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
     setStats(null);
     setLoading(true);
@@ -32,7 +38,7 @@ export default function StatsPanel({ gameId, status }: Props) {
         }
       });
     return () => { cancelled = true; };
-  }, [gameId]);
+  }, [gameId, status]);
 
   if (loading) {
     return <div className="stats-empty">Loading…</div>;

@@ -4,6 +4,8 @@ import { useMemo } from "react";
 import type { GameWithStreams, League } from "@/lib/types";
 import { LEAGUES, LEAGUE_BY_ID } from "@/lib/metadata";
 import { STATUS_ORDER } from "@/lib/espn";
+import type { StatusFilter } from "@/lib/scope";
+import { applyStatusFilter } from "@/lib/scope";
 import { SportIcon } from "@/components/icons";
 import GameCard from "@/components/GameCard";
 
@@ -11,7 +13,7 @@ interface Props {
   games: GameWithStreams[];
   activeGameId: string | null;
   onPick: (id: string) => void;
-  statusFilter: string;
+  statusFilter: StatusFilter;
   search: string;
 }
 
@@ -23,10 +25,7 @@ const LEAGUE_ORDER: Record<string, number> = LEAGUES.reduce((acc, l, i) => {
 export default function GameFeed({ games, activeGameId, onPick, statusFilter, search }: Props) {
   const visible = useMemo(() => {
     const q = search.toLowerCase().trim();
-    return games.filter((g) => {
-      if (statusFilter === "live" && g.status !== "in") return false;
-      if (statusFilter === "upcoming" && g.status !== "pre") return false;
-      if (statusFilter === "final" && g.status !== "post") return false;
+    return applyStatusFilter(games, statusFilter).filter((g) => {
       if (!q) return true;
       const lg = LEAGUE_BY_ID[g.league];
       const hay = [

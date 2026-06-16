@@ -1,20 +1,32 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { GameWithStreams } from "@/lib/types";
+import type { GameWithStreams, League } from "@/lib/types";
+import type { Sport } from "@/lib/metadata";
 import { SPORTS, LEAGUES, LEAGUE_BY_ID } from "@/lib/metadata";
+import type { SportScope, StatusFilter } from "@/lib/scope";
 import { statusCounts } from "@/lib/scope";
 import { SportIcon, GridIcon, BellIcon } from "@/components/icons";
 
 interface Props {
   games: GameWithStreams[];
-  activeSport: string;
-  setActiveSport: (v: string) => void;
-  activeLeague: string | null;
-  setActiveLeague: (v: string | null) => void;
+  activeSport: SportScope;
+  setActiveSport: (v: SportScope) => void;
+  activeLeague: League | null;
+  setActiveLeague: (v: League | null) => void;
+  statusFilter: StatusFilter;
+  setStatusFilter: (v: StatusFilter) => void;
 }
 
-export default function Sidebar({ games, activeSport, setActiveSport, activeLeague, setActiveLeague }: Props) {
+export default function Sidebar({
+  games,
+  activeSport,
+  setActiveSport,
+  activeLeague,
+  setActiveLeague,
+  statusFilter,
+  setStatusFilter,
+}: Props) {
   const [expanded, setExpanded] = useState(new Set(SPORTS.map((s) => s.id)));
 
   const { sportCounts, leagueCounts, totalLive, totalUp } = useMemo(() => {
@@ -37,7 +49,7 @@ export default function Sidebar({ games, activeSport, setActiveSport, activeLeag
     return { sportCounts, leagueCounts, totalLive, totalUp };
   }, [games]);
 
-  function toggleSport(id: string) {
+  function toggleSport(id: Sport) {
     setExpanded((prev) => {
       const n = new Set(prev);
       n.has(id) ? n.delete(id) : n.add(id);
@@ -50,24 +62,24 @@ export default function Sidebar({ games, activeSport, setActiveSport, activeLeag
       <div className="rail-section">
         <div className="rail-label"><span>Browse</span></div>
         <button
-          className={`rail-item ${activeSport === "all" ? "active" : ""}`}
-          onClick={() => { setActiveSport("all"); setActiveLeague(null); }}
+          className={`rail-item ${activeSport === "all" && statusFilter === "all" ? "active" : ""}`}
+          onClick={() => { setActiveSport("all"); setActiveLeague(null); setStatusFilter("all"); }}
         >
           <span className="rail-icon"><GridIcon /></span>
           <span>All sports</span>
           <span className="rail-count">{games.length}</span>
         </button>
         <button
-          className={`rail-item ${activeSport === "live" ? "active" : ""}`}
-          onClick={() => { setActiveSport("live"); setActiveLeague(null); }}
+          className={`rail-item ${statusFilter === "live" ? "active" : ""}`}
+          onClick={() => { setActiveSport("all"); setActiveLeague(null); setStatusFilter("live"); }}
         >
           <span className="rail-icon"><span className="live-dot" /></span>
           <span>Live now</span>
           <span className="rail-count"><span className="live-n">{totalLive}</span></span>
         </button>
         <button
-          className={`rail-item ${activeSport === "upcoming" ? "active" : ""}`}
-          onClick={() => { setActiveSport("upcoming"); setActiveLeague(null); }}
+          className={`rail-item ${statusFilter === "upcoming" ? "active" : ""}`}
+          onClick={() => { setActiveSport("all"); setActiveLeague(null); setStatusFilter("upcoming"); }}
         >
           <span className="rail-icon"><BellIcon /></span>
           <span>Upcoming</span>
@@ -97,6 +109,7 @@ export default function Sidebar({ games, activeSport, setActiveSport, activeLeag
                   toggleSport(sport.id);
                   setActiveSport(sport.id);
                   setActiveLeague(null);
+                  setStatusFilter("all");
                 }}
               >
                 <span className="rail-icon"><SportIcon sport={sport.id} /></span>
@@ -119,6 +132,7 @@ export default function Sidebar({ games, activeSport, setActiveSport, activeLeag
                           e.stopPropagation();
                           setActiveSport(sport.id);
                           setActiveLeague(lg.id);
+                          setStatusFilter("all");
                         }}
                       >
                         <span className="rail-sub-label">{lg.label}</span>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import type { Game, GameWithStreams } from "@/lib/types";
 import { PT_TZ } from "@/lib/espn";
+import type { SportScope, StatusFilter } from "@/lib/scope";
 import { applyScope, statusCounts } from "@/lib/scope";
 import { useGameStreams } from "@/lib/hooks";
 import TopBar from "@/components/TopBar";
@@ -48,9 +49,9 @@ interface GamesResponse { games: GameWithStreams[] }
 export default function App({ initialGames }: Props) {
   const [search, setSearch] = useState("");
   const [dateIdx, setDateIdx] = useState(1);
-  const [activeSport, setActiveSport] = useState("all");
-  const [activeLeague, setActiveLeague] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [activeSport, setActiveSport] = useState<SportScope>("all");
+  const [activeLeague, setActiveLeague] = useState<Game["league"] | null>(null);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [activeGameId, setActiveGameId] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [fetchedGames, setFetchedGames] = useState<GameWithStreams[] | null>(null);
@@ -139,16 +140,20 @@ export default function App({ initialGames }: Props) {
     [games, activeSport, activeLeague]
   );
 
-  // Counts ignore the live/upcoming filter pseudo-sports — those filter the feed,
-  // not the count scope. League filter still narrows; "all" sport shows everything.
-  const counts = useMemo(() => {
-    const sport = activeSport === "live" || activeSport === "upcoming" ? "all" : activeSport;
-    return statusCounts(applyScope(games, sport, activeLeague));
-  }, [games, activeSport, activeLeague]);
+  const counts = useMemo(
+    () => statusCounts(applyScope(games, activeSport, activeLeague)),
+    [games, activeSport, activeLeague]
+  );
 
   const activeGame = games.find((g) => g.id === activeGameId) ?? null;
   const streamState = useGameStreams(activeGame);
   const activeStreams = streamState.gameId === activeGame?.id ? streamState.streams : [];
+  const statusTabs: { id: StatusFilter; label: string; count: number; live: boolean }[] = [
+    { id: "all", label: "All", count: counts.total, live: false },
+    { id: "live", label: "Live", count: counts.live, live: true },
+    { id: "upcoming", label: "Upcoming", count: counts.upcoming, live: false },
+    { id: "final", label: "Final", count: counts.final, live: false },
+  ];
 
   return (
     <div className="shell">
@@ -169,15 +174,12 @@ export default function App({ initialGames }: Props) {
           setActiveSport={setActiveSport}
           activeLeague={activeLeague}
           setActiveLeague={setActiveLeague}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
         />
         <div className="center">
           <div className="filterbar">
-            {([
-              { id: "all", label: "All", count: counts.total, live: false as const },
-              { id: "live", label: "Live", count: counts.live, live: true as const },
-              { id: "upcoming", label: "Upcoming", count: counts.upcoming, live: false as const },
-              { id: "final", label: "Final", count: counts.final, live: false as const },
-            ]).map((t) => (
+            {statusTabs.map((t) => (
               <button
                 key={t.id}
                 className={`tab-pill ${statusFilter === t.id ? "active" : ""} ${t.live ? "live-tab" : ""}`}

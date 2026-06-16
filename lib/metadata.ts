@@ -1,13 +1,15 @@
 import type { League } from "./types";
 
+export type Sport = "basketball" | "baseball" | "tennis";
+
 export interface SportInfo {
-  id: string;
+  id: Sport;
   label: string;
 }
 
 export interface LeagueInfo {
   id: League;
-  sport: string;
+  sport: Sport;
   label: string;
   short: string;
   region: string;
