@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./styles/shell.css";
+import "./styles/sidebar.css";
+import "./styles/feed.css";
+import "./styles/watch.css";
+import "./styles/mobile.css";
 import ServiceWorkerRegistration from "../components/ServiceWorkerRegistration";
 
 export const metadata: Metadata = {

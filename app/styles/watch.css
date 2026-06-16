@@ -1,0 +1,324 @@
+.watch {
+  border-left: 1px solid var(--border);
+  background: var(--bg-1);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.watch-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  min-height: 40px;
+}
+.watch-header .league-tag {
+  font-family: monospace; font-size: 10px;
+  color: var(--accent); background: color-mix(in oklch, var(--accent), transparent 85%);
+  border: 1px solid color-mix(in oklch, var(--accent), transparent 70%);
+  padding: 2px 6px; border-radius: 3px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.watch-header .status {
+  font-family: monospace; font-size: 11px;
+  color: var(--live);
+}
+.watch-header .close {
+  margin-left: auto;
+  color: var(--muted);
+}
+.watch-header .close:hover { color: var(--fg); }
+
+.player {
+  aspect-ratio: 16/9;
+  background: linear-gradient(135deg, #0a0c10 0%, #11141b 50%, #0a0c10 100%);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.player:fullscreen,
+.player.fullscreen-fallback {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  aspect-ratio: auto;
+  background: #000;
+}
+.player.fullscreen-fallback {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  border: 0;
+}
+.player::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(45deg, transparent 0 12px, rgba(255,255,255,0.012) 12px 13px);
+  pointer-events: none;
+}
+.player-placeholder {
+  text-align: center;
+  color: var(--subtle);
+  font-size: 11px;
+  font-family: monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.player-placeholder .big {
+  display: block;
+  font-size: 22px;
+  color: var(--fg-2);
+  font-weight: 500;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+.player-play {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--fg);
+  margin-bottom: 14px;
+}
+.player-controls {
+  /* Anchored to the TOP so the bottom is left free for the embedded stream's
+     own native controls (incl. its fullscreen button — the only one that gives
+     true fullscreen on iPhone). pointer-events: none lets taps fall through to
+     those controls; only our actual buttons opt back into receiving taps. */
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+  color: var(--fg-2);
+  font-family: monospace;
+  font-size: 11px;
+  z-index: 3;
+  pointer-events: none;
+}
+.player-controls .player-btn { pointer-events: auto; }
+.player-controls .live-marker {
+  display: inline-flex; align-items: center; gap: 5px;
+  color: var(--live);
+}
+.player-controls .spacer { flex: 1; }
+
+.stream-tabs {
+  display: flex; align-items: center; gap: 4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-2);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.stream-tab {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-family: monospace;
+  border-radius: 4px;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.stream-tab.active { background: var(--fg); color: var(--bg-0); border-color: var(--fg); }
+.stream-tab .q { font-size: 9px; opacity: 0.6; }
+
+.scorebox {
+  padding: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.scorebox .matchup-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 12px;
+  align-items: center;
+}
+.scorebox .side { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.scorebox .side .name { font-size: 12px; color: var(--fg-2); font-weight: 500; }
+.scorebox .side .badge-lg {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: monospace;
+  font-size: 13px; font-weight: 700;
+  color: rgba(0,0,0,0.75);
+}
+.scorebox .scores {
+  display: flex; align-items: center; gap: 14px;
+  font-family: monospace;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.scorebox .scores .dash { color: var(--subtle); font-size: 18px; font-weight: 400; }
+.scorebox .scores .winner { color: var(--fg); }
+.scorebox .scores .loser { color: var(--muted); }
+.scorebox .status-line {
+  margin-top: 10px;
+  text-align: center;
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--live);
+}
+.scorebox .status-line.pre { color: var(--muted); }
+
+.watch-info {
+  flex: 1; overflow-y: auto;
+  padding: 10px 14px;
+  scrollbar-width: thin;
+}
+.info-row {
+  display: flex; align-items: center;
+  padding: 5px 0;
+  font-size: 12px;
+}
+.info-row .lbl { color: var(--subtle); width: 90px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+.info-row .val { color: var(--fg-2); }
+.info-row + .info-row { border-top: 1px dashed var(--border); }
+
+.related {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.related h4 {
+  margin: 0 0 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--subtle);
+}
+.related-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 0;
+  font-size: 12px;
+  color: var(--fg-2);
+  cursor: pointer;
+}
+.related-row:hover { color: var(--fg); }
+.related-row .tag {
+  font-family: monospace; font-size: 9px;
+  color: var(--subtle); width: 36px; flex-shrink: 0;
+}
+.related-row .clk { font-family: monospace; font-size: 10px; color: var(--muted); margin-left: auto; }
+.related-row .live-mini {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--live);
+  flex-shrink: 0;
+}
+
+.watch-tabs {
+  display: flex; border-bottom: 1px solid var(--border);
+  background: var(--bg-1);
+  padding: 0 12px;
+}
+.watch-tab {
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+.watch-tab.active { color: var(--fg); border-bottom-color: var(--accent); }
+
+/* Stats panel */
+.stats-panel { padding: 4px 0; }
+.stats-team { margin-bottom: 14px; }
+.stats-team + .stats-team { padding-top: 14px; border-top: 1px solid var(--border); }
+.stats-team-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.stats-row {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 6px;
+  align-items: center;
+  padding: 3px 0;
+  font-size: 11.5px;
+}
+.stats-row + .stats-row { border-top: 1px dashed var(--border); }
+.stats-cat { color: var(--subtle); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+.stats-athlete { color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stats-val { font-family: monospace; font-weight: 700; color: var(--fg); font-size: 13px; }
+
+/* Player fullscreen button */
+.player-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px;
+  border-radius: var(--radius);
+  color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
+.player-btn:hover { background: rgba(255,255,255,0.16); color: #fff; }
+
+/* TopBar loading/updated indicators */
+.updated-label {
+  font-size: 10px;
+  color: var(--subtle);
+  font-family: monospace;
+}
+.date-loading {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border: 1.5px solid var(--subtle);
+  border-top-color: var(--fg);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* WatchPanel internal helpers (extracted from inline styles) */
+.dim { color: var(--subtle); }
+.live-dot.inline { display: inline-block; margin-right: 4px; }
+.watch-matchup { font-size: 12px; color: var(--fg); font-weight: 500; }
+.player-iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 0; }
+/* Transparent layer over the embed that absorbs every tap so its pop-up ads can't fire.
+   Sits below the player-controls (z-index 3) so our fullscreen button stays usable. */
+.click-shield { position: absolute; inset: 0; z-index: 2; background: transparent; cursor: default; }
+.shield-bar {
+  position: absolute; bottom: 8px; right: 8px; z-index: 4;
+  display: flex; align-items: flex-end; gap: 6px;
+}
+.shield-toggle, .shield-info-btn {
+  border: 0; border-radius: 6px;
+  background: rgba(0,0,0,0.55); color: var(--fg-2);
+  font-family: monospace; font-size: 10px; letter-spacing: 0.02em;
+  cursor: pointer; opacity: 0.65; transition: opacity 0.15s;
+}
+.shield-toggle { padding: 4px 8px; }
+.shield-toggle.off { color: var(--live); }
+.shield-info-btn { width: 22px; height: 22px; font-size: 12px; line-height: 1; }
+.shield-toggle:hover, .shield-info-btn:hover { opacity: 1; }
+.shield-info {
+  position: absolute; bottom: 30px; right: 0; z-index: 5;
+  width: 240px; max-width: 70vw;
+  padding: 9px 11px; border-radius: 8px;
+  background: rgba(10,11,15,0.94); border: 1px solid var(--border-2);
+  color: var(--fg-2); font-size: 11px; line-height: 1.45;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+}
+.shield-info strong { color: var(--fg); }
+.shield-info em { color: var(--live); font-style: normal; }
+.player-empty { display: flex; flex-direction: column; align-items: center; z-index: 1; }
+.related-matchup { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stats-empty { padding: 20px 6px; color: var(--subtle); font-size: 12px; line-height: 1.5; }
+.sport-count { font-family: monospace; color: var(--subtle); }
+.sport-leagues .rail-sub-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

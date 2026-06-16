@@ -1,0 +1,75 @@
+.rail {
+  border-right: 1px solid var(--border);
+  background: var(--bg-1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.rail::-webkit-scrollbar { width: 6px; }
+.rail::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 3px; }
+
+.rail-section { padding: 10px 8px 4px; }
+.rail-section + .rail-section { border-top: 1px solid var(--border); }
+.rail-label {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--subtle);
+}
+
+.rail-item {
+  width: 100%;
+  display: flex; align-items: center; gap: 9px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  color: var(--fg-2);
+  font-weight: 500;
+  font-size: 12.5px;
+  text-align: left;
+}
+.rail-item > span:not(.rail-icon):not(.rail-count) {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.rail-item:hover { background: var(--bg-2); color: var(--fg); }
+.rail-item.active {
+  background: color-mix(in oklch, var(--accent), transparent 88%);
+  color: var(--fg);
+}
+.rail-item.active .rail-icon { color: var(--accent); }
+.rail-icon { color: var(--muted); display: inline-flex; align-items: center; flex-shrink: 0; }
+.rail-count {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: monospace;
+  font-size: 10.5px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.rail-count .live-n { color: var(--live); font-weight: 600; }
+
+.sport-group { }
+.sport-leagues {
+  margin: 2px 0 4px 28px;
+  padding-left: 6px;
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+}
+.rail-sub {
+  display: flex; align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.rail-sub:hover { color: var(--fg); background: var(--bg-2); }
+.rail-sub.active { color: var(--fg); background: var(--bg-2); }
+.rail-sub .rail-count { font-size: 10px; }
+

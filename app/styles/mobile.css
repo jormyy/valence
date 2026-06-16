@@ -1,0 +1,235 @@
+@media (max-width: 768px), (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
+  /* Shell: let topbar size naturally when it wraps */
+  .shell { grid-template-rows: auto 1fr; min-height: 100dvh; }
+
+  /* Topbar: allow wrapping on narrow screens */
+  .topbar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: max(8px, env(safe-area-inset-top)) 10px 8px;
+    gap: 8px;
+    min-height: 52px;
+  }
+  .brand { display: none; }
+  .searchbox {
+    max-width: none;
+    flex: 1 1 100%;
+    min-width: 0;
+    height: 44px;
+  }
+  .searchbox kbd { display: none; }
+  .date-nav { order: 10; width: 100%; }
+  .date-nav button {
+    flex: 1;
+    text-align: center;
+    min-height: 44px;
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+  .top-meta { display: none; }
+  .updated-label { display: none; }
+
+  /* Main: collapse to single column */
+  .main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  .main.with-watch {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .main.with-watch .center { display: none; }
+
+  /* Sidebar → horizontal scrolling pill strip */
+  .rail {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 58px;
+    min-height: 58px;
+    padding: 0 8px;
+    gap: 0;
+    scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    padding: 0 8px;
+    border-top: none;
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .rail-section:last-child { border-right: none; }
+  .rail-label { display: none; }
+  /* Unwrap sport-group so sub-buttons flow inline */
+  .sport-group { display: contents; }
+  .sport-leagues { display: none; }
+  .rail-icon { display: none; }
+  .rail-item {
+    width: auto;
+    flex-shrink: 0;
+    white-space: nowrap;
+    min-height: 46px;
+    padding: 8px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    gap: 6px;
+  }
+  .rail-count { font-size: 9.5px; }
+
+  .filterbar {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .tab-pill {
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .ticker {
+    padding: 8px 10px;
+    scrollbar-width: none;
+  }
+  .ticker::-webkit-scrollbar { display: none; }
+  .ticker-label { display: none; }
+  .ticker-chip {
+    min-height: 44px;
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-right: 6px;
+    background: var(--bg-1);
+  }
+
+  .game-area { padding: 10px 10px max(26px, env(safe-area-inset-bottom)); }
+  .games {
+    grid-template-columns: 1fr;
+    border-radius: var(--radius);
+  }
+  .game {
+    min-height: 68px;
+    grid-template-columns: 54px minmax(0, 1fr) auto;
+    padding: 11px 12px;
+  }
+  .team-row { font-size: 13px; }
+  .league-header { padding-inline: 2px; }
+
+  /* WatchPanel: selected game becomes the mobile primary view. */
+  .watch {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    border-left: none;
+    border-top: none;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    min-height: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .watch-header {
+    min-height: 52px;
+    padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--bg-1);
+  }
+  .watch-header .close {
+    width: 44px;
+    height: 44px;
+  }
+  .watch-matchup {
+    max-width: calc(100vw - 178px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .player { width: 100%; }
+  .player-controls {
+    min-height: 48px;
+    padding: 8px 10px;
+    padding-top: max(8px, env(safe-area-inset-top));
+  }
+  .player-btn {
+    width: 44px;
+    height: 44px;
+  }
+  .stream-tabs {
+    padding: 8px 10px;
+    scrollbar-width: none;
+  }
+  .stream-tabs::-webkit-scrollbar { display: none; }
+  .stream-tab {
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+  .scorebox { padding: 12px 10px; }
+  .scorebox .matchup-grid { gap: 8px; }
+  .scorebox .side .name {
+    max-width: 116px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .watch-tabs { padding: 0 10px; }
+  .watch-tab {
+    min-height: 44px;
+    padding: 11px 12px 8px;
+  }
+  .info-row {
+    min-height: 36px;
+  }
+}
+
+@media (max-width: 768px) and (orientation: landscape), (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
+  .topbar { min-height: 0; padding-top: max(6px, env(safe-area-inset-top)); }
+  .searchbox { height: 44px; }
+  .date-nav { display: none; }
+  .rail { height: 54px; min-height: 54px; }
+  .rail-item { min-height: 44px; padding: 7px 10px; }
+
+  .watch {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 36vw);
+    grid-template-rows: auto auto auto auto minmax(0, 1fr);
+    overflow: hidden;
+  }
+  .watch-header { grid-column: 1 / -1; }
+  .player {
+    grid-column: 1;
+    grid-row: 2 / -1;
+    height: calc(100dvh - 61px);
+    aspect-ratio: auto;
+    border-bottom: 0;
+  }
+  .stream-tabs,
+  .scorebox,
+  .watch-tabs,
+  .watch-info {
+    grid-column: 2;
+    min-width: 0;
+  }
+  .stream-tabs { grid-row: 2; }
+  .scorebox { grid-row: 3; }
+  .watch-tabs { grid-row: 4; }
+  .watch-info {
+    grid-row: 5;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .scorebox .side .name { display: none; }
+  .scorebox .scores { font-size: 22px; gap: 8px; }
+  .player.fullscreen-fallback {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    height: 100dvh;
+  }
+}
