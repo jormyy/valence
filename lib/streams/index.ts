@@ -1,5 +1,5 @@
 import type { Game, GameWithStreams, Stream } from "../types";
-import type { Provider } from "./types";
+import type { Provider, StreamCountMap, StreamLookup } from "./types";
 import { streamed } from "./streamed";
 import { sportsrc } from "./sportsrc";
 import { embedsportex } from "./embedsportex";
@@ -23,7 +23,7 @@ async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   }
 }
 
-export async function getStreams(game: Game): Promise<Stream[]> {
+export async function getStreams(game: StreamLookup): Promise<Stream[]> {
   const groups = await Promise.all(
     PROVIDERS.map((p) => safe(() => p.getStreams(game), [])),
   );
@@ -44,9 +44,25 @@ export async function getStreams(game: Game): Promise<Stream[]> {
 
 // Summed availability across providers — a rough "how many sources" badge for the feed.
 // Counts may overlap (we can't dedup without fetching embed URLs), which is fine for a badge.
-export async function getStreamCount(game: Game): Promise<number> {
-  const counts = await Promise.all(PROVIDERS.map((p) => safe(() => p.getCount(game), 0)));
-  return counts.reduce((sum, n) => sum + n, 0);
+function zeroCounts(games: readonly StreamLookup[]): StreamCountMap {
+  return new Map(games.map((g) => [g.id, 0]));
+}
+
+export async function getStreamCounts(games: readonly StreamLookup[]): Promise<StreamCountMap> {
+  const providerCounts = await Promise.all(
+    PROVIDERS.map((p) => safe(() => p.getCounts(games), zeroCounts(games))),
+  );
+  const totals = zeroCounts(games);
+  for (const counts of providerCounts) {
+    for (const game of games) {
+      totals.set(game.id, (totals.get(game.id) ?? 0) + (counts.get(game.id) ?? 0));
+    }
+  }
+  return totals;
+}
+
+export async function getStreamCount(game: StreamLookup): Promise<number> {
+  return (await getStreamCounts([game])).get(game.id) ?? 0;
 }
 
 // The aggregated backends only carry today's events; skip the fetch for other dates.
@@ -55,7 +71,7 @@ export async function attachStreamCounts(
   dateStr?: string,
 ): Promise<GameWithStreams[]> {
   const counts = dateStr
-    ? games.map(() => 0)
-    : await Promise.all(games.map((g) => getStreamCount(g)));
-  return games.map((g, i) => ({ ...g, streamCount: counts[i] }));
+    ? zeroCounts(games)
+    : await getStreamCounts(games);
+  return games.map((g) => ({ ...g, streamCount: counts.get(g.id) ?? 0 }));
 }

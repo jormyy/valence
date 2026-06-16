@@ -1,5 +1,5 @@
-import type { Game, Stream } from "../types";
-import type { Provider } from "./types";
+import type { Stream } from "../types";
+import type { Provider, StreamCountMap, StreamLookup } from "./types";
 import { LEAGUE_SPORT, gameInText } from "./match";
 
 // embedsportex.site serves one JSON keyed by sport; each match carries its embeds inline
@@ -28,10 +28,14 @@ async function fetchAll(): Promise<EsxResponse> {
   }
 }
 
-function findMatch(data: EsxResponse, game: Game): EsxMatch | undefined {
+function findMatch(data: EsxResponse, game: StreamLookup): EsxMatch | undefined {
   const arr = data[LEAGUE_SPORT[game.league]];
   if (!Array.isArray(arr)) return undefined;
   return arr.find((m) => gameInText(m.tag ?? "", game));
+}
+
+function countGames(data: EsxResponse, games: readonly StreamLookup[]): StreamCountMap {
+  return new Map(games.map((game) => [game.id, findMatch(data, game)?.iframes?.length ?? 0]));
 }
 
 function quality(server?: string): Stream["quality"] {
@@ -56,8 +60,7 @@ export const embedsportex: Provider = {
     return out;
   },
 
-  async getCount(game) {
-    const match = findMatch(await fetchAll(), game);
-    return match?.iframes?.length ?? 0;
+  async getCounts(games) {
+    return countGames(await fetchAll(), games);
   },
 };

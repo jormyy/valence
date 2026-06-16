@@ -1,5 +1,5 @@
-import type { Game, Stream } from "../types";
-import type { Provider } from "./types";
+import type { Stream } from "../types";
+import type { Provider, StreamCountMap, StreamLookup } from "./types";
 import { LEAGUE_SPORT, gameInText } from "./match";
 
 // streamed.pk — the original backend. A single "all-today" listing carries source
@@ -48,7 +48,7 @@ async function fetchTodayEvents(): Promise<StreamedEvent[]> {
   }
 }
 
-function matchEvent(events: StreamedEvent[], game: Game): StreamedEvent | undefined {
+function matchEvent(events: StreamedEvent[], game: StreamLookup): StreamedEvent | undefined {
   const category = LEAGUE_SPORT[game.league];
   return events.find((e) => e.category === category && gameInText(e.id, game));
 }
@@ -87,8 +87,8 @@ export const streamed: Provider = {
     return out;
   },
 
-  async getCount(game) {
-    const event = matchEvent(await fetchTodayEvents(), game);
-    return event?.sources.length ?? 0;
+  async getCounts(games) {
+    const events = await fetchTodayEvents();
+    return new Map(games.map((game) => [game.id, matchEvent(events, game)?.sources.length ?? 0])) satisfies StreamCountMap;
   },
 };

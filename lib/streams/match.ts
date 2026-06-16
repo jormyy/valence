@@ -1,4 +1,5 @@
-import type { Game, League } from "../types";
+import type { League } from "../types";
+import type { StreamLookup } from "./types";
 
 // streamed.pk-style sport categories shared by every backend we aggregate.
 // nba/ncaab → basketball, mlb → baseball, atp/wta → tennis.
@@ -32,6 +33,6 @@ function teamInText(text: string, teamName: string): boolean {
 }
 
 // True if both of the game's teams are named somewhere in `text`.
-export function gameInText(text: string, game: Game): boolean {
+export function gameInText(text: string, game: StreamLookup): boolean {
   return teamInText(text, game.homeTeam.name) && teamInText(text, game.awayTeam.name);
 }

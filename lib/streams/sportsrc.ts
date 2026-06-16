@@ -1,5 +1,5 @@
-import type { Game, Stream } from "../types";
-import type { Provider } from "./types";
+import type { Stream } from "../types";
+import type { Provider, StreamCountMap, StreamLookup } from "./types";
 import { LEAGUE_SPORT, gameInText } from "./match";
 
 // sportsrc.org is a streamed.pk-shaped mirror: a per-category match list, then a
@@ -36,8 +36,16 @@ function matchText(m: SportsrcMatch): string {
   return `${m.title ?? ""} ${m.teams?.home?.name ?? ""} ${m.teams?.away?.name ?? ""}`;
 }
 
-function findMatch(matches: SportsrcMatch[], game: Game): SportsrcMatch | undefined {
+function findMatch(matches: SportsrcMatch[], game: StreamLookup): SportsrcMatch | undefined {
   return matches.find((m) => gameInText(matchText(m), game));
+}
+
+async function fetchMatchesByCategory(games: readonly StreamLookup[]): Promise<Map<string, SportsrcMatch[]>> {
+  const categories = [...new Set(games.map((game) => LEAGUE_SPORT[game.league]))];
+  const entries = await Promise.all(
+    categories.map(async (category) => [category, await fetchMatches(category)] as const),
+  );
+  return new Map(entries);
 }
 
 async function fetchDetail(category: string, id: string): Promise<SportsrcSource[]> {
@@ -76,8 +84,13 @@ export const sportsrc: Provider = {
     return out;
   },
 
-  async getCount(game) {
-    const category = LEAGUE_SPORT[game.league];
-    return findMatch(await fetchMatches(category), game) ? 1 : 0;
+  async getCounts(games) {
+    const matchesByCategory = await fetchMatchesByCategory(games);
+    return new Map(
+      games.map((game) => {
+        const category = LEAGUE_SPORT[game.league];
+        return [game.id, findMatch(matchesByCategory.get(category) ?? [], game) ? 1 : 0];
+      }),
+    ) satisfies StreamCountMap;
   },
 };

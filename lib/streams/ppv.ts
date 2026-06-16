@@ -1,5 +1,5 @@
-import type { Game, Stream } from "../types";
-import type { Provider } from "./types";
+import type { Stream } from "../types";
+import type { Provider, StreamCountMap, StreamLookup } from "./types";
 import { LEAGUE_SPORT, gameInText } from "./match";
 
 // ppv.land's public backend. The ppv.land front-end is mid-relaunch ("Coming Soon"),
@@ -34,7 +34,7 @@ async function fetchListing(): Promise<PpvCategory[]> {
   }
 }
 
-function findEvent(listing: PpvCategory[], game: Game): PpvEvent | undefined {
+function findEvent(listing: PpvCategory[], game: StreamLookup): PpvEvent | undefined {
   const want = LEAGUE_SPORT[game.league];
   for (const cat of listing) {
     if ((cat.category ?? "").toLowerCase() !== want) continue;
@@ -72,7 +72,8 @@ export const ppv: Provider = {
     return out;
   },
 
-  async getCount(game) {
-    return findEvent(await fetchListing(), game) ? 1 : 0;
+  async getCounts(games) {
+    const listing = await fetchListing();
+    return new Map(games.map((game) => [game.id, findEvent(listing, game) ? 1 : 0])) satisfies StreamCountMap;
   },
 };
