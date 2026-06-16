@@ -28,6 +28,7 @@ export default function Sidebar({
   setStatusFilter,
 }: Props) {
   const [expanded, setExpanded] = useState(new Set(SPORTS.map((s) => s.id)));
+  const isAllScope = activeSport === "all" && activeLeague === null;
 
   const { sportCounts, leagueCounts, totalLive, totalUp } = useMemo(() => {
     const sportGroups = new Map<string, GameWithStreams[]>();
@@ -70,7 +71,7 @@ export default function Sidebar({
           <span className="rail-count">{games.length}</span>
         </button>
         <button
-          className={`rail-item ${statusFilter === "live" ? "active" : ""}`}
+          className={`rail-item ${isAllScope && statusFilter === "live" ? "active" : ""}`}
           onClick={() => { setActiveSport("all"); setActiveLeague(null); setStatusFilter("live"); }}
         >
           <span className="rail-icon"><span className="live-dot" /></span>
@@ -78,7 +79,7 @@ export default function Sidebar({
           <span className="rail-count"><span className="live-n">{totalLive}</span></span>
         </button>
         <button
-          className={`rail-item ${statusFilter === "upcoming" ? "active" : ""}`}
+          className={`rail-item ${isAllScope && statusFilter === "upcoming" ? "active" : ""}`}
           onClick={() => { setActiveSport("all"); setActiveLeague(null); setStatusFilter("upcoming"); }}
         >
           <span className="rail-icon"><BellIcon /></span>
