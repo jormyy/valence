@@ -2,15 +2,16 @@
  * Strategy:
  *  - precache the offline fallback page
  *  - hashed build assets (/_next/static) and icons: cache-first
- *  - API routes: network-first with cache fallback (data is live, but stale beats nothing offline)
+ *  - game listings: network-first with a small cache fallback
  *  - navigations: network-first, offline.html as last resort
  *  - cross-origin requests (ESPN CDN, stream embeds) are not intercepted
  */
-const VERSION = "v1";
+const VERSION = "v2";
 const STATIC_CACHE = `valence-static-${VERSION}`;
 const DATA_CACHE = `valence-data-${VERSION}`;
 const PAGE_CACHE = `valence-pages-${VERSION}`;
 const OFFLINE_URL = "/offline.html";
+const MAX_GAME_RESPONSES = 6;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -42,11 +43,14 @@ async function cacheFirst(request, cacheName) {
   return response;
 }
 
-async function networkFirst(request, cacheName, fallbackUrl) {
+async function networkFirst(request, cacheName, fallbackUrl, maxEntries) {
   const cache = await caches.open(cacheName);
   try {
     const response = await fetch(request);
-    if (response.ok) cache.put(request, response.clone());
+    if (response.ok) {
+      await cache.put(request, response.clone());
+      if (maxEntries) await trimCache(cache, maxEntries);
+    }
     return response;
   } catch {
     const cached = await cache.match(request);
@@ -57,6 +61,11 @@ async function networkFirst(request, cacheName, fallbackUrl) {
     }
     throw new Error("offline and uncached: " + request.url);
   }
+}
+
+async function trimCache(cache, maxEntries) {
+  const keys = await cache.keys();
+  await Promise.all(keys.slice(0, Math.max(0, keys.length - maxEntries)).map((key) => cache.delete(key)));
 }
 
 self.addEventListener("fetch", (event) => {
@@ -71,8 +80,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (url.pathname.startsWith("/api/")) {
-    event.respondWith(networkFirst(request, DATA_CACHE));
+  if (url.pathname === "/api/games") {
+    event.respondWith(networkFirst(request, DATA_CACHE, undefined, MAX_GAME_RESPONSES));
     return;
   }
 
