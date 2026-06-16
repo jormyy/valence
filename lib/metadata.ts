@@ -31,6 +31,10 @@ export const LEAGUE_BY_ID: Record<League, LeagueInfo> = Object.fromEntries(
   LEAGUES.map((l) => [l.id, l])
 ) as Record<League, LeagueInfo>;
 
+export function isLeague(value: unknown): value is League {
+  return typeof value === "string" && value in LEAGUE_BY_ID;
+}
+
 export function teamColor(abbr: string): string {
   let h = 0;
   for (let i = 0; i < abbr.length; i++) h = (h * 31 + abbr.charCodeAt(i)) >>> 0;

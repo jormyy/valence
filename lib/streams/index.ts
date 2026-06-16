@@ -49,6 +49,8 @@ function zeroCounts(games: readonly StreamLookup[]): StreamCountMap {
 }
 
 export async function getStreamCounts(games: readonly StreamLookup[]): Promise<StreamCountMap> {
+  if (games.length === 0) return zeroCounts(games);
+
   const providerCounts = await Promise.all(
     PROVIDERS.map((p) => safe(() => p.getCounts(games), zeroCounts(games))),
   );

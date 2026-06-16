@@ -23,20 +23,20 @@ npm run start  # serve production build
   - ATP: `site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard`
   - WTA: `site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard`
 
-- **Stream links** — fetched live from the streamed.pk API (`lib/streams.ts`). Team names are fuzzy-matched against streamed.pk event listings. No local storage of stream data.
+- **Stream links** — fetched live from the stream providers in `lib/streams/`. Team names are fuzzy-matched against provider event listings. No local storage of stream data.
 
 - **Stats** — fetched per-game from ESPN's summary API on demand when viewing the Stats tab.
 
 ### API routes
 
 - `GET /api/games?date=YYYYMMDD` — returns all games with stream counts
-- `GET /api/streams/{gameId}` — returns streams for a specific game
+- `POST /api/streams` — returns streams for a selected game lookup payload
 - `GET /api/stats/{gameId}` — returns stat leaders for a specific game
 
 ### Key files
 
 - `lib/espn.ts` — fetches and normalizes game data from ESPN (5 leagues)
-- `lib/streams.ts` — fetches stream links from streamed.pk API
+- `lib/streams/` — fetches stream links and bulk availability counts from stream providers
 - `lib/types.ts` — shared types (`Game`, `Stream`, `League`, ESPN response types)
 - `lib/metadata.ts` — static sport/league metadata and `teamColor()`
 - `lib/game.ts` — `scoreView()` helper for score display logic

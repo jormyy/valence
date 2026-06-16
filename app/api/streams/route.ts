@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
 import { getStreams } from "@/lib/streams";
-import type { League } from "@/lib/types";
+import { isLeague } from "@/lib/metadata";
 import type { StreamLookup } from "@/lib/streams/types";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
-}
-
-function isLeague(value: unknown): value is League {
-  return value === "nba" || value === "ncaab" || value === "mlb" || value === "atp" || value === "wta";
 }
 
 function isTeam(value: unknown): value is StreamLookup["homeTeam"] {
