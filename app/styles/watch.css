@@ -272,33 +272,6 @@
 .live-dot.inline { display: inline-block; margin-right: 4px; }
 .watch-matchup { font-size: 12px; color: var(--fg); font-weight: 500; }
 .player-iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 0; }
-/* Transparent layer over the embed that absorbs every tap so its pop-up ads can't fire.
-   Sits below the player-controls (z-index 3) so our fullscreen button stays usable. */
-.click-shield { position: absolute; inset: 0; z-index: 2; background: transparent; cursor: default; }
-.shield-bar {
-  position: absolute; bottom: 8px; right: 8px; z-index: 4;
-  display: flex; align-items: flex-end; gap: 6px;
-}
-.shield-toggle, .shield-info-btn {
-  border: 0; border-radius: 6px;
-  background: rgba(0,0,0,0.55); color: var(--fg-2);
-  font-family: monospace; font-size: 10px; letter-spacing: 0.02em;
-  cursor: pointer; opacity: 0.65; transition: opacity 0.15s;
-}
-.shield-toggle { padding: 4px 8px; }
-.shield-toggle.off { color: var(--live); }
-.shield-info-btn { width: 22px; height: 22px; font-size: 12px; line-height: 1; }
-.shield-toggle:hover, .shield-info-btn:hover { opacity: 1; }
-.shield-info {
-  position: absolute; bottom: 30px; right: 0; z-index: 5;
-  width: 240px; max-width: 70vw;
-  padding: 9px 11px; border-radius: 8px;
-  background: rgba(10,11,15,0.94); border: 1px solid var(--border-2);
-  color: var(--fg-2); font-size: 11px; line-height: 1.45;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.5);
-}
-.shield-info strong { color: var(--fg); }
-.shield-info em { color: var(--live); font-style: normal; }
 .player-empty { display: flex; flex-direction: column; align-items: center; z-index: 1; }
 .related-matchup { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .stats-empty { padding: 20px 6px; color: var(--subtle); font-size: 12px; line-height: 1.5; }
