@@ -8,6 +8,33 @@ export const runtime = "nodejs";
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 
+function corsHeaders(request: Request): Headers {
+  return new Headers({
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, HEAD, OPTIONS",
+    "access-control-allow-headers":
+      request.headers.get("access-control-request-headers") ??
+      "accept, content-type, range",
+    "access-control-expose-headers": "accept-ranges, content-length, content-range",
+    "access-control-max-age": "86400",
+  });
+}
+
+function corsResponse(
+  request: Request,
+  body: BodyInit | null,
+  init: ResponseInit,
+): NextResponse {
+  const headers = new Headers(init.headers);
+  for (const [key, value] of corsHeaders(request)) {
+    if (!headers.has(key)) headers.set(key, value);
+  }
+  return new NextResponse(body, {
+    ...init,
+    headers,
+  });
+}
+
 function rewritePlaylist(text: string, target: URL, appOrigin: string): string {
   return text
     .split(/\r?\n/)
@@ -74,28 +101,28 @@ async function fetchMedia(target: URL, request: Request): Promise<Response> {
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const raw = requestUrl.searchParams.get("u");
-  if (!raw) return new NextResponse("missing u", { status: 400 });
+  if (!raw) return corsResponse(request, "missing u", { status: 400 });
 
   let target: URL;
   try {
     target = new URL(raw);
   } catch {
-    return new NextResponse("bad url", { status: 400 });
+    return corsResponse(request, "bad url", { status: 400 });
   }
 
   if (!isAllowedMediaUrl(target)) {
-    return new NextResponse("host not allowed", { status: 403 });
+    return corsResponse(request, "host not allowed", { status: 403 });
   }
 
   let upstream: Response;
   try {
     upstream = await fetchMedia(target, request);
   } catch {
-    return new NextResponse("upstream fetch failed", { status: 502 });
+    return corsResponse(request, "upstream fetch failed", { status: 502 });
   }
 
   if (!upstream.ok) {
-    return new NextResponse("upstream fetch failed", { status: upstream.status });
+    return corsResponse(request, "upstream fetch failed", { status: upstream.status });
   }
 
   const isPlaylist = /\.m3u8(?:$|[?#])/i.test(target.pathname);
@@ -105,8 +132,10 @@ export async function GET(request: Request) {
   const responseHeaders = new Headers({
     "content-type": contentType,
     "cache-control": "no-store",
-    "access-control-allow-origin": "*",
   });
+  for (const [key, value] of corsHeaders(request)) {
+    responseHeaders.set(key, value);
+  }
   const contentRange = upstream.headers.get("content-range");
   const acceptRanges = upstream.headers.get("accept-ranges");
   if (contentRange) responseHeaders.set("content-range", contentRange);
@@ -123,5 +152,12 @@ export async function GET(request: Request) {
   return new NextResponse(upstream.body, {
     status: upstream.status,
     headers: responseHeaders,
+  });
+}
+
+export async function OPTIONS(request: Request) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders(request),
   });
 }

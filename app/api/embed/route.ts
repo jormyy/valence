@@ -26,6 +26,33 @@ const BROWSER_HEADERS = (target: URL) => ({
   origin: target.origin,
 });
 
+function corsHeaders(request: Request, methods: readonly string[]): Headers {
+  const headers = new Headers({
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": methods.join(", "),
+    "access-control-allow-headers":
+      request.headers.get("access-control-request-headers") ??
+      "accept, content-type, goat, range",
+    "access-control-max-age": "86400",
+  });
+  return headers;
+}
+
+function corsResponse(
+  request: Request,
+  body: BodyInit | null,
+  init: ResponseInit,
+): NextResponse {
+  const headers = new Headers(init.headers);
+  for (const [key, value] of corsHeaders(request, ["GET", "HEAD", "POST", "OPTIONS"])) {
+    if (!headers.has(key)) headers.set(key, value);
+  }
+  return new NextResponse(body, {
+    ...init,
+    headers,
+  });
+}
+
 function escapeAttr(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -463,20 +490,20 @@ function rewriteHtml(html: string, target: URL, appOrigin: string): string {
 async function proxyEmbed(request: Request) {
   const requestUrl = new URL(request.url);
   const raw = requestUrl.searchParams.get("u");
-  if (!raw) return new NextResponse("missing u", { status: 400 });
+  if (!raw) return corsResponse(request, "missing u", { status: 400 });
 
   let target: URL;
   try {
     target = new URL(raw);
   } catch {
-    return new NextResponse("bad url", { status: 400 });
+    return corsResponse(request, "bad url", { status: 400 });
   }
 
   if (!isEmbedUrl(target)) {
-    return new NextResponse("host not allowed", { status: 403 });
+    return corsResponse(request, "host not allowed", { status: 403 });
   }
   if (isBlockedUrl(target)) {
-    return new NextResponse(null, {
+    return corsResponse(request, null, {
       status: 204,
       headers: { "cache-control": "no-store" },
     });
@@ -502,7 +529,7 @@ async function proxyEmbed(request: Request) {
       timeoutMs: PROXY_FETCH_TIMEOUT_MS,
     });
   } catch {
-    return new NextResponse("upstream fetch failed", { status: 502 });
+    return corsResponse(request, "upstream fetch failed", { status: 502 });
   }
 
   const contentType = upstream.headers.get("content-type") ?? "";
@@ -521,7 +548,9 @@ async function proxyEmbed(request: Request) {
   const headers = new Headers();
   if (contentType) headers.set("content-type", contentType);
   headers.set("cache-control", upstream.headers.get("cache-control") ?? "no-store");
-  headers.set("access-control-allow-origin", "*");
+  for (const [key, value] of corsHeaders(request, ["GET", "HEAD", "POST", "OPTIONS"])) {
+    headers.set(key, value);
+  }
   const exposedHeaders: string[] = [];
   const goat = upstream.headers.get("goat");
   if (goat) {
@@ -544,4 +573,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   return proxyEmbed(request);
+}
+
+export async function OPTIONS(request: Request) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders(request, ["GET", "HEAD", "POST", "OPTIONS"]),
+  });
 }
