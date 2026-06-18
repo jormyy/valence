@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { spawn } from "node:child_process";
 import { isAllowedMediaUrl, originFromEmbedReferer } from "@/lib/streams/providers";
 import { PROXY_FETCH_TIMEOUT_MS, fetchWithTimeout } from "@/lib/upstream";
 
@@ -7,6 +8,7 @@ export const runtime = "nodejs";
 
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
+const HEADER_SEPARATOR = Buffer.from("\r\n\r\n");
 
 function corsHeaders(request: Request): Headers {
   return new Headers({
@@ -78,6 +80,89 @@ function contentTypeFor(target: URL): string {
   return "application/octet-stream";
 }
 
+function parseCurlResponse(raw: Buffer): Response {
+  const splitAt = raw.indexOf(HEADER_SEPARATOR);
+  if (splitAt === -1) {
+    throw new Error("curl response missing headers");
+  }
+
+  const headerText = raw.subarray(0, splitAt).toString("latin1");
+  const body = raw.subarray(splitAt + HEADER_SEPARATOR.length);
+  const [statusLine = "", ...lines] = headerText.split(/\r?\n/);
+  const status = Number(statusLine.match(/^HTTP\/\S+\s+(\d+)/)?.[1] ?? 502);
+  const headers = new Headers();
+
+  for (const line of lines) {
+    const index = line.indexOf(":");
+    if (index <= 0) continue;
+    headers.append(line.slice(0, index).trim(), line.slice(index + 1).trim());
+  }
+
+  return new Response(new Uint8Array(body), { status, headers });
+}
+
+function fetchMediaWithCurl(
+  target: URL,
+  headers: Headers,
+  signal: AbortSignal,
+): Promise<Response> {
+  const args = [
+    "--http1.1",
+    "--silent",
+    "--show-error",
+    "--max-time",
+    String(Math.ceil(PROXY_FETCH_TIMEOUT_MS / 1000)),
+    "--include",
+  ];
+
+  for (const [key, value] of headers) {
+    args.push("--header", `${key}: ${value}`);
+  }
+  args.push("--url", target.href);
+
+  return new Promise((resolve, reject) => {
+    const child = spawn("curl", args, { stdio: ["ignore", "pipe", "pipe"] });
+    const stdout: Buffer[] = [];
+    const stderr: Buffer[] = [];
+
+    const abort = () => {
+      child.kill("SIGTERM");
+      reject(new Error("curl aborted"));
+    };
+    if (signal.aborted) {
+      abort();
+      return;
+    }
+    signal.addEventListener("abort", abort, { once: true });
+
+    child.stdout.on("data", (chunk: Buffer) => stdout.push(chunk));
+    child.stderr.on("data", (chunk: Buffer) => stderr.push(chunk));
+    child.on("error", (error) => {
+      signal.removeEventListener("abort", abort);
+      reject(error);
+    });
+    child.on("close", (code) => {
+      signal.removeEventListener("abort", abort);
+      if (code !== 0) {
+        reject(new Error(Buffer.concat(stderr).toString("utf8") || `curl exited ${code}`));
+        return;
+      }
+
+      try {
+        resolve(parseCurlResponse(Buffer.concat(stdout)));
+      } catch (error) {
+        reject(error);
+      }
+    });
+  });
+}
+
+function shouldUseCurlFallback(target: URL, response?: Response): boolean {
+  return target.hostname === "strmd.st"
+    || target.hostname.endsWith(".strmd.st")
+    || response?.status === 403;
+}
+
 async function fetchMedia(target: URL, request: Request): Promise<Response> {
   const embedOrigin = originFromEmbedReferer(request);
   const headers = new Headers({
@@ -89,13 +174,20 @@ async function fetchMedia(target: URL, request: Request): Promise<Response> {
   const range = request.headers.get("range");
   if (range) headers.set("range", range);
 
-  return fetchWithTimeout(target, {
-    signal: request.signal,
-    headers,
-    redirect: "follow",
-    cache: "no-store",
-    timeoutMs: PROXY_FETCH_TIMEOUT_MS,
-  });
+  try {
+    const upstream = await fetchWithTimeout(target, {
+      signal: request.signal,
+      headers,
+      redirect: "follow",
+      cache: "no-store",
+      timeoutMs: PROXY_FETCH_TIMEOUT_MS,
+    });
+    if (upstream.ok || !shouldUseCurlFallback(target, upstream)) return upstream;
+  } catch {
+    if (!shouldUseCurlFallback(target)) throw new Error("native media fetch failed");
+  }
+
+  return fetchMediaWithCurl(target, headers, request.signal);
 }
 
 export async function GET(request: Request) {

@@ -456,14 +456,14 @@ function contentSecurityPolicy(appOrigin: string): string {
   const evalToken = "'unsafe-eval'";
   const embedHosts = embedHostsCsp();
   return [
-    `default-src ${self} blob: data: https: http:`,
+    `default-src ${self} blob: data:`,
     `script-src ${self} ${inline} ${evalToken} 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net ${embedHosts}`,
     `worker-src ${self} blob:`,
-    `connect-src ${self} blob: data: https: http:`,
-    `media-src ${self} blob: data: https: http:`,
-    `img-src ${self} blob: data: https: http:`,
-    `style-src ${self} ${inline} https: http:`,
-    `font-src ${self} data: https: http:`,
+    `connect-src ${self} blob: data:`,
+    `media-src ${self} blob: data:`,
+    `img-src ${self} blob: data:`,
+    `style-src ${self} ${inline}`,
+    `font-src ${self} data:`,
     `frame-src ${self} blob:`,
     `child-src ${self} blob:`,
     "object-src 'none'",
