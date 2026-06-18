@@ -1,3 +1,5 @@
+import type { Sport } from "@/lib/metadata";
+
 interface IconProps { size?: number }
 
 const stroke = {
@@ -10,7 +12,11 @@ const stroke = {
 const fine = { ...stroke, strokeWidth: 1.4 };
 const bold = { ...stroke, strokeWidth: 1.5 };
 
-export function SportIcon({ sport, size = 15 }: IconProps & { sport: string }) {
+function unreachableSport(sport: never): never {
+  throw new Error(`Missing sport icon for ${sport}`);
+}
+
+export function SportIcon({ sport, size = 15 }: IconProps & { sport: Sport }) {
   switch (sport) {
     case "basketball":
       return <svg width={size} height={size} viewBox="0 0 16 16" {...fine}><circle cx="8" cy="8" r="6" /><path d="M2 8h12 M8 2v12 M3.5 3.5l9 9 M12.5 3.5l-9 9" /></svg>;
@@ -18,9 +24,8 @@ export function SportIcon({ sport, size = 15 }: IconProps & { sport: string }) {
       return <svg width={size} height={size} viewBox="0 0 16 16" {...fine}><circle cx="8" cy="8" r="6" /><path d="M3.5 4.5c2 1 2.5 4 2 6.5 M12.5 4.5c-2 1-2.5 4-2 6.5" /></svg>;
     case "tennis":
       return <svg width={size} height={size} viewBox="0 0 16 16" {...fine}><circle cx="8" cy="8" r="6" /><path d="M2.5 5.5c3 1.5 7 1.5 11 0 M2.5 10.5c3-1.5 7-1.5 11 0" /></svg>;
-    default:
-      return <svg width={size} height={size} viewBox="0 0 16 16" {...fine}><circle cx="8" cy="8" r="5" /></svg>;
   }
+  return unreachableSport(sport);
 }
 
 export function GridIcon({ size = 14 }: IconProps = {}) {

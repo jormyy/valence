@@ -1,4 +1,6 @@
-export type League = "nba" | "ncaab" | "mlb" | "atp" | "wta";
+import type { League } from "./registry";
+
+export type { League } from "./registry";
 
 export interface Team {
   name: string;

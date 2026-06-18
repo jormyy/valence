@@ -3,11 +3,11 @@ import { getEspnSummary } from "@/lib/espn";
 import type { StatLeader, TeamStats } from "@/lib/types";
 
 export async function GET(
-  _req: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const summary = await getEspnSummary(id);
+  const summary = await getEspnSummary(id, { signal: request.signal });
 
   if (!summary) return NextResponse.json({ leaders: [] });
 

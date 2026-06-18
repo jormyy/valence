@@ -19,25 +19,24 @@ export default function StatsPanel({ gameId, status }: Props) {
       return;
     }
 
-    let cancelled = false;
+    const controller = new AbortController();
     setStats(null);
     setLoading(true);
-    fetch(`/api/stats/${gameId}`)
+    fetch(`/api/stats/${gameId}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((data: { leaders?: TeamStats[] }) => {
-        if (!cancelled) {
+        if (!controller.signal.aborted) {
           setStats(data.leaders ?? []);
           setLoading(false);
         }
       })
       .catch((e) => {
+        if (controller.signal.aborted) return;
         console.error("Failed to fetch stats:", e);
-        if (!cancelled) {
-          setStats([]);
-          setLoading(false);
-        }
+        setStats([]);
+        setLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => controller.abort();
   }, [gameId, status]);
 
   if (loading) {

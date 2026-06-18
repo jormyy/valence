@@ -6,15 +6,16 @@ import "./styles/feed.css";
 import "./styles/watch.css";
 import "./styles/mobile.css";
 import ServiceWorkerRegistration from "../components/ServiceWorkerRegistration";
+import { APP_DESCRIPTION, APP_NAME, APP_TITLE } from "@/lib/app-info";
 
 export const metadata: Metadata = {
-  title: "Valence — Live Sports Streams",
-  description: "Live sports streams — NBA, NCAAB, MLB, ATP, WTA",
-  applicationName: "Valence",
+  title: APP_TITLE,
+  description: APP_DESCRIPTION,
+  applicationName: APP_NAME,
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Valence",
+    title: APP_NAME,
   },
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],

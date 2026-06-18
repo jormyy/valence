@@ -1,21 +1,12 @@
 import { NextResponse } from "next/server";
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
+import { isAllowedMediaUrl, originFromEmbedReferer } from "@/lib/streams/providers";
+import { PROXY_FETCH_TIMEOUT_MS, fetchWithTimeout } from "@/lib/upstream";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const STRMD_HOST = /(^|\.)strmd\.st$/i;
-const TIKTOK_MEDIA_HOST = /(^|\.)tiktokcdn\.com$/i;
-const execFileAsync = promisify(execFile);
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
-
-function isAllowedMediaUrl(url: URL): boolean {
-  if (url.protocol !== "https:" && url.protocol !== "http:") return false;
-  if (STRMD_HOST.test(url.hostname)) return true;
-  return TIKTOK_MEDIA_HOST.test(url.hostname) && url.pathname.startsWith("/obj/");
-}
 
 function rewritePlaylist(text: string, target: URL, appOrigin: string): string {
   return text
@@ -60,35 +51,24 @@ function contentTypeFor(target: URL): string {
   return "application/octet-stream";
 }
 
-async function curlMedia(target: URL, request: Request): Promise<Buffer> {
-  const args = [
-    "--location",
-    "--silent",
-    "--show-error",
-    "--fail",
-    "--compressed",
-    "--http1.1",
-    "--user-agent",
-    USER_AGENT,
-    "--referer",
-    "https://embed.st/",
-    "--header",
-    `Accept: ${request.headers.get("accept") ?? "*/*"}`,
-  ];
-
-  const range = request.headers.get("range");
-  if (range) {
-    args.push("--header", `Range: ${range}`);
-  }
-
-  args.push(target.href);
-
-  const { stdout } = await execFileAsync("curl", args, {
-    encoding: "buffer",
-    maxBuffer: 64 * 1024 * 1024,
+async function fetchMedia(target: URL, request: Request): Promise<Response> {
+  const embedOrigin = originFromEmbedReferer(request);
+  const headers = new Headers({
+    "user-agent": USER_AGENT,
+    referer: `${embedOrigin}/`,
+    accept: request.headers.get("accept") ?? "*/*",
   });
 
-  return Buffer.isBuffer(stdout) ? stdout : Buffer.from(stdout);
+  const range = request.headers.get("range");
+  if (range) headers.set("range", range);
+
+  return fetchWithTimeout(target, {
+    signal: request.signal,
+    headers,
+    redirect: "follow",
+    cache: "no-store",
+    timeoutMs: PROXY_FETCH_TIMEOUT_MS,
+  });
 }
 
 export async function GET(request: Request) {
@@ -107,33 +87,41 @@ export async function GET(request: Request) {
     return new NextResponse("host not allowed", { status: 403 });
   }
 
-  let body: Buffer;
+  let upstream: Response;
   try {
-    body = await curlMedia(target, request);
+    upstream = await fetchMedia(target, request);
   } catch {
     return new NextResponse("upstream fetch failed", { status: 502 });
   }
 
-  const contentType = contentTypeFor(target);
+  if (!upstream.ok) {
+    return new NextResponse("upstream fetch failed", { status: upstream.status });
+  }
+
+  const isPlaylist = /\.m3u8(?:$|[?#])/i.test(target.pathname);
+  const contentType = isPlaylist
+    ? contentTypeFor(target)
+    : upstream.headers.get("content-type") ?? contentTypeFor(target);
   const responseHeaders = new Headers({
     "content-type": contentType,
     "cache-control": "no-store",
     "access-control-allow-origin": "*",
   });
+  const contentRange = upstream.headers.get("content-range");
+  const acceptRanges = upstream.headers.get("accept-ranges");
+  if (contentRange) responseHeaders.set("content-range", contentRange);
+  if (acceptRanges) responseHeaders.set("accept-ranges", acceptRanges);
 
-  if (contentType.includes("mpegurl") || /\.m3u8(?:$|[?#])/i.test(target.pathname)) {
-    const text = body.toString("utf8");
+  if (isPlaylist || contentType.toLowerCase().includes("mpegurl")) {
+    const text = await upstream.text();
     return new NextResponse(rewritePlaylist(text, target, requestUrl.origin), {
-      status: 200,
+      status: upstream.status,
       headers: responseHeaders,
     });
   }
 
-  const arrayBuffer = new ArrayBuffer(body.byteLength);
-  new Uint8Array(arrayBuffer).set(body);
-
-  return new NextResponse(arrayBuffer, {
-    status: 200,
+  return new NextResponse(upstream.body, {
+    status: upstream.status,
     headers: responseHeaders,
   });
 }

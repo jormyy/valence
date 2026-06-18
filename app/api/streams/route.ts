@@ -27,6 +27,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ streams: [] }, { status: 400 });
   }
 
-  const streams = await getStreams(body);
+  const streams = await getStreams(body, { signal: request.signal });
   return NextResponse.json({ streams });
 }

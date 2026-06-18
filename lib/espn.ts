@@ -3,14 +3,14 @@ import type {
   EspnCompetitor, EspnCompetition, EspnEvent,
   EspnScoreboard, EspnTennisScoreboard, EspnSummary,
 } from "./types";
+import type { EspnParser } from "./registry";
+import { LEAGUES, LEAGUE_BY_ID } from "./registry";
+import { SCOREBOARD_TIMEOUT_MS, fetchWithTimeout } from "./upstream";
+import { makeGameId, parseGameId } from "./game-id";
 
-const LEAGUE_CONFIGS: Record<string, { sport: string; path: string }> = {
-  nba:   { sport: "basketball", path: "nba" },
-  ncaab: { sport: "basketball", path: "mens-college-basketball" },
-  mlb:   { sport: "baseball",   path: "mlb" },
-  atp:   { sport: "tennis",     path: "atp" },
-  wta:   { sport: "tennis",     path: "wta" },
-};
+interface FetchOptions {
+  readonly signal?: AbortSignal;
+}
 
 export const PT_TZ = "America/Los_Angeles";
 
@@ -34,8 +34,39 @@ function formatDateStr(dateStr: string): string {
   return `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
 }
 
+export function normalizeEspnDate(dateStr?: string): string | null {
+  if (!dateStr) return todayInPT();
+  if (/^\d{8}$/.test(dateStr)) return formatDateStr(dateStr);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+  return null;
+}
+
+export function normalizeEspnDateParam(dateStr: string | null | undefined): string | undefined {
+  if (!dateStr) return undefined;
+  if (/^\d{8}$/.test(dateStr)) return dateStr;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr.replaceAll("-", "");
+  return undefined;
+}
+
+export function isTodayEspnDate(dateStr?: string): boolean {
+  return normalizeEspnDate(dateStr) === todayInPT();
+}
+
 function gameDateInPT(isoDate: string): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: PT_TZ }).format(new Date(isoDate));
+}
+
+function safeGameDateInPT(isoDate: unknown): string | null {
+  if (typeof isoDate !== "string") return null;
+  try {
+    return gameDateInPT(isoDate);
+  } catch {
+    return null;
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }
 
 function parseTeam(c: EspnCompetitor): Team {
@@ -64,6 +95,20 @@ function parseTennisPlayer(c: EspnCompetitor): Team {
   };
 }
 
+function unreachableParser(parser: never): never {
+  throw new Error(`Unhandled ESPN parser: ${parser}`);
+}
+
+function parseCompetitor(c: EspnCompetitor, parser: EspnParser): Team {
+  switch (parser) {
+    case "team":
+      return parseTeam(c);
+    case "tennis":
+      return parseTennisPlayer(c);
+  }
+  return unreachableParser(parser);
+}
+
 function parseGame(event: EspnEvent, league: League): Game {
   const competition = event.competitions[0];
   const home = competition.competitors.find((c) => c.homeAway === "home")
@@ -76,19 +121,18 @@ function parseGame(event: EspnEvent, league: League): Game {
   if (status.type.state === "in") gameStatus = "in";
   else if (status.type.state === "post") gameStatus = "post";
 
-  const isTennis = league === "atp" || league === "wta";
-  const parsePlayer = isTennis ? parseTennisPlayer : parseTeam;
+  const parser = LEAGUE_BY_ID[league].espn.parser;
 
   const statusDisplay = gameStatus === "pre"
     ? formatTimePT(event.date)
     : status.type.shortDetail;
 
   return {
-    id: `${league}-${event.id}`,
+    id: makeGameId(league, event.id),
     league,
     espnId: event.id,
-    homeTeam: parsePlayer(home),
-    awayTeam: parsePlayer(away),
+    homeTeam: parseCompetitor(home, parser),
+    awayTeam: parseCompetitor(away, parser),
     startTime: event.date,
     status: gameStatus,
     statusDisplay,
@@ -98,17 +142,20 @@ function parseGame(event: EspnEvent, league: League): Game {
 }
 
 // Tennis scoreboard nests matches inside tournament groupings — flatten them
-function flattenTennisEvents(data: EspnTennisScoreboard, league: League, targetDate: string): Game[] {
+function flattenTennisEvents(data: unknown, league: League, targetDate: string): Game[] {
   const games: Game[] = [];
-  for (const tournament of data.events ?? []) {
-    for (const grouping of tournament.groupings ?? []) {
-      for (const competition of grouping.competitions ?? []) {
-        if (gameDateInPT(competition.date) !== targetDate) continue;
+  if (!isRecord(data) || !Array.isArray(data.events)) return games;
+  for (const tournament of data.events) {
+    if (!isRecord(tournament) || !Array.isArray(tournament.groupings)) continue;
+    for (const grouping of tournament.groupings) {
+      if (!isRecord(grouping) || !Array.isArray(grouping.competitions)) continue;
+      for (const competition of grouping.competitions) {
+        if (!isRecord(competition) || safeGameDateInPT(competition.date) !== targetDate) continue;
         const synthetic: EspnEvent = {
-          id: competition.id,
-          date: competition.date,
-          status: competition.status,
-          competitions: [competition as EspnCompetition],
+          id: String(competition.id ?? ""),
+          date: String(competition.date ?? ""),
+          status: competition.status as EspnCompetition["status"],
+          competitions: [competition as unknown as EspnCompetition],
         };
         try {
           games.push(parseGame(synthetic, league));
@@ -121,29 +168,54 @@ function flattenTennisEvents(data: EspnTennisScoreboard, league: League, targetD
   return games;
 }
 
-export async function getGames(league: League, dateStr?: string): Promise<Game[]> {
-  const config = LEAGUE_CONFIGS[league];
-  const query = dateStr ? `?dates=${dateStr}` : "";
-  const res = await fetch(
-    `https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.path}/scoreboard${query}`,
-    { next: { revalidate: 60 } }
-  );
-  if (!res.ok) return [];
-
-  const data = await res.json();
-  const isTennis = league === "atp" || league === "wta";
-  const targetDate = dateStr ? formatDateStr(dateStr) : todayInPT();
-
-  if (isTennis) return flattenTennisEvents(data as EspnTennisScoreboard, league, targetDate);
-
-  return ((data as EspnScoreboard).events ?? [])
-    .filter((e) => gameDateInPT(e.date) === targetDate)
-    .map((e) => parseGame(e, league));
+function parseTeamEvents(data: unknown, league: League, targetDate: string): Game[] {
+  const games: Game[] = [];
+  if (!isRecord(data) || !Array.isArray(data.events)) return games;
+  for (const event of data.events) {
+    if (!isRecord(event) || safeGameDateInPT(event.date) !== targetDate) continue;
+    try {
+      games.push(parseGame(event as unknown as EspnEvent, league));
+    } catch {
+      // ESPN occasionally emits incomplete events; keep the rest of the league usable.
+    }
+  }
+  return games;
 }
 
-export async function getAllGames(dateStr?: string): Promise<Game[]> {
-  const leagues: League[] = ["nba", "ncaab", "mlb", "atp", "wta"];
-  const results = await Promise.all(leagues.map((l) => getGames(l, dateStr)));
+export async function getGames(league: League, dateStr?: string, options?: FetchOptions): Promise<Game[]> {
+  const config = LEAGUE_BY_ID[league].espn;
+  const query = dateStr ? `?dates=${dateStr}` : "";
+  let res: Response;
+  try {
+    res = await fetchWithTimeout(
+      `https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.path}/scoreboard${query}`,
+      { signal: options?.signal, next: { revalidate: 60 }, timeoutMs: SCOREBOARD_TIMEOUT_MS }
+    );
+  } catch {
+    return [];
+  }
+  if (!res.ok) return [];
+
+  let data: unknown;
+  try {
+    data = await res.json();
+  } catch {
+    return [];
+  }
+  const targetDate = dateStr ? formatDateStr(dateStr) : todayInPT();
+  const parser: EspnParser = config.parser;
+
+  switch (parser) {
+    case "team":
+      return parseTeamEvents(data, league, targetDate);
+    case "tennis":
+      return flattenTennisEvents(data, league, targetDate);
+  }
+  return unreachableParser(parser);
+}
+
+export async function getAllGames(dateStr?: string, options?: FetchOptions): Promise<Game[]> {
+  const results = await Promise.all(LEAGUES.map((l) => getGames(l.id, dateStr, options)));
   return results.flat().sort((a, b) => {
     const diff = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
     if (diff !== 0) return diff;
@@ -151,18 +223,25 @@ export async function getAllGames(dateStr?: string): Promise<Game[]> {
   });
 }
 
-export async function getEspnSummary(gameId: string): Promise<EspnSummary | null> {
-  const dashIdx = gameId.indexOf("-");
-  if (dashIdx === -1) return null;
-  const league = gameId.slice(0, dashIdx);
-  const espnId = gameId.slice(dashIdx + 1);
-  const config = LEAGUE_CONFIGS[league];
-  if (!config) return null;
+export async function getEspnSummary(gameId: string, options?: FetchOptions): Promise<EspnSummary | null> {
+  const parsed = parseGameId(gameId);
+  if (!parsed) return null;
+  const { league, espnId } = parsed;
+  const config = LEAGUE_BY_ID[league].espn;
 
-  const res = await fetch(
-    `https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.path}/summary?event=${espnId}`,
-    { next: { revalidate: 30 } }
-  );
+  let res: Response;
+  try {
+    res = await fetchWithTimeout(
+      `https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.path}/summary?event=${espnId}`,
+      { signal: options?.signal, next: { revalidate: 30 }, timeoutMs: SCOREBOARD_TIMEOUT_MS }
+    );
+  } catch {
+    return null;
+  }
   if (!res.ok) return null;
-  return res.json();
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
 }

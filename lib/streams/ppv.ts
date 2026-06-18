@@ -1,6 +1,7 @@
 import type { Stream } from "../types";
-import type { Provider, StreamCountMap, StreamLookup } from "./types";
-import { LEAGUE_SPORT, gameInText } from "./match";
+import { STREAM_DETAIL_TIMEOUT_MS, STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
+import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
+import { categoryFor, gameInText } from "./match";
 
 // ppv.land's public backend. The ppv.land front-end is mid-relaunch ("Coming Soon"),
 // but api.ppv.to is live: a listing groups events under named categories, and each
@@ -23,9 +24,13 @@ interface PpvSource {
   data?: string;
 }
 
-async function fetchListing(): Promise<PpvCategory[]> {
+async function fetchListing(options?: StreamProviderOptions): Promise<PpvCategory[]> {
   try {
-    const res = await fetch(`${BASE}/streams`, { next: { revalidate: 60 } });
+    const res = await fetchWithTimeout(`${BASE}/streams`, {
+      signal: options?.signal,
+      next: { revalidate: 60 },
+      timeoutMs: STREAM_LIST_TIMEOUT_MS,
+    });
     if (!res.ok) return [];
     const json = await res.json();
     return Array.isArray(json?.streams) ? json.streams : [];
@@ -35,7 +40,7 @@ async function fetchListing(): Promise<PpvCategory[]> {
 }
 
 function findEvent(listing: PpvCategory[], game: StreamLookup): PpvEvent | undefined {
-  const want = LEAGUE_SPORT[game.league];
+  const want = categoryFor(game);
   for (const cat of listing) {
     if ((cat.category ?? "").toLowerCase() !== want) continue;
     for (const ev of cat.streams ?? []) {
@@ -45,9 +50,13 @@ function findEvent(listing: PpvCategory[], game: StreamLookup): PpvEvent | undef
   return undefined;
 }
 
-async function fetchSources(id: number): Promise<PpvSource[]> {
+async function fetchSources(id: number, options?: StreamProviderOptions): Promise<PpvSource[]> {
   try {
-    const res = await fetch(`${BASE}/streams/${id}`, { next: { revalidate: 60 } });
+    const res = await fetchWithTimeout(`${BASE}/streams/${id}`, {
+      signal: options?.signal,
+      next: { revalidate: 60 },
+      timeoutMs: STREAM_DETAIL_TIMEOUT_MS,
+    });
     if (!res.ok) return [];
     const json = await res.json();
     return Array.isArray(json?.data?.sources) ? json.data.sources : [];
@@ -58,12 +67,19 @@ async function fetchSources(id: number): Promise<PpvSource[]> {
 
 export const ppv: Provider = {
   name: "ppv",
+  capabilities: {
+    embedHosts: [
+      { hostname: "embed.st", bootstrapStrategy: "wasm-lock" },
+      { hostname: "embedindia.st", bootstrapStrategy: "provider-token" },
+      { hostname: "embed.streamapi.cc", bootstrapStrategy: "wasm-lock" },
+    ],
+  },
 
-  async getStreams(game) {
-    const event = findEvent(await fetchListing(), game);
+  async getStreams(game, options) {
+    const event = findEvent(await fetchListing(options), game);
     if (!event) return [];
 
-    const sources = await fetchSources(event.id);
+    const sources = await fetchSources(event.id, options);
     const out: Stream[] = [];
     for (const s of sources) {
       if (s.type !== "iframe" || !s.data) continue;
@@ -72,8 +88,8 @@ export const ppv: Provider = {
     return out;
   },
 
-  async getCounts(games) {
-    const listing = await fetchListing();
+  async getCounts(games, options) {
+    const listing = await fetchListing(options);
     return new Map(games.map((game) => [game.id, findEvent(listing, game) ? 1 : 0])) satisfies StreamCountMap;
   },
 };

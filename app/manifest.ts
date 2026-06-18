@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
+import { APP_DESCRIPTION, APP_NAME, APP_TITLE } from "@/lib/app-info";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Valence — Live Sports Streams",
-    short_name: "Valence",
-    description: "Live sports streams — NBA, NCAAB, MLB, ATP, WTA",
+    name: APP_TITLE,
+    short_name: APP_NAME,
+    description: APP_DESCRIPTION,
     id: "/",
     start_url: "/",
     scope: "/",

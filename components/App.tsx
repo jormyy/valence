@@ -73,27 +73,26 @@ export default function App({ initialGames }: Props) {
       setDateLoading(false);
       return;
     }
-    let cancelled = false;
+    const controller = new AbortController();
     setFetchedGames(null);
     setDateLoading(true);
     setActiveGameId(null);
     setStatusFilter("all");
-    fetch(`/api/games?date=${dateStrForIdx(dateIdx)}`)
+    fetch(`/api/games?date=${dateStrForIdx(dateIdx)}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((data: GamesResponse) => {
-        if (!cancelled) {
+        if (!controller.signal.aborted) {
           setFetchedGames(data.games ?? []);
           setDateLoading(false);
         }
       })
       .catch((e) => {
+        if (controller.signal.aborted) return;
         console.error("Failed to fetch games for date:", dateIdx, e);
-        if (!cancelled) {
-          setFetchedGames([]);
-          setDateLoading(false);
-        }
+        setFetchedGames([]);
+        setDateLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => controller.abort();
   }, [dateIdx]);
 
   const rawGames = fetchedGames ?? initialGames;
@@ -120,19 +119,27 @@ export default function App({ initialGames }: Props) {
 
   useEffect(() => {
     if (dateIdx !== 1 || !hasLive) return;
-    let cancelled = false;
-    const id = setInterval(() => {
-      fetch("/api/games")
+    let inFlight: AbortController | null = null;
+    function poll() {
+      inFlight?.abort();
+      const controller = new AbortController();
+      inFlight = controller;
+      fetch("/api/games", { signal: controller.signal })
         .then((r) => r.json())
         .then((data: GamesResponse) => {
-          if (!cancelled && Array.isArray(data.games) && data.games.length > 0) {
+          if (!controller.signal.aborted && Array.isArray(data.games) && data.games.length > 0) {
             setFetchedGames(data.games);
             setLastUpdated(new Date());
           }
         })
-        .catch((e) => console.error("Live poll failed:", e));
+        .catch((e) => {
+          if (!controller.signal.aborted) console.error("Live poll failed:", e);
+        });
+    }
+    const id = setInterval(() => {
+      poll();
     }, 30_000);
-    return () => { cancelled = true; clearInterval(id); };
+    return () => { inFlight?.abort(); clearInterval(id); };
   }, [dateIdx, hasLive]);
 
   const filteredGames = useMemo(

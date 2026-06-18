@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
+import {
+  EMBED_HOSTS,
+  MEDIA_HOST_RULES,
+  embedHostsCsp,
+  isAllowedEmbedUrl,
+  isAllowedMediaUrl,
+} from "@/lib/streams/providers";
+import { PROXY_FETCH_TIMEOUT_MS, fetchWithTimeout } from "@/lib/upstream";
+import { autoBootstrap } from "@/lib/embed-bootstrap";
 
 export const dynamic = "force-dynamic";
-
-const EMBED_HOSTS = new Set([
-  "embed.st",
-  "embedindia.st",
-  "embed.streamapi.cc",
-]);
 
 const BLOCKED_HOST =
   /(^|\.)((adcash|popads|popcash|propellerads|adsterra|exoclick|dtscout|adspyglass|hilltopads|yllix|juicyads)\.com|enteringlacquergiant\.com|adexchangerapid\.com|usrpubtrk\.com|ntwkbc\d+\.com|ndcertainlywhen\.com|usasenioraid\.com|multiboardthe\.com|filenebuladrive\.com|wps\.com|wpscdn\.com|llvpn\.com|thewildernessclub\.com|therocketlanguages\.com|optimserve\.agency|cdn-lab\.shop|tiktokcdn\.com|tracking-source\.com|static\.cloudflareinsights\.com|sstatic\d*\.histats\.com|histats\.com)$/i;
@@ -32,7 +35,7 @@ function escapeAttr(value: string): string {
 }
 
 function isEmbedUrl(url: URL): boolean {
-  return url.protocol === "https:" && EMBED_HOSTS.has(url.hostname);
+  return isAllowedEmbedUrl(url);
 }
 
 function isBlockedUrl(url: URL): boolean {
@@ -41,6 +44,19 @@ function isBlockedUrl(url: URL): boolean {
 
 function proxied(url: URL, appOrigin: string): string {
   return `${appOrigin}/api/embed?u=${encodeURIComponent(url.href)}`;
+}
+
+function proxiedMedia(url: URL, appOrigin: string): string {
+  return `${appOrigin}/api/media?u=${encodeURIComponent(url.href)}`;
+}
+
+type UrlClass = "media" | "blocked" | "embed" | "pass";
+
+function classifyUrl(url: URL): UrlClass {
+  if (isAllowedMediaUrl(url)) return "media";
+  if (isBlockedUrl(url)) return "blocked";
+  if (isEmbedUrl(url)) return "embed";
+  return "pass";
 }
 
 function resolveMaybe(raw: string, base: URL): URL | null {
@@ -60,12 +76,32 @@ function resolveMaybe(raw: string, base: URL): URL | null {
   }
 }
 
+function isAppProxyUrl(raw: string, appOrigin: string): boolean {
+  if (raw.startsWith("/api/embed?u=") || raw.startsWith("/api/media?u=")) return true;
+  try {
+    const url = new URL(raw, appOrigin);
+    return url.origin === appOrigin
+      && (url.pathname === "/api/embed" || url.pathname === "/api/media")
+      && url.searchParams.has("u");
+  } catch {
+    return false;
+  }
+}
+
 function rewriteAttrValue(raw: string, base: URL, appOrigin: string): string {
+  if (isAppProxyUrl(raw, appOrigin)) return raw;
   const url = resolveMaybe(raw, base);
   if (!url) return raw;
-  if (isBlockedUrl(url)) return "about:blank";
-  if (isEmbedUrl(url)) return proxied(url, appOrigin);
-  return raw;
+  switch (classifyUrl(url)) {
+    case "media":
+      return proxiedMedia(url, appOrigin);
+    case "blocked":
+      return "about:blank";
+    case "embed":
+      return proxied(url, appOrigin);
+    case "pass":
+      return raw;
+  }
 }
 
 function stripBlockedScripts(html: string, base: URL, appOrigin: string): string {
@@ -112,29 +148,49 @@ function rewriteUrlAttributes(html: string, base: URL, appOrigin: string): strin
 function shim(appOrigin: string, target: URL): string {
   return `<script>(function(){
   "use strict";
-  var EMBED_HOSTS=${JSON.stringify([...EMBED_HOSTS])};
+  var EMBED_HOSTS=${JSON.stringify(EMBED_HOSTS.map((rule) => rule.hostname))};
+  var MEDIA_RULES=${JSON.stringify(MEDIA_HOST_RULES)};
   var BLOCKED_HOST=${BLOCKED_HOST.toString()};
   var BLOCKED_URL=${BLOCKED_URL.toString()};
   var PROXY=${JSON.stringify(`${appOrigin}/api/embed?u=`)};
   var MEDIA_PROXY=${JSON.stringify(`${appOrigin}/api/media?u=`)};
   var EMBED_ORIGIN=${JSON.stringify(target.origin)};
-  var STRMD_HOST=/(^|\\.)strmd\\.st$/i;
-  var TIKTOK_MEDIA_HOST=/(^|\\.)tiktokcdn\\.com$/i;
 
   function abs(input){
     try{
       if(!input || typeof input!=="string") return null;
-      if(input.indexOf(PROXY)===0 || input.indexOf("/api/embed?u=")===0) return null;
+      if(input.indexOf(PROXY)===0 || input.indexOf(MEDIA_PROXY)===0 || input.indexOf("/api/embed?u=")===0 || input.indexOf("/api/media?u=")===0) return null;
       if(/^(about|blob|data|javascript|mailto|tel):/i.test(input) || input.charAt(0)==="#") return null;
       return new URL(input, document.baseURI);
     }catch(e){ return null; }
   }
+  function isProxyUrl(input){
+    try{
+      if(!input || typeof input!=="string") return false;
+      if(input.indexOf(PROXY)===0 || input.indexOf(MEDIA_PROXY)===0 || input.indexOf("/api/embed?u=")===0 || input.indexOf("/api/media?u=")===0) return true;
+      var u=new URL(input, document.baseURI);
+      return u.origin===location.origin && (u.pathname==="/api/embed" || u.pathname==="/api/media") && u.search.indexOf("u=")!==-1;
+    }catch(e){ return false; }
+  }
   function isEmbed(u){ return u && u.protocol==="https:" && EMBED_HOSTS.indexOf(u.hostname)!==-1; }
+  function mediaHostMatches(rule,hostname){
+    return hostname===rule.hostname || (rule.includeSubdomains===true && hostname.slice(-(rule.hostname.length+1))==="."+rule.hostname);
+  }
   function isMedia(u){
     if(!u || !/^https?:$/.test(u.protocol)) return false;
-    return STRMD_HOST.test(u.hostname) || (TIKTOK_MEDIA_HOST.test(u.hostname) && u.pathname.indexOf("/obj/")===0);
+    for(var i=0;i<MEDIA_RULES.length;i++){
+      var rule=MEDIA_RULES[i];
+      if(mediaHostMatches(rule,u.hostname) && (!rule.pathPrefix || u.pathname.indexOf(rule.pathPrefix)===0)) return true;
+    }
+    return false;
   }
   function isBlocked(u){ return !!u && (BLOCKED_HOST.test(u.hostname) || BLOCKED_URL.test(u.href)); }
+  function classify(u){
+    if(isMedia(u)) return "media";
+    if(isBlocked(u)) return "blocked";
+    if(isEmbed(u)) return "embed";
+    return "pass";
+  }
   function rememberMedia(u,proxyUrl){
     try{
       if(!/\\.m3u8(?:$|[?#])/i.test(u.pathname)) return;
@@ -148,20 +204,22 @@ function shim(appOrigin: string, target: URL): string {
     return /Remove sandbox attributes on the iframe tag|ad\\/visit\\.php|\\/ad\\.html|popunder|popads|popcash|adsterra|adcash|adexchangerapid|usrpubtrk|ntwkbc|ndcertainlywhen|histats/i.test(text);
   }
   function proxify(input){
+    if(isProxyUrl(input)) return input;
     var u=abs(input);
     if(!u) return input;
-    if(isMedia(u)){
+    var kind=classify(u);
+    if(kind==="media"){
       var mediaUrl=MEDIA_PROXY+encodeURIComponent(u.href);
       rememberMedia(u,mediaUrl);
       return mediaUrl;
     }
-    if(isBlocked(u)) return "about:blank";
+    if(kind==="blocked") return "about:blank";
     if(u.origin===location.origin && (u.pathname.indexOf("/js/")===0 || u.pathname.indexOf("/jwp/")===0)){
       return PROXY+encodeURIComponent(EMBED_ORIGIN+u.pathname+u.search+u.hash);
     }
     if(u.origin===location.origin && u.pathname==="/fetch") return PROXY+encodeURIComponent(EMBED_ORIGIN+"/fetch");
-    if(isEmbed(u) && u.pathname==="/fetch") return PROXY+encodeURIComponent(u.href);
-    if(isEmbed(u)) return PROXY+encodeURIComponent(u.href);
+    if(kind==="embed" && u.pathname==="/fetch") return PROXY+encodeURIComponent(u.href);
+    if(kind==="embed") return PROXY+encodeURIComponent(u.href);
     return input;
   }
   function emptyFetch(){
@@ -214,7 +272,7 @@ function shim(appOrigin: string, target: URL): string {
     var openNative=window.open;
     window.open=function(url){
       var u=abs(String(url||""));
-      if(!u || isBlocked(u)) return null;
+      if(!u || classify(u)==="blocked") return null;
       return openNative ? openNative.apply(window,arguments) : null;
     };
   }catch(e){}
@@ -256,7 +314,7 @@ function shim(appOrigin: string, target: URL): string {
         if(tag==="a" || tag==="link") raw=node.getAttribute("href")||"";
         if(tag==="form") raw=node.getAttribute("action")||"";
         var u=raw ? abs(raw) : null;
-        return isBlocked(u) || isBlockedMarkup(node.outerHTML||"");
+        return (u && classify(u)==="blocked") || isBlockedMarkup(node.outerHTML||"");
       }catch(e){ return false; }
     }
     var setAttributeNative=Element.prototype.setAttribute;
@@ -286,7 +344,7 @@ function shim(appOrigin: string, target: URL): string {
       if(!a) return;
       var href=a.getAttribute("href") || "";
       var u=abs(href);
-      if(/^_?blank$/i.test(a.getAttribute("target")||"") || isBlocked(u)){
+      if(/^_?blank$/i.test(a.getAttribute("target")||"") || classify(u)==="blocked"){
         e.preventDefault();
         e.stopImmediatePropagation();
       }
@@ -296,7 +354,7 @@ function shim(appOrigin: string, target: URL): string {
     try{
       var form=e.target;
       var u=abs(form && form.getAttribute ? (form.getAttribute("action")||"") : "");
-      if(/^_?blank$/i.test(form.getAttribute("target")||"") || isBlocked(u)){
+      if(/^_?blank$/i.test(form.getAttribute("target")||"") || classify(u)==="blocked"){
         e.preventDefault();
         e.stopImmediatePropagation();
       }
@@ -365,201 +423,11 @@ function shim(appOrigin: string, target: URL): string {
 })();</script>`;
 }
 
-function autoBootstrap(target: URL): string {
-  const match = target.pathname.match(/^\/embed\/([^/]+)\/([^/]+)\/([^/?#]+)/);
-  if (!match) return "";
-
-  const [, source, slug, channel] = match;
-  if (target.hostname === "embedindia.st") {
-    return `<script>(function(){
-  "use strict";
-  var SOURCE=${JSON.stringify(decodeURIComponent(source))};
-  var SLUG=${JSON.stringify(decodeURIComponent(slug))};
-  var CHANNEL=${JSON.stringify(decodeURIComponent(channel))};
-  var attempts=0;
-
-  function hasPlayer(){
-    try{
-      return typeof window.jwplayer==="function" && !!document.getElementById("player");
-    }catch(e){ return false; }
-  }
-  function playerConfigured(){
-    try{
-      if(document.querySelector("video")) return true;
-      var player=window.jwplayer("player");
-      var config=player && player.getConfig ? player.getConfig() : null;
-      if(config && (config.file || config.playlist)) return true;
-    }catch(e){}
-    return false;
-  }
-  function setupResolvedPlayer(){
-    try{
-      if(playerConfigured()) return true;
-      var urls=window.__valenceMediaUrls || [];
-      var file=window.__valenceMediaUrl || urls[0];
-      if(!file || typeof window.jwplayer!=="function") return false;
-      var player=window.jwplayer("player");
-      if(!player || typeof player.setup!=="function") return false;
-      player.setup({
-        file:file,
-        width:"100%",
-        height:"100%",
-        controls:true,
-        autostart:false,
-        mute:false,
-        stretching:"uniform"
-      });
-      window.__valencePlayerConfigured=true;
-      return true;
-    }catch(e){
-      return false;
-    }
-  }
-  function providerToken(){
-    try{
-      var scripts=document.scripts || [];
-      for(var i=0;i<scripts.length;i++){
-        var match=String(scripts[i].textContent||"").match(/window\\['ZpQw9XkLmN8c3vR3'\\]\\s*=\\s*'([^']+)'/);
-        if(match) return match[1];
-      }
-    }catch(e){}
-    return "";
-  }
-  function sleep(ms){
-    return new Promise(function(resolve){ setTimeout(resolve,ms); });
-  }
-  function schedule(){
-    if(attempts++<80) setTimeout(start,250);
-  }
-  async function tryCandidate(candidate){
-    Promise.resolve(window.setStream(candidate)).catch(function(error){
-      window.__valenceResolverError=String(error||"");
-    });
-    for(var i=0;i<32 && !setupResolvedPlayer();i++){
-      await sleep(250);
-    }
-    if(playerConfigured()){
-      window.__valencePlayerConfigured=true;
-      return true;
-    }
-    return false;
-  }
-  async function start(){
-    if(window.__valencePlayerStarted) return;
-    if(!hasPlayer() || typeof window.setStream!=="function") return schedule();
-    window.__valencePlayerStarted=true;
-    try{
-      var candidates=[];
-      candidates.push(SOURCE+"/"+SLUG+"/"+CHANNEL);
-      candidates.push("/embed/"+SOURCE+"/"+SLUG+"/"+CHANNEL);
-      var token=providerToken();
-      if(token) candidates.push(token);
-      for(var i=0;i<candidates.length;i++){
-        if(await tryCandidate(candidates[i])) return;
-      }
-      throw new Error(window.__valenceResolverError || "no playable media resolved");
-    }catch(e){
-      window.__valenceResolverError=String(e||"");
-      window.__valencePlayerStarted=false;
-      if(attempts<80) schedule();
-    }
-  }
-
-  if(document.readyState==="loading"){
-    document.addEventListener("DOMContentLoaded",start,{once:true});
-  }else{
-    start();
-  }
-})();</script>`;
-  }
-
-  return `<script>(function(){
-  "use strict";
-  var SOURCE=${JSON.stringify(decodeURIComponent(source))};
-  var SLUG=${JSON.stringify(decodeURIComponent(slug))};
-  var CHANNEL=${JSON.stringify(decodeURIComponent(channel))};
-  var attempts=0;
-
-  function hasPlayer(){
-    try{
-      return typeof window.jwplayer==="function" && !!document.getElementById("player");
-    }catch(e){ return false; }
-  }
-  function playerConfigured(){
-    try{
-      if(document.querySelector("video")) return true;
-      var player=window.jwplayer("player");
-      var config=player && player.getConfig ? player.getConfig() : null;
-      if(config && (config.file || config.playlist)) return true;
-    }catch(e){}
-    return false;
-  }
-  function setupResolvedPlayer(){
-    try{
-      if(playerConfigured()) return true;
-      var urls=window.__valenceMediaUrls || [];
-      var file=window.__valenceMediaUrl || urls[0];
-      if(!file || typeof window.jwplayer!=="function") return false;
-      var player=window.jwplayer("player");
-      if(!player || typeof player.setup!=="function") return false;
-      player.setup({
-        file:file,
-        width:"100%",
-        height:"100%",
-        controls:true,
-        autostart:false,
-        mute:false,
-        stretching:"uniform"
-      });
-      window.__valencePlayerConfigured=true;
-      return true;
-    }catch(e){
-      return false;
-    }
-  }
-  function sleep(ms){
-    return new Promise(function(resolve){ setTimeout(resolve,ms); });
-  }
-  function schedule(){
-    if(attempts++<80) setTimeout(start,250);
-  }
-  async function start(){
-    if(window.__valencePlayerStarted) return;
-    if(!hasPlayer()) return schedule();
-    window.__valencePlayerStarted=true;
-    try{
-      var module=await import("/js/wasm/lock.js");
-      await module.default();
-      var resolver=module.set_stream_jw(SOURCE,SLUG,CHANNEL).catch(function(error){
-        window.__valenceResolverError=String(error||"");
-      });
-      for(var i=0;i<80 && !setupResolvedPlayer();i++){
-        await sleep(250);
-      }
-      if(!playerConfigured()) await resolver;
-      for(var j=0;j<20 && !setupResolvedPlayer();j++){
-        await sleep(250);
-      }
-      if(!playerConfigured()) throw new Error("no playable media resolved");
-    }catch(e){
-      window.__valencePlayerStarted=false;
-      if(attempts<80) schedule();
-    }
-  }
-
-  if(document.readyState==="loading"){
-    document.addEventListener("DOMContentLoaded",start,{once:true});
-  }else{
-    start();
-  }
-})();</script>`;
-}
-
 function contentSecurityPolicy(appOrigin: string): string {
   const self = "'self'";
   const inline = "'unsafe-inline'";
   const evalToken = "'unsafe-eval'";
-  const embedHosts = "https://embed.st https://embedindia.st https://embed.streamapi.cc";
+  const embedHosts = embedHostsCsp();
   return [
     `default-src ${self} blob: data: https: http:`,
     `script-src ${self} ${inline} ${evalToken} 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net ${embedHosts}`,
@@ -622,7 +490,8 @@ async function proxyEmbed(request: Request) {
     if (accept) headers.set("accept", accept);
     if (contentType) headers.set("content-type", contentType);
 
-    upstream = await fetch(target.href, {
+    upstream = await fetchWithTimeout(target.href, {
+      signal: request.signal,
       method: request.method,
       headers,
       body: request.method === "GET" || request.method === "HEAD"
@@ -630,6 +499,7 @@ async function proxyEmbed(request: Request) {
         : await request.arrayBuffer(),
       redirect: "follow",
       cache: "no-store",
+      timeoutMs: PROXY_FETCH_TIMEOUT_MS,
     });
   } catch {
     return new NextResponse("upstream fetch failed", { status: 502 });

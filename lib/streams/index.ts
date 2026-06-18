@@ -1,18 +1,7 @@
 import type { Game, GameWithStreams, Stream } from "../types";
-import type { Provider, StreamCountMap, StreamLookup } from "./types";
-import { streamed } from "./streamed";
-import { sportsrc } from "./sportsrc";
-import { embedsportex } from "./embedsportex";
-import { ppv } from "./ppv";
-
-// Every active stream backend. streamed.pk is the original; the rest are additional free,
-// public APIs that the popular front-ends (StreamEast, Sportsurge, Crackstreams, …) also
-// embed from. Order matters: streamed's HD sources stay first in the watch panel.
-//
-// topembed.pw is intentionally omitted — it sits behind Cloudflare and answers server-side
-// requests with a JS challenge (not JSON), so it can't be fetched from a Next.js route.
-// ppv.land's own domain is mid-relaunch; we hit its live backend (api.ppv.to) directly.
-const PROVIDERS: Provider[] = [streamed, sportsrc, embedsportex, ppv];
+import { isTodayEspnDate } from "../espn";
+import type { StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
+import { PROVIDERS } from "./providers";
 
 // Runs a provider call, swallowing failures so one bad backend never breaks the rest.
 async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
@@ -23,9 +12,9 @@ async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   }
 }
 
-export async function getStreams(game: StreamLookup): Promise<Stream[]> {
+export async function getStreams(game: StreamLookup, options?: StreamProviderOptions): Promise<Stream[]> {
   const groups = await Promise.all(
-    PROVIDERS.map((p) => safe(() => p.getStreams(game), [])),
+    PROVIDERS.map((p) => safe(() => p.getStreams(game, options), [])),
   );
 
   // Pool every provider's streams into one list, deduped by embed URL. Labels are assigned
@@ -48,11 +37,14 @@ function zeroCounts(games: readonly StreamLookup[]): StreamCountMap {
   return new Map(games.map((g) => [g.id, 0]));
 }
 
-export async function getStreamCounts(games: readonly StreamLookup[]): Promise<StreamCountMap> {
+export async function getStreamCounts(
+  games: readonly StreamLookup[],
+  options?: StreamProviderOptions,
+): Promise<StreamCountMap> {
   if (games.length === 0) return zeroCounts(games);
 
   const providerCounts = await Promise.all(
-    PROVIDERS.map((p) => safe(() => p.getCounts(games), zeroCounts(games))),
+    PROVIDERS.map((p) => safe(() => p.getCounts(games, options), zeroCounts(games))),
   );
   const totals = zeroCounts(games);
   for (const counts of providerCounts) {
@@ -67,9 +59,8 @@ export async function getStreamCounts(games: readonly StreamLookup[]): Promise<S
 export async function attachStreamCounts(
   games: Game[],
   dateStr?: string,
+  options?: StreamProviderOptions,
 ): Promise<GameWithStreams[]> {
-  const counts = dateStr
-    ? zeroCounts(games)
-    : await getStreamCounts(games);
+  const counts = isTodayEspnDate(dateStr) ? await getStreamCounts(games, options) : zeroCounts(games);
   return games.map((g) => ({ ...g, streamCount: counts.get(g.id) ?? 0 }));
 }

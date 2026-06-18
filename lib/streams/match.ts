@@ -1,15 +1,5 @@
-import type { League } from "../types";
+import { streamCategoryFor } from "../registry";
 import type { StreamLookup } from "./types";
-
-// streamed.pk-style sport categories shared by every backend we aggregate.
-// nba/ncaab → basketball, mlb → baseball, atp/wta → tennis.
-export const LEAGUE_SPORT: Record<League, string> = {
-  nba:   "basketball",
-  ncaab: "basketball",
-  mlb:   "baseball",
-  atp:   "tennis",
-  wta:   "tennis",
-};
 
 // Converts each non-alphanumeric char to a dash, matching streamed.pk's slug convention.
 // "St. Louis Cardinals" → "st--louis-cardinals" (period AND space each become "-")
@@ -35,4 +25,8 @@ function teamInText(text: string, teamName: string): boolean {
 // True if both of the game's teams are named somewhere in `text`.
 export function gameInText(text: string, game: StreamLookup): boolean {
   return teamInText(text, game.homeTeam.name) && teamInText(text, game.awayTeam.name);
+}
+
+export function categoryFor(game: StreamLookup): string {
+  return streamCategoryFor(game.league);
 }

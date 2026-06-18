@@ -9,6 +9,7 @@ export default function ShieldedPlayer({ url }: { url: string }) {
       title="Live stream"
       allowFullScreen
       allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+      sandbox="allow-scripts allow-forms allow-presentation allow-popups"
       referrerPolicy="no-referrer"
     />
   );

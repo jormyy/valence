@@ -1,6 +1,7 @@
 import type { Stream } from "../types";
-import type { Provider, StreamCountMap, StreamLookup } from "./types";
-import { LEAGUE_SPORT, gameInText } from "./match";
+import { STREAM_DETAIL_TIMEOUT_MS, STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
+import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
+import { categoryFor, gameInText } from "./match";
 
 // sportsrc.org is a streamed.pk-shaped mirror: a per-category match list, then a
 // per-match `detail` call that returns the same {embedUrl, hd, language} sources
@@ -19,10 +20,12 @@ interface SportsrcSource {
   language?: string;
 }
 
-async function fetchMatches(category: string): Promise<SportsrcMatch[]> {
+async function fetchMatches(category: string, options?: StreamProviderOptions): Promise<SportsrcMatch[]> {
   try {
-    const res = await fetch(`${BASE}/?data=matches&category=${category}`, {
+    const res = await fetchWithTimeout(`${BASE}/?data=matches&category=${category}`, {
+      signal: options?.signal,
       next: { revalidate: 60 },
+      timeoutMs: STREAM_LIST_TIMEOUT_MS,
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -40,19 +43,22 @@ function findMatch(matches: SportsrcMatch[], game: StreamLookup): SportsrcMatch 
   return matches.find((m) => gameInText(matchText(m), game));
 }
 
-async function fetchMatchesByCategory(games: readonly StreamLookup[]): Promise<Map<string, SportsrcMatch[]>> {
-  const categories = [...new Set(games.map((game) => LEAGUE_SPORT[game.league]))];
+async function fetchMatchesByCategory(
+  games: readonly StreamLookup[],
+  options?: StreamProviderOptions,
+): Promise<Map<string, SportsrcMatch[]>> {
+  const categories = [...new Set(games.map(categoryFor))];
   const entries = await Promise.all(
-    categories.map(async (category) => [category, await fetchMatches(category)] as const),
+    categories.map(async (category) => [category, await fetchMatches(category, options)] as const),
   );
   return new Map(entries);
 }
 
-async function fetchDetail(category: string, id: string): Promise<SportsrcSource[]> {
+async function fetchDetail(category: string, id: string, options?: StreamProviderOptions): Promise<SportsrcSource[]> {
   try {
-    const res = await fetch(
+    const res = await fetchWithTimeout(
       `${BASE}/?data=detail&category=${category}&id=${encodeURIComponent(id)}`,
-      { next: { revalidate: 60 } },
+      { signal: options?.signal, next: { revalidate: 60 }, timeoutMs: STREAM_DETAIL_TIMEOUT_MS },
     );
     if (!res.ok) return [];
     const json = await res.json();
@@ -64,13 +70,18 @@ async function fetchDetail(category: string, id: string): Promise<SportsrcSource
 
 export const sportsrc: Provider = {
   name: "sportsrc",
+  capabilities: {
+    embedHosts: [
+      { hostname: "embed.streamapi.cc", bootstrapStrategy: "wasm-lock" },
+    ],
+  },
 
-  async getStreams(game) {
-    const category = LEAGUE_SPORT[game.league];
-    const match = findMatch(await fetchMatches(category), game);
+  async getStreams(game, options) {
+    const category = categoryFor(game);
+    const match = findMatch(await fetchMatches(category, options), game);
     if (!match) return [];
 
-    const sources = await fetchDetail(category, match.id);
+    const sources = await fetchDetail(category, match.id, options);
     const out: Stream[] = [];
     for (const s of sources) {
       if (!s.embedUrl) continue;
@@ -84,11 +95,11 @@ export const sportsrc: Provider = {
     return out;
   },
 
-  async getCounts(games) {
-    const matchesByCategory = await fetchMatchesByCategory(games);
+  async getCounts(games, options) {
+    const matchesByCategory = await fetchMatchesByCategory(games, options);
     return new Map(
       games.map((game) => {
-        const category = LEAGUE_SPORT[game.league];
+        const category = categoryFor(game);
         return [game.id, findMatch(matchesByCategory.get(category) ?? [], game) ? 1 : 0];
       }),
     ) satisfies StreamCountMap;

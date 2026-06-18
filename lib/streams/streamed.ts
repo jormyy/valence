@@ -1,6 +1,7 @@
 import type { Stream } from "../types";
-import type { Provider, StreamCountMap, StreamLookup } from "./types";
-import { LEAGUE_SPORT, gameInText } from "./match";
+import { STREAM_DETAIL_TIMEOUT_MS, STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
+import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
+import { categoryFor, gameInText } from "./match";
 
 // streamed.pk — the original backend. A single "all-today" listing carries source
 // references; each (source, id) pair is resolved to embed URLs via a per-source call.
@@ -8,6 +9,8 @@ import { LEAGUE_SPORT, gameInText } from "./match";
 // The streamed project rotates/loses domains, so we try its official mirrors in order
 // (all serve byte-identical data). Add new mirrors here as the old ones go down.
 const MIRRORS = ["https://streamed.pk/api", "https://streamed.st/api"];
+const MAX_DETAIL_SOURCES = 8;
+const DETAIL_CONCURRENCY = 3;
 
 interface StreamedEvent {
   id: string;
@@ -18,25 +21,50 @@ interface StreamedEvent {
 interface StreamedStream {
   hd: boolean;
   embedUrl: string;
-  language: string;
+  language?: string;
 }
 
-// Fetches `path` from the first mirror that answers OK, so one dead domain falls over
-// to the next. Returns null if every mirror fails.
-async function fetchMirror(path: string): Promise<Response | null> {
-  for (const base of MIRRORS) {
-    try {
-      const res = await fetch(`${base}${path}`, { next: { revalidate: 60 } });
-      if (res.ok) return res;
-    } catch {
-      // try the next mirror
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isStreamedStream(value: unknown): value is StreamedStream {
+  return isRecord(value)
+    && typeof value.hd === "boolean"
+    && typeof value.embedUrl === "string"
+    && (value.language === undefined || typeof value.language === "string");
+}
+
+// Fetches `path` from the first mirror that answers OK.
+async function fetchMirror(path: string, options?: StreamProviderOptions): Promise<Response | null> {
+  const isDetail = path.startsWith("/stream/");
+  const controllers = MIRRORS.map(() => new AbortController());
+  try {
+    const winner = await Promise.any(
+      MIRRORS.map(async (base, index) => {
+        const res = await fetchWithTimeout(`${base}${path}`, {
+          signal: options?.signal
+            ? AbortSignal.any([options.signal, controllers[index].signal])
+            : controllers[index].signal,
+          next: { revalidate: 60 },
+          timeoutMs: isDetail ? STREAM_DETAIL_TIMEOUT_MS : STREAM_LIST_TIMEOUT_MS,
+        });
+        if (!res.ok) throw new Error(`streamed mirror ${base} returned ${res.status}`);
+        return { index, res };
+      }),
+    );
+    for (const [index, controller] of controllers.entries()) {
+      if (index !== winner.index) controller.abort();
     }
+    return winner.res;
+  } catch {
+    for (const controller of controllers) controller.abort();
+    return null;
   }
-  return null;
 }
 
-async function fetchTodayEvents(): Promise<StreamedEvent[]> {
-  const res = await fetchMirror("/matches/all-today");
+async function fetchTodayEvents(options?: StreamProviderOptions): Promise<StreamedEvent[]> {
+  const res = await fetchMirror("/matches/all-today", options);
   if (!res) {
     console.error("[streams:streamed] all mirrors failed");
     return [];
@@ -49,22 +77,53 @@ async function fetchTodayEvents(): Promise<StreamedEvent[]> {
 }
 
 function matchEvent(events: StreamedEvent[], game: StreamLookup): StreamedEvent | undefined {
-  const category = LEAGUE_SPORT[game.league];
+  const category = categoryFor(game);
   return events.find((e) => e.category === category && gameInText(e.id, game));
 }
 
-async function fetchSourceStreams(source: string, id: string): Promise<StreamedStream[]> {
-  const res = await fetchMirror(`/stream/${source}/${id}`);
+async function fetchSourceStreams(source: string, id: string, options?: StreamProviderOptions): Promise<StreamedStream[]> {
+  const res = await fetchMirror(`/stream/${source}/${id}`, options);
   if (!res) return [];
-  const data = await res.json();
-  return Array.isArray(data) ? data : [data];
+  let data: unknown;
+  try {
+    data = await res.json();
+  } catch {
+    return [];
+  }
+  const streams = Array.isArray(data) ? data : [data];
+  return streams.filter(isStreamedStream);
+}
+
+async function fetchSourceGroups(
+  sources: readonly { source: string; id: string }[],
+  options?: StreamProviderOptions,
+): Promise<StreamedStream[][]> {
+  const groups: StreamedStream[][] = [];
+  for (let i = 0; i < sources.length; i += DETAIL_CONCURRENCY) {
+    if (options?.signal?.aborted) break;
+    const batch = sources.slice(i, i + DETAIL_CONCURRENCY);
+    groups.push(...await Promise.all(
+      batch.map((source) => fetchSourceStreams(source.source, source.id, options)),
+    ));
+  }
+  return groups;
 }
 
 export const streamed: Provider = {
   name: "streamed",
+  capabilities: {
+    embedHosts: [
+      { hostname: "embed.st", bootstrapStrategy: "wasm-lock" },
+      { hostname: "embedindia.st", bootstrapStrategy: "provider-token" },
+    ],
+    mediaHosts: [
+      { hostname: "strmd.st", includeSubdomains: true },
+      { hostname: "tiktokcdn.com", includeSubdomains: true, pathPrefix: "/obj/" },
+    ],
+  },
 
-  async getStreams(game) {
-    const event = matchEvent(await fetchTodayEvents(), game);
+  async getStreams(game, options) {
+    const event = matchEvent(await fetchTodayEvents(options), game);
     if (!event) return [];
 
     // Dedup sources before fetching to avoid redundant requests.
@@ -74,9 +133,9 @@ export const streamed: Provider = {
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
-    });
+    }).slice(0, MAX_DETAIL_SOURCES);
 
-    const groups = await Promise.all(sources.map((s) => fetchSourceStreams(s.source, s.id)));
+    const groups = await fetchSourceGroups(sources, options);
     const out: Stream[] = [];
     for (const group of groups) {
       for (const s of group) {
@@ -87,8 +146,8 @@ export const streamed: Provider = {
     return out;
   },
 
-  async getCounts(games) {
-    const events = await fetchTodayEvents();
+  async getCounts(games, options) {
+    const events = await fetchTodayEvents(options);
     return new Map(games.map((game) => [game.id, matchEvent(events, game)?.sources.length ?? 0])) satisfies StreamCountMap;
   },
 };
