@@ -287,9 +287,27 @@ export async function getGames(league: League, dateStr?: string, options?: Fetch
   return unreachableParser(parser);
 }
 
+// Cap concurrent ESPN scoreboard fetches — the registry now spans hundreds of
+// leagues, and firing them all at once risks rate limiting and slow first loads.
+const SCOREBOARD_CONCURRENCY = 16;
+
+async function mapLimit<T, R>(items: readonly T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let next = 0;
+  async function worker() {
+    while (true) {
+      const i = next++;
+      if (i >= items.length) return;
+      results[i] = await fn(items[i]);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
 export async function getAllGames(dateStr?: string, options?: FetchOptions): Promise<Game[]> {
   const [espnResults, sourceGames] = await Promise.all([
-    Promise.all(LEAGUES.map((l) => getGames(l.id, dateStr, options))),
+    mapLimit(LEAGUES, SCOREBOARD_CONCURRENCY, (l) => getGames(l.id, dateStr, options)),
     getSourceGames(dateStr, options),
   ]);
   return [...espnResults.flat(), ...sourceGames].sort((a, b) => {

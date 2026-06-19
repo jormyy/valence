@@ -3,10 +3,9 @@ import { streamed } from "./streamed";
 import { sportsrc } from "./sportsrc";
 import { embedsportex } from "./embedsportex";
 import { ppv } from "./ppv";
-import { fast } from "./fast";
 
 // Order matters: earlier providers appear first in the watch panel after URL deduping.
-export const PROVIDERS = [streamed, sportsrc, embedsportex, ppv, fast] as const satisfies readonly Provider[];
+export const PROVIDERS = [streamed, sportsrc, embedsportex, ppv] as const satisfies readonly Provider[];
 
 export const EMBED_HOSTS: EmbedHostRule[] = [
   ...new Map(

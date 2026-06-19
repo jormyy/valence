@@ -3,7 +3,6 @@ import { LEAGUE_BY_ID, type StreamCategory } from "./registry";
 import { makeGameId } from "./game-id";
 import type { PpvEvent } from "./streams/ppv";
 import { fetchPpvListing, hasPpvListingStream, ppvCategoryKey } from "./streams/ppv";
-import { FAST_CHANNELS, type FastChannel } from "./streams/fast";
 import type { StreamProviderOptions } from "./streams/types";
 
 const PT_TZ = "America/Los_Angeles";
@@ -17,10 +16,6 @@ const PPV_CATEGORY_LEAGUES: Partial<Record<StreamCategory, League>> = {
   volleyball: "volleyball",
   cricket: "cricket",
   fight: "wrestling",
-};
-
-const PPV_247_SPORT_CHANNELS: Record<string, League> = {
-  "rally tv": "motorsports",
 };
 
 function todayInPT(): string {
@@ -78,9 +73,7 @@ function splitMatchup(name: string): readonly [string, string] | null {
 function ppvLeague(event: PpvEvent, categoryName: string): League | null {
   const rawCategory = event.category_name ?? categoryName;
   const key = ppvCategoryKey(rawCategory);
-  if (key === "24-7-streams") {
-    return PPV_247_SPORT_CHANNELS[(event.name ?? "").trim().toLowerCase()] ?? null;
-  }
+  if (key === "24-7-streams") return null;
   if (key === "fight" && !/^wrestling$/i.test(rawCategory)) return null;
   return PPV_CATEGORY_LEAGUES[key as StreamCategory] ?? null;
 }
@@ -150,24 +143,6 @@ function ppvGame(event: PpvEvent, league: League, startMs: number, endMs: number
   };
 }
 
-function fastGame(channel: FastChannel): Game {
-  const startMs = Date.now();
-  const league = channel.league;
-
-  return {
-    id: makeGameId(league, `fast:${channel.slug}`),
-    league,
-    espnId: `fast:${channel.slug}`,
-    eventName: channel.name,
-    shortName: channel.aliases?.[0] ?? channel.name,
-    homeTeam: teamFromName(channel.name),
-    awayTeam: teamFromName(LEAGUE_BY_ID[league].short),
-    startTime: new Date(startMs).toISOString(),
-    status: "in",
-    statusDisplay: "Live",
-  };
-}
-
 async function getPpvSourceGames(targetDate: string, options?: StreamProviderOptions): Promise<Game[]> {
   const listing = await fetchPpvListing(options);
   const games: Game[] = [];
@@ -190,10 +165,6 @@ async function getPpvSourceGames(targetDate: string, options?: StreamProviderOpt
   return games;
 }
 
-async function getFastSourceGames(): Promise<Game[]> {
-  return FAST_CHANNELS.map(fastGame);
-}
-
 function sourceGameKey(game: Game): string {
   const name = game.eventName ?? game.homeTeam.name;
   return `${game.league}:${name.toLowerCase().replace(/[^a-z0-9]+/g, "")}`;
@@ -203,7 +174,7 @@ export async function getSourceGames(dateStr?: string, options?: StreamProviderO
   const targetDate = normalizeDate(dateStr);
   if (!targetDate) return [];
 
-  const groups = await Promise.all([getPpvSourceGames(targetDate, options), getFastSourceGames()]);
+  const groups = await Promise.all([getPpvSourceGames(targetDate, options)]);
   const games: Game[] = [];
   const seen = new Set<string>();
   const seenSourceNames = new Set<string>();
