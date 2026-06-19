@@ -3,6 +3,8 @@ import type { League, Stream, Team } from "../types";
 export interface StreamLookup {
   readonly id: string;
   readonly league: League;
+  readonly eventName?: string;
+  readonly shortName?: string;
   readonly homeTeam: Pick<Team, "name" | "abbreviation">;
   readonly awayTeam: Pick<Team, "name" | "abbreviation">;
 }

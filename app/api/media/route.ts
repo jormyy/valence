@@ -45,7 +45,7 @@ function rewritePlaylist(text: string, target: URL, appOrigin: string): string {
         try {
           const next = new URL(value, target);
           if (isAllowedMediaUrl(next)) {
-            return `URI="${appOrigin}/api/media?u=${encodeURIComponent(next.href)}"`;
+            return `URI="/api/media?u=${encodeURIComponent(next.href)}"`;
           }
         } catch {
           return `URI="${value}"`;
@@ -59,7 +59,7 @@ function rewritePlaylist(text: string, target: URL, appOrigin: string): string {
       try {
         const next = new URL(trimmed, target);
         if (isAllowedMediaUrl(next)) {
-          return `${appOrigin}/api/media?u=${encodeURIComponent(next.href)}`;
+          return `/api/media?u=${encodeURIComponent(next.href)}`;
         }
       } catch {
         return uriRewritten;
@@ -78,6 +78,19 @@ function contentTypeFor(target: URL): string {
   if (/\.m4s(?:$|[?#])/i.test(target.pathname)) return "video/iso.segment";
   if (/\.mp4(?:$|[?#])/i.test(target.pathname)) return "video/mp4";
   return "application/octet-stream";
+}
+
+function playlistBaseUrl(upstream: Response, fallback: URL): URL {
+  try {
+    if (upstream.url) {
+      const url = new URL(upstream.url);
+      if (isAllowedMediaUrl(url)) return url;
+    }
+  } catch {
+    return fallback;
+  }
+
+  return fallback;
 }
 
 function parseCurlResponse(raw: Buffer): Response {
@@ -235,7 +248,7 @@ export async function GET(request: Request) {
 
   if (isPlaylist || contentType.toLowerCase().includes("mpegurl")) {
     const text = await upstream.text();
-    return new NextResponse(rewritePlaylist(text, target, requestUrl.origin), {
+    return new NextResponse(rewritePlaylist(text, playlistBaseUrl(upstream, target), requestUrl.origin), {
       status: upstream.status,
       headers: responseHeaders,
     });

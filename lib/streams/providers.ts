@@ -3,9 +3,10 @@ import { streamed } from "./streamed";
 import { sportsrc } from "./sportsrc";
 import { embedsportex } from "./embedsportex";
 import { ppv } from "./ppv";
+import { fast } from "./fast";
 
 // Order matters: earlier providers appear first in the watch panel after URL deduping.
-export const PROVIDERS = [streamed, sportsrc, embedsportex, ppv] as const satisfies readonly Provider[];
+export const PROVIDERS = [streamed, sportsrc, embedsportex, ppv, fast] as const satisfies readonly Provider[];
 
 export const EMBED_HOSTS: EmbedHostRule[] = [
   ...new Map(
@@ -45,6 +46,10 @@ export function isAllowedMediaUrl(url: URL): boolean {
   );
 }
 
+export function isAllowedStreamUrl(url: URL): boolean {
+  return isAllowedEmbedUrl(url) || isAllowedMediaUrl(url);
+}
+
 export function embedHostsCsp(): string {
   return EMBED_HOSTS.map((rule) => `https://${rule.hostname}`).join(" ");
 }
@@ -69,7 +74,7 @@ export function originFromEmbedReferer(request: Request, fallback = "https://emb
     if (!raw) return defaultOrigin;
 
     const target = new URL(raw);
-    if (isAllowedEmbedUrl(target)) return target.origin;
+    if (isAllowedEmbedUrl(target) || isAllowedMediaUrl(target)) return target.origin;
   } catch {
     return defaultOrigin;
   }

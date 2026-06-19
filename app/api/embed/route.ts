@@ -65,8 +65,75 @@ function proxied(url: URL, appOrigin: string): string {
   return `${appOrigin}/api/embed?u=${encodeURIComponent(url.href)}`;
 }
 
-function proxiedMedia(url: URL, appOrigin: string): string {
-  return `${appOrigin}/api/media?u=${encodeURIComponent(url.href)}`;
+function proxiedMedia(url: URL): string {
+  return `/api/media?u=${encodeURIComponent(url.href)}`;
+}
+
+function isHlsPlaylistUrl(url: URL): boolean {
+  return isAllowedMediaUrl(url) && /\.m3u8(?:$|[?#])/i.test(url.pathname);
+}
+
+function hlsPlayerHtml(target: URL): string {
+  const mediaUrl = proxiedMedia(target);
+  return `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050608;color:#f4f7fb;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{position:fixed;inset:0;display:grid;place-items:center;background:#050608}
+video{width:100%;height:100%;object-fit:contain;background:#050608}
+.status{position:absolute;left:14px;bottom:14px;max-width:calc(100% - 28px);padding:7px 10px;border-radius:6px;background:rgba(5,6,8,.72);font-size:12px;line-height:1.35;color:#dbe4f0}
+.status[data-state="ready"]{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<video id="video" controls autoplay muted playsinline></video>
+<div id="status" class="status">Loading stream...</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  var source=${JSON.stringify(mediaUrl)};
+  var video=document.getElementById("video");
+  var status=document.getElementById("status");
+  function setStatus(text,state){
+    if(status){ status.textContent=text; if(state) status.setAttribute("data-state",state); }
+  }
+  function play(){
+    try{
+      var promise=video.play();
+      if(promise && typeof promise.catch==="function") promise.catch(function(){});
+    }catch(e){}
+  }
+  if(window.Hls && window.Hls.isSupported()){
+    var hls=new window.Hls({enableWorker:true,lowLatencyMode:false,backBufferLength:60});
+    hls.on(window.Hls.Events.MEDIA_ATTACHED,function(){ hls.loadSource(source); });
+    hls.on(window.Hls.Events.MANIFEST_PARSED,function(){ setStatus("Ready","ready"); play(); });
+    hls.on(window.Hls.Events.ERROR,function(_event,data){
+      if(!data || !data.fatal) return;
+      if(data.type===window.Hls.ErrorTypes.NETWORK_ERROR){ hls.startLoad(); return; }
+      if(data.type===window.Hls.ErrorTypes.MEDIA_ERROR){ hls.recoverMediaError(); return; }
+      setStatus("Stream failed to load","error");
+      hls.destroy();
+    });
+    hls.attachMedia(video);
+    return;
+  }
+  if(video.canPlayType("application/vnd.apple.mpegurl")){
+    video.src=source;
+    video.addEventListener("loadedmetadata",function(){ setStatus("Ready","ready"); play(); },{once:true});
+    video.addEventListener("error",function(){ setStatus("Stream failed to load","error"); });
+    return;
+  }
+  setStatus("HLS playback is not supported in this browser","error");
+})();
+</script>
+</body>
+</html>`;
 }
 
 type UrlClass = "media" | "blocked" | "embed" | "pass";
@@ -113,7 +180,7 @@ function rewriteAttrValue(raw: string, base: URL, appOrigin: string): string {
   if (!url) return raw;
   switch (classifyUrl(url)) {
     case "media":
-      return proxiedMedia(url, appOrigin);
+      return proxiedMedia(url);
     case "blocked":
       return "about:blank";
     case "embed":
@@ -617,6 +684,16 @@ async function proxyEmbed(request: Request) {
   }
 
   if (!isEmbedUrl(target)) {
+    if (isHlsPlaylistUrl(target)) {
+      return new NextResponse(hlsPlayerHtml(target), {
+        status: 200,
+        headers: {
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": "no-store",
+          "content-security-policy": contentSecurityPolicy(requestUrl.origin),
+        },
+      });
+    }
     return corsResponse(request, "host not allowed", { status: 403 });
   }
   if (isBlockedUrl(target)) {

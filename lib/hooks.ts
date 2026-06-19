@@ -15,6 +15,8 @@ export function useGameStreams(game: StreamLookup | null): StreamState {
     () => game && ({
       id: game.id,
       league: game.league,
+      eventName: game.eventName,
+      shortName: game.shortName,
       homeTeam: {
         name: game.homeTeam.name,
         abbreviation: game.homeTeam.abbreviation,
@@ -27,6 +29,8 @@ export function useGameStreams(game: StreamLookup | null): StreamState {
     [
       game?.id,
       game?.league,
+      game?.eventName,
+      game?.shortName,
       game?.homeTeam.name,
       game?.homeTeam.abbreviation,
       game?.awayTeam.name,

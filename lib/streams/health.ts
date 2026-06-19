@@ -1,7 +1,7 @@
 import type { Stream, StreamHealth } from "../types";
 import { browserHeaders } from "../embed-request";
 import { fetchWithTimeout } from "../upstream";
-import { isAllowedEmbedUrl } from "./providers";
+import { isAllowedStreamUrl } from "./providers";
 import type { StreamProviderOptions } from "./types";
 
 const STREAM_HEALTH_TIMEOUT_MS = 2_500;
@@ -197,7 +197,7 @@ export async function probeStreamHealth(
     return "offline";
   }
 
-  const allowEmbedUrl = options.allowEmbedUrl ?? isAllowedEmbedUrl;
+  const allowEmbedUrl = options.allowEmbedUrl ?? isAllowedStreamUrl;
   if (!allowEmbedUrl(target)) return "offline";
   if (options.signal?.aborted) return "offline";
 

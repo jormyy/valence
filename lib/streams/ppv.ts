@@ -9,14 +9,28 @@ import { categoryFor, gameInText } from "./match";
 // Its category names match the shared sport buckets (basketball/baseball/tennis).
 const BASE = "https://api.ppv.to/api";
 
-interface PpvEvent {
+export interface PpvEvent {
   id: number;
   name?: string;
+  tag?: string;
+  category_name?: string;
+  uri_name?: string;
+  starts_at?: number;
+  ends_at?: number;
+  always_live?: number;
+  locale?: string;
+  iframe?: string;
+  substreams?: PpvSubstream[];
 }
 
-interface PpvCategory {
+export interface PpvCategory {
   category?: string;
   streams?: PpvEvent[];
+}
+
+interface PpvSubstream {
+  name?: string;
+  iframe?: string;
 }
 
 interface PpvSource {
@@ -24,7 +38,7 @@ interface PpvSource {
   data?: string;
 }
 
-async function fetchListing(options?: StreamProviderOptions): Promise<PpvCategory[]> {
+export async function fetchPpvListing(options?: StreamProviderOptions): Promise<PpvCategory[]> {
   try {
     const res = await fetchWithTimeout(`${BASE}/streams`, {
       signal: options?.signal,
@@ -39,10 +53,34 @@ async function fetchListing(options?: StreamProviderOptions): Promise<PpvCategor
   }
 }
 
+export function ppvCategoryKey(value: string): string {
+  const normalized = value.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  switch (normalized) {
+    case "american-football":
+      return "american-football";
+    case "australian-football":
+      return "afl";
+    case "football":
+      return "football";
+    case "ufc-boxing":
+    case "mma":
+    case "boxing":
+    case "wrestling":
+      return "fight";
+    case "motor-sports":
+    case "motorsports":
+    case "racing":
+      return "motor-sports";
+    default:
+      return normalized;
+  }
+}
+
 function findEvent(listing: PpvCategory[], game: StreamLookup): PpvEvent | undefined {
   const want = categoryFor(game);
   for (const cat of listing) {
-    if ((cat.category ?? "").toLowerCase() !== want) continue;
+    const category = ppvCategoryKey(cat.category ?? "");
+    if (category !== want && !(want === "motor-sports" && category === "24-7-streams")) continue;
     for (const ev of cat.streams ?? []) {
       if (gameInText(ev.name ?? "", game)) return ev;
     }
@@ -65,31 +103,72 @@ async function fetchSources(id: number, options?: StreamProviderOptions): Promis
   }
 }
 
+function isAllowedIframe(raw: string | undefined): raw is string {
+  if (!raw) return false;
+  try {
+    const url = new URL(raw);
+    return url.protocol === "https:" && (
+      url.hostname === "embed.st"
+      || url.hostname === "embed.streamapi.cc"
+    );
+  } catch {
+    return false;
+  }
+}
+
+function listingStreams(event: PpvEvent): Stream[] {
+  const out: Stream[] = [];
+  if (isAllowedIframe(event.iframe)) {
+    out.push({ label: "", url: event.iframe, quality: "HD", language: "EN" });
+  }
+  for (const substream of event.substreams ?? []) {
+    if (!isAllowedIframe(substream.iframe)) continue;
+    out.push({
+      label: "",
+      url: substream.iframe,
+      quality: "HD",
+      language: substream.name || "EN",
+    });
+  }
+  return out;
+}
+
+export function hasPpvListingStream(event: PpvEvent): boolean {
+  return listingStreams(event).length > 0;
+}
+
 export const ppv: Provider = {
   name: "ppv",
   capabilities: {
     embedHosts: [
       { hostname: "embed.st", bootstrapStrategy: "wasm-lock" },
-      { hostname: "embedindia.st", bootstrapStrategy: "provider-token" },
       { hostname: "embed.streamapi.cc", bootstrapStrategy: "wasm-lock" },
     ],
   },
 
   async getStreams(game, options) {
-    const event = findEvent(await fetchListing(options), game);
+    const event = findEvent(await fetchPpvListing(options), game);
     if (!event) return [];
+
+    const direct = listingStreams(event);
+    if (direct.length > 0) return direct;
 
     const sources = await fetchSources(event.id, options);
     const out: Stream[] = [];
     for (const s of sources) {
-      if (s.type !== "iframe" || !s.data) continue;
+      if (s.type !== "iframe" || !isAllowedIframe(s.data)) continue;
       out.push({ label: "", url: s.data, quality: "HD", language: "EN" });
     }
     return out;
   },
 
   async getCounts(games, options) {
-    const listing = await fetchListing(options);
-    return new Map(games.map((game) => [game.id, findEvent(listing, game) ? 1 : 0])) satisfies StreamCountMap;
+    const listing = await fetchPpvListing(options);
+    return new Map(games.map((game) => {
+      const event = findEvent(listing, game);
+      if (!event) return [game.id, 0];
+      const count = listingStreams(event).length;
+      return [game.id, count];
+    })) satisfies StreamCountMap;
   },
 };

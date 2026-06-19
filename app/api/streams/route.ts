@@ -17,6 +17,8 @@ function isStreamLookup(value: unknown): value is StreamLookup {
   return isRecord(value) &&
     typeof value.id === "string" &&
     isLeague(value.league) &&
+    (value.eventName === undefined || typeof value.eventName === "string") &&
+    (value.shortName === undefined || typeof value.shortName === "string") &&
     isTeam(value.homeTeam) &&
     isTeam(value.awayTeam);
 }

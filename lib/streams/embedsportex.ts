@@ -16,20 +16,32 @@ const IFRAME_HOSTS = new Set([
   "embed.streamapi.cc",
   "streams.esportex.site",
 ]);
+const CATEGORY_KEYS: Record<string, string> = {
+  "american-football": "amfootball",
+  "motor-sports": "race",
+};
+// Keep only player families that have been verified to resolve through our
+// proxy to media URLs. Other ESX families return a 200 shell but often never
+// reach a playable stream.
+const SUPPORTED_PLAYER_PREFIXES = ["ehd/"];
 
 interface EsxIframe {
   server?: string;
   url?: string;
 }
 
-interface EsxMatch {
+export interface EsxMatch {
+  slug?: string;
   tag?: string;
+  kickoff?: string;
+  endTime?: string;
+  league?: string;
   iframes?: EsxIframe[];
 }
 
-type EsxResponse = Record<string, EsxMatch[]>;
+export type EsxResponse = Record<string, EsxMatch[]>;
 
-async function fetchAll(options?: StreamProviderOptions): Promise<EsxResponse> {
+export async function fetchEmbedSportexListing(options?: StreamProviderOptions): Promise<EsxResponse> {
   for (const url of URLS) {
     try {
       const res = await fetchWithTimeout(url, {
@@ -47,7 +59,8 @@ async function fetchAll(options?: StreamProviderOptions): Promise<EsxResponse> {
 }
 
 function findMatch(data: EsxResponse, game: StreamLookup): EsxMatch | undefined {
-  const arr = data[categoryFor(game)];
+  const category = categoryFor(game);
+  const arr = data[CATEGORY_KEYS[category] ?? category];
   if (!Array.isArray(arr)) return undefined;
   return arr.find((m) => gameInText(m.tag ?? "", game));
 }
@@ -82,7 +95,7 @@ function isSupportedIframe(url: URL): boolean {
   if (url.hostname !== "streams.esportex.site") return true;
 
   const decoded = decodePlayerHash(url.hash);
-  return decoded?.startsWith("ehd/") ?? false;
+  return decoded ? SUPPORTED_PLAYER_PREFIXES.some((prefix) => decoded.startsWith(prefix)) : false;
 }
 
 function decodePlayerHash(hash: string): string | null {
@@ -112,7 +125,7 @@ export const embedsportex: Provider = {
   },
 
   async getStreams(game, options) {
-    const match = findMatch(await fetchAll(options), game);
+    const match = findMatch(await fetchEmbedSportexListing(options), game);
     if (!match?.iframes) return [];
 
     const out: Stream[] = [];
@@ -124,6 +137,6 @@ export const embedsportex: Provider = {
   },
 
   async getCounts(games, options) {
-    return countGames(await fetchAll(options), games);
+    return countGames(await fetchEmbedSportexListing(options), games);
   },
 };

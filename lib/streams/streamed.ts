@@ -8,7 +8,7 @@ import { categoryFor, gameInText } from "./match";
 //
 // The streamed project rotates/loses domains, so we try its official mirrors in order
 // (all serve byte-identical data). Add new mirrors here as the old ones go down.
-const MIRRORS = ["https://streamed.pk/api", "https://streamed.st/api"];
+const MIRRORS = ["https://streamed.pk/api", "https://streami.su/api", "https://streamed.st/api"];
 const MAX_DETAIL_SOURCES = 8;
 const DETAIL_CONCURRENCY = 3;
 

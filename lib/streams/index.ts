@@ -1,5 +1,5 @@
 import type { Game, GameWithStreams, Stream } from "../types";
-import { isTodayEspnDate } from "../espn";
+import { normalizeEspnDate, todayInPT } from "../espn";
 import type { StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
 import { PROVIDERS } from "./providers";
 import { rankStreamsByHealth } from "./health";
@@ -61,12 +61,24 @@ export async function getStreamCounts(
   return totals;
 }
 
-// The aggregated backends only carry today's events; skip the fetch for other dates.
+function dayNumber(date: string): number {
+  const [year, month, day] = date.split("-").map(Number);
+  return Date.UTC(year, month - 1, day) / 86_400_000;
+}
+
+// The UI only exposes yesterday/today/tomorrow. The providers often list nearby
+// upcoming events too, but not arbitrary historical schedules.
+function shouldFetchStreamCounts(dateStr?: string): boolean {
+  const normalized = normalizeEspnDate(dateStr);
+  if (!normalized) return false;
+  return Math.abs(dayNumber(normalized) - dayNumber(todayInPT())) <= 1;
+}
+
 export async function attachStreamCounts(
   games: Game[],
   dateStr?: string,
   options?: StreamProviderOptions,
 ): Promise<GameWithStreams[]> {
-  const counts = isTodayEspnDate(dateStr) ? await getStreamCounts(games, options) : zeroCounts(games);
+  const counts = shouldFetchStreamCounts(dateStr) ? await getStreamCounts(games, options) : zeroCounts(games);
   return games.map((g) => ({ ...g, streamCount: counts.get(g.id) ?? 0 }));
 }

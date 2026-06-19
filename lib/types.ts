@@ -13,6 +13,8 @@ export interface Game {
   id: string;
   league: League;
   espnId: string;
+  eventName?: string;
+  shortName?: string;
   homeTeam: Team;
   awayTeam: Team;
   startTime: string;
@@ -68,7 +70,12 @@ export interface EspnCompetitor {
 }
 
 export interface EspnStatus {
-  type: { state: string; shortDetail: string };
+  type: {
+    state: string;
+    shortDetail?: string;
+    detail?: string;
+    description?: string;
+  };
   period?: number;
   displayClock?: string;
 }
@@ -82,6 +89,8 @@ export interface EspnCompetition {
 
 export interface EspnEvent {
   id: string;
+  name?: string;
+  shortName?: string;
   date: string;
   status: EspnStatus;
   competitions: EspnCompetition[];

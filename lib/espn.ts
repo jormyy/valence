@@ -1,12 +1,13 @@
 import type {
   Game, League, Team,
   EspnCompetitor, EspnCompetition, EspnEvent,
-  EspnScoreboard, EspnTennisScoreboard, EspnSummary,
+  EspnScoreboard, EspnTennisScoreboard, EspnSummary, EspnStatus,
 } from "./types";
 import type { EspnParser } from "./registry";
-import { LEAGUES, LEAGUE_BY_ID } from "./registry";
+import { LEAGUES, LEAGUE_BY_ID, hasEspnSchedule } from "./registry";
 import { SCOREBOARD_TIMEOUT_MS, fetchWithTimeout } from "./upstream";
 import { makeGameId, parseGameId } from "./game-id";
+import { getSourceGames } from "./source-events";
 
 interface FetchOptions {
   readonly signal?: AbortSignal;
@@ -79,6 +80,25 @@ function parseTeam(c: EspnCompetitor): Team {
   };
 }
 
+function abbreviationFor(name: string): string {
+  const words = name
+    .replace(/[^a-z0-9\s]/gi, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (words.length === 0) return "EVT";
+  if (words.length === 1) return words[0].slice(0, 4).toUpperCase();
+  return words.slice(0, 4).map((word) => word[0]).join("").toUpperCase();
+}
+
+function teamFromName(name: string): Team {
+  return {
+    name,
+    abbreviation: abbreviationFor(name),
+    logo: "",
+  };
+}
+
 // Tennis competitors have `athlete` instead of `team`
 function parseTennisPlayer(c: EspnCompetitor): Team {
   const a = c.athlete ?? {};
@@ -105,34 +125,77 @@ function parseCompetitor(c: EspnCompetitor, parser: EspnParser): Team {
       return parseTeam(c);
     case "tennis":
       return parseTennisPlayer(c);
+    case "event":
+      return teamFromName("Event");
   }
   return unreachableParser(parser);
 }
 
+function eventMatchupParts(event: EspnEvent, league: League): readonly [string, string] {
+  const title = event.name ?? event.shortName ?? LEAGUE_BY_ID[league].label;
+  const headline = title.includes(":") ? title.split(":").at(-1)!.trim() : title;
+  const parts = headline
+    .split(/\s+(?:vs\.?|v\.?|at)\s+/i)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length >= 2) return [parts[0], parts.slice(1).join(" ")];
+  return [LEAGUE_BY_ID[league].short, title];
+}
+
+function parseEventTeams(event: EspnEvent, league: League): { homeTeam: Team; awayTeam: Team } {
+  const [away, home] = eventMatchupParts(event, league);
+  return {
+    awayTeam: teamFromName(away),
+    homeTeam: teamFromName(home),
+  };
+}
+
+function statusDetail(status: EspnStatus): string {
+  return status.type.shortDetail
+    ?? status.type.detail
+    ?? status.type.description
+    ?? status.type.state;
+}
+
 function parseGame(event: EspnEvent, league: League): Game {
   const competition = event.competitions[0];
-  const home = competition.competitors.find((c) => c.homeAway === "home")
-    ?? competition.competitors[1];
-  const away = competition.competitors.find((c) => c.homeAway === "away")
-    ?? competition.competitors[0];
   const status = event.status;
 
   let gameStatus: Game["status"] = "pre";
   if (status.type.state === "in") gameStatus = "in";
   else if (status.type.state === "post") gameStatus = "post";
 
-  const parser = LEAGUE_BY_ID[league].espn.parser;
+  const leagueInfo = LEAGUE_BY_ID[league];
+  if (!hasEspnSchedule(leagueInfo)) {
+    throw new Error(`League has no ESPN schedule: ${league}`);
+  }
+  const parser = leagueInfo.espn.parser;
+  const teams = parser === "event"
+    ? parseEventTeams(event, league)
+    : (() => {
+        const home = competition.competitors.find((c) => c.homeAway === "home")
+          ?? competition.competitors[1];
+        const away = competition.competitors.find((c) => c.homeAway === "away")
+          ?? competition.competitors[0];
+        return {
+          homeTeam: parseCompetitor(home, parser),
+          awayTeam: parseCompetitor(away, parser),
+        };
+      })();
 
   const statusDisplay = gameStatus === "pre"
     ? formatTimePT(event.date)
-    : status.type.shortDetail;
+    : statusDetail(status);
 
   return {
     id: makeGameId(league, event.id),
     league,
     espnId: event.id,
-    homeTeam: parseCompetitor(home, parser),
-    awayTeam: parseCompetitor(away, parser),
+    eventName: event.name,
+    shortName: event.shortName,
+    homeTeam: teams.homeTeam,
+    awayTeam: teams.awayTeam,
     startTime: event.date,
     status: gameStatus,
     statusDisplay,
@@ -153,6 +216,8 @@ function flattenTennisEvents(data: unknown, league: League, targetDate: string):
         if (!isRecord(competition) || safeGameDateInPT(competition.date) !== targetDate) continue;
         const synthetic: EspnEvent = {
           id: String(competition.id ?? ""),
+          name: typeof competition.name === "string" ? competition.name : undefined,
+          shortName: typeof competition.shortName === "string" ? competition.shortName : undefined,
           date: String(competition.date ?? ""),
           status: competition.status as EspnCompetition["status"],
           competitions: [competition as unknown as EspnCompetition],
@@ -183,8 +248,15 @@ function parseTeamEvents(data: unknown, league: League, targetDate: string): Gam
 }
 
 export async function getGames(league: League, dateStr?: string, options?: FetchOptions): Promise<Game[]> {
-  const config = LEAGUE_BY_ID[league].espn;
-  const query = dateStr ? `?dates=${dateStr}` : "";
+  const leagueInfo = LEAGUE_BY_ID[league];
+  if (!hasEspnSchedule(leagueInfo)) return [];
+
+  const targetDate = normalizeEspnDate(dateStr);
+  if (!targetDate) return [];
+
+  const config = leagueInfo.espn;
+  const dateParam = normalizeEspnDateParam(dateStr ?? targetDate);
+  const query = dateParam ? `?dates=${dateParam}` : "";
   let res: Response;
   try {
     res = await fetchWithTimeout(
@@ -202,7 +274,6 @@ export async function getGames(league: League, dateStr?: string, options?: Fetch
   } catch {
     return [];
   }
-  const targetDate = dateStr ? formatDateStr(dateStr) : todayInPT();
   const parser: EspnParser = config.parser;
 
   switch (parser) {
@@ -210,13 +281,18 @@ export async function getGames(league: League, dateStr?: string, options?: Fetch
       return parseTeamEvents(data, league, targetDate);
     case "tennis":
       return flattenTennisEvents(data, league, targetDate);
+    case "event":
+      return parseTeamEvents(data, league, targetDate);
   }
   return unreachableParser(parser);
 }
 
 export async function getAllGames(dateStr?: string, options?: FetchOptions): Promise<Game[]> {
-  const results = await Promise.all(LEAGUES.map((l) => getGames(l.id, dateStr, options)));
-  return results.flat().sort((a, b) => {
+  const [espnResults, sourceGames] = await Promise.all([
+    Promise.all(LEAGUES.map((l) => getGames(l.id, dateStr, options))),
+    getSourceGames(dateStr, options),
+  ]);
+  return [...espnResults.flat(), ...sourceGames].sort((a, b) => {
     const diff = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
     if (diff !== 0) return diff;
     return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
@@ -227,7 +303,9 @@ export async function getEspnSummary(gameId: string, options?: FetchOptions): Pr
   const parsed = parseGameId(gameId);
   if (!parsed) return null;
   const { league, espnId } = parsed;
-  const config = LEAGUE_BY_ID[league].espn;
+  const leagueInfo = LEAGUE_BY_ID[league];
+  if (!hasEspnSchedule(leagueInfo)) return null;
+  const config = leagueInfo.espn;
 
   let res: Response;
   try {
