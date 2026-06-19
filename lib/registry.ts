@@ -266,6 +266,15 @@ export const LEAGUES = [
     espn: { sport: "australian-football", path: "afl", parser: "team" },
   },
   {
+    id: "fifa-world",
+    sport: "soccer",
+    label: "FIFA World Cup",
+    short: "WC",
+    region: "INT",
+    streamCategory: "football",
+    espn: { sport: "soccer", path: "fifa.world", parser: "team" },
+  },
+  {
     id: "world-football",
     sport: "soccer",
     label: "International Football",
