@@ -106,6 +106,18 @@
   display: inline-flex; align-items: center; gap: 5px;
   color: var(--live);
 }
+.player-health {
+  border: 1px solid color-mix(in oklch, var(--pos), transparent 55%);
+  border-radius: 3px;
+  color: var(--pos);
+  font-size: 10px;
+  line-height: 1;
+  padding: 3px 5px;
+}
+.player-health.offline {
+  border-color: color-mix(in oklch, var(--live), transparent 55%);
+  color: var(--live);
+}
 .player-controls .spacer { flex: 1; }
 
 .stream-tabs {
@@ -129,6 +141,18 @@
 }
 .stream-tab.active { background: var(--fg); color: var(--bg-0); border-color: var(--fg); }
 .stream-tab .q { font-size: 9px; opacity: 0.6; }
+.stream-tab.health-offline:not(.active) {
+  border-color: color-mix(in oklch, var(--live), transparent 65%);
+  color: color-mix(in oklch, var(--live), var(--muted) 45%);
+}
+.stream-health {
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  font-size: 8px;
+  line-height: 1;
+  opacity: 0.85;
+  padding: 2px 3px;
+}
 
 .scorebox {
   padding: 14px;

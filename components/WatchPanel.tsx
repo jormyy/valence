@@ -90,6 +90,13 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
   const s = game.status;
   const sv = scoreView(game);
   const current = streams[activeStream];
+  const onlineStreams = streams.filter((stream) => stream.health === "online").length;
+  const checkedStreams = streams.filter((stream) => stream.health === "online" || stream.health === "offline").length;
+  const streamsText = checkedStreams > 0
+    ? checkedStreams === streams.length
+      ? `${onlineStreams}/${streams.length} working`
+      : `${onlineStreams}/${checkedStreams} checked`
+    : `${streams.length} available`;
 
   return (
     <aside className="watch">
@@ -125,6 +132,11 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
           {s === "in" && <span className="live-marker"><span className="live-dot" /> LIVE</span>}
           {s === "pre" && <span>STARTS {formatTimePT(game.startTime)}</span>}
           {s === "post" && <span>FINAL</span>}
+          {current?.health && (
+            <span className={`player-health ${current.health}`}>
+              {current.health === "online" ? "OK" : "DOWN"}
+            </span>
+          )}
           <span className="spacer" />
           {current && (
             <button
@@ -143,11 +155,17 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
           {streams.map((st, i) => (
             <button
               key={i}
-              className={`stream-tab ${i === activeStream ? "active" : ""}`}
+              className={`stream-tab ${i === activeStream ? "active" : ""} ${st.health ? `health-${st.health}` : ""}`}
               onClick={() => setActiveStream(i)}
+              title={st.health === "online" ? "Stream checked OK" : st.health === "offline" ? "Stream check failed" : undefined}
             >
               {st.label} <span className="q">{st.quality}</span>
               {st.language && <span className="q">· {st.language}</span>}
+              {st.health && (
+                <span className="stream-health">
+                  {st.health === "online" ? "OK" : "DOWN"}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -191,7 +209,7 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
             <div className="info-row"><span className="lbl">League</span><span className="val">{lg.label}</span></div>
             <div className="info-row"><span className="lbl">Start</span><span className="val">{formatTimePT(game.startTime)}</span></div>
             <div className="info-row"><span className="lbl">Status</span><span className="val">{game.statusDisplay}</span></div>
-            <div className="info-row"><span className="lbl">Streams</span><span className="val">{streams.length} available</span></div>
+            <div className="info-row"><span className="lbl">Streams</span><span className="val">{streamsText}</span></div>
             <RelatedGames current={game} allGames={allGames} onPick={onPick} />
           </>
         )}

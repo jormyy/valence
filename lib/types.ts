@@ -26,11 +26,14 @@ export interface GameWithStreams extends Game {
   streamCount?: number;
 }
 
+export type StreamHealth = "online" | "offline";
+
 export interface Stream {
   label: string;
   url: string;
   quality: "HD" | "SD" | "4K";
   language?: string;
+  health?: StreamHealth;
 }
 
 export interface StatLeader {

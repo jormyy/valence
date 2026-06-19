@@ -2,6 +2,7 @@ import type { Game, GameWithStreams, Stream } from "../types";
 import { isTodayEspnDate } from "../espn";
 import type { StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
 import { PROVIDERS } from "./providers";
+import { rankStreamsByHealth } from "./health";
 
 // Runs a provider call, swallowing failures so one bad backend never breaks the rest.
 async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
@@ -17,18 +18,23 @@ export async function getStreams(game: StreamLookup, options?: StreamProviderOpt
     PROVIDERS.map((p) => safe(() => p.getStreams(game, options), [])),
   );
 
-  // Pool every provider's streams into one list, deduped by embed URL. Labels are assigned
-  // after dedup so they read "HD 1 / HD 2 / SD 3 …" across the merged set.
+  // Pool every provider's streams into one list, deduped by embed URL. Health is checked
+  // globally so every sport/provider gets reachable sources before dead mirrors.
   const out: Stream[] = [];
   const seen = new Set<string>();
   for (const group of groups) {
     for (const s of group) {
       if (!s.url || seen.has(s.url)) continue;
       seen.add(s.url);
-      out.push({ ...s, label: `${s.quality} ${out.length + 1}` });
+      out.push(s);
     }
   }
-  return out;
+
+  const ranked = await rankStreamsByHealth(out, options);
+  return ranked.map((stream, index) => ({
+    ...stream,
+    label: `${stream.quality} ${index + 1}`,
+  }));
 }
 
 // Summed availability across providers — a rough "how many sources" badge for the feed.

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { browserHeaders } from "@/lib/embed-request";
 import {
   EMBED_HOSTS,
   MEDIA_HOST_RULES,
@@ -16,16 +17,6 @@ const BLOCKED_HOST =
   /(^|\.)((adcash|popads|popcash|propellerads|adsterra|exoclick|dtscout|adspyglass|hilltopads|yllix|juicyads)\.com|acscdn\.com|enteringlacquergiant\.com|adexchangerapid\.com|usrpubtrk\.com|ntwkbc\d+\.com|ndcertainlywhen\.com|usasenioraid\.com|multiboardthe\.com|filenebuladrive\.com|wps\.com|wpscdn\.com|llvpn\.com|thewildernessclub\.com|therocketlanguages\.com|optimserve\.agency|cdn-lab\.shop|tiktokcdn\.com|tracking-source\.com|stats\.embedhd\.org|static\.cloudflareinsights\.com|sstatic\d*\.histats\.com|histats\.com)$/i;
 const BLOCKED_URL =
   /((^|\/)ad\.html(?:$|[?#])|popunder|popads|popcash|propeller|adsterra|exoclick|adcash|adspyglass|dtscout|adexchange|usrpubtrk|ntwkbc|ndcertainlywhen|senioraid|multiboard|filenebula|wpscdn|wps\.com|wildernessclub|therocketlanguages|optimserve|swarmcloud|cdn-lab|tiktokcdn|tracking-source|cloudflareinsights|histats|googletagmanager|google-analytics|disable-devtool)/i;
-
-const BROWSER_HEADERS = (target: URL, upstreamOrigin = target.origin) => ({
-  "user-agent":
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
-  accept:
-    "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-  "accept-language": "en-US,en;q=0.9",
-  referer: `${upstreamOrigin}/`,
-  origin: upstreamOrigin,
-});
 
 function corsHeaders(request: Request, methods: readonly string[]): Headers {
   const headers = new Headers({
@@ -638,7 +629,7 @@ async function proxyEmbed(request: Request) {
   let upstream: Response;
   try {
     const upstreamOrigin = originFromEmbedReferer(request, target.origin);
-    const headers = new Headers(BROWSER_HEADERS(target, upstreamOrigin));
+    const headers = new Headers(browserHeaders(target, upstreamOrigin));
     const accept = request.headers.get("accept");
     const contentType = request.headers.get("content-type");
     if (accept) headers.set("accept", accept);
