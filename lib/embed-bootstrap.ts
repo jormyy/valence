@@ -128,6 +128,8 @@ function strategyBootstrap(strategy: BootstrapStrategy): string {
       return providerTokenBootstrap();
     case "wasm-lock":
       return wasmLockBootstrap();
+    case "none":
+      return "";
   }
 }
 
@@ -135,7 +137,7 @@ export function autoBootstrap(target: URL): string {
   const match = target.pathname.match(/^\/embed\/([^/]+)\/([^/]+)\/([^/?#]+)/);
   if (!match) return "";
   const strategy = bootstrapStrategyFor(target.hostname);
-  if (!strategy) return "";
+  if (!strategy || strategy === "none") return "";
 
   const [, source, slug, channel] = match;
   return `<script>(function(){

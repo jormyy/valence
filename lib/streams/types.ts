@@ -9,7 +9,7 @@ export interface StreamLookup {
 
 export type StreamCountMap = Map<string, number>;
 
-export type BootstrapStrategy = "wasm-lock" | "provider-token";
+export type BootstrapStrategy = "none" | "wasm-lock" | "provider-token";
 
 export interface EmbedHostRule {
   readonly hostname: string;

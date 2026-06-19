@@ -3,9 +3,19 @@ import { STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
 import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
 import { categoryFor, gameInText } from "./match";
 
-// embedsportex.site serves one JSON keyed by sport; each match carries its embeds inline
-// (an `iframes` array), so no per-match detail call is needed.
-const URL = "https://api.embedsportex.site/api/streams";
+// EmbedSportex serves one JSON keyed by sport; each match carries its embeds inline
+// (an `iframes` array), so no per-match detail call is needed. The project has
+// rotated API domains, so try the current documented endpoint before the legacy one.
+const URLS = [
+  "https://api.esportex.site/api/streams",
+  "https://api.embedsportex.site/api/streams",
+];
+const IFRAME_HOSTS = new Set([
+  "embed.st",
+  "embedindia.st",
+  "embed.streamapi.cc",
+  "streams.esportex.site",
+]);
 
 interface EsxIframe {
   server?: string;
@@ -20,17 +30,20 @@ interface EsxMatch {
 type EsxResponse = Record<string, EsxMatch[]>;
 
 async function fetchAll(options?: StreamProviderOptions): Promise<EsxResponse> {
-  try {
-    const res = await fetchWithTimeout(URL, {
-      signal: options?.signal,
-      next: { revalidate: 60 },
-      timeoutMs: STREAM_LIST_TIMEOUT_MS,
-    });
-    if (!res.ok) return {};
-    return await res.json();
-  } catch {
-    return {};
+  for (const url of URLS) {
+    try {
+      const res = await fetchWithTimeout(url, {
+        signal: options?.signal,
+        next: { revalidate: 60 },
+        timeoutMs: STREAM_LIST_TIMEOUT_MS,
+      });
+      if (!res.ok) continue;
+      return await res.json();
+    } catch {
+      // Try the next known API domain.
+    }
   }
+  return {};
 }
 
 function findMatch(data: EsxResponse, game: StreamLookup): EsxMatch | undefined {
@@ -40,7 +53,10 @@ function findMatch(data: EsxResponse, game: StreamLookup): EsxMatch | undefined 
 }
 
 function countGames(data: EsxResponse, games: readonly StreamLookup[]): StreamCountMap {
-  return new Map(games.map((game) => [game.id, findMatch(data, game)?.iframes?.length ?? 0]));
+  return new Map(games.map((game) => {
+    const iframes = findMatch(data, game)?.iframes ?? [];
+    return [game.id, iframes.filter((iframe) => isAllowedIframe(iframe.url)).length];
+  }));
 }
 
 function quality(server?: string): Stream["quality"] {
@@ -50,6 +66,34 @@ function quality(server?: string): Stream["quality"] {
   return "HD";
 }
 
+function isAllowedIframe(raw: string | undefined): raw is string {
+  if (!raw) return false;
+  try {
+    const url = new URL(raw);
+    return url.protocol === "https:" &&
+      IFRAME_HOSTS.has(url.hostname) &&
+      isSupportedIframe(url);
+  } catch {
+    return false;
+  }
+}
+
+function isSupportedIframe(url: URL): boolean {
+  if (url.hostname !== "streams.esportex.site") return true;
+
+  const decoded = decodePlayerHash(url.hash);
+  return decoded?.startsWith("ehd/") ?? false;
+}
+
+function decodePlayerHash(hash: string): string | null {
+  if (!hash.startsWith("#")) return null;
+  try {
+    return Buffer.from(decodeURIComponent(hash.slice(1)), "base64").toString("utf8");
+  } catch {
+    return null;
+  }
+}
+
 export const embedsportex: Provider = {
   name: "embedsportex",
   capabilities: {
@@ -57,6 +101,13 @@ export const embedsportex: Provider = {
       { hostname: "embed.st", bootstrapStrategy: "wasm-lock" },
       { hostname: "embedindia.st", bootstrapStrategy: "provider-token" },
       { hostname: "embed.streamapi.cc", bootstrapStrategy: "wasm-lock" },
+      { hostname: "streams.esportex.site", bootstrapStrategy: "none" },
+      { hostname: "data.esportex.site", bootstrapStrategy: "none" },
+      { hostname: "embedhd.org", bootstrapStrategy: "none" },
+      { hostname: "exposestrat.com", bootstrapStrategy: "none" },
+    ],
+    mediaHosts: [
+      { hostname: "zohanayaan.com", includeSubdomains: true, pathPrefix: "/hls/" },
     ],
   },
 
@@ -66,7 +117,7 @@ export const embedsportex: Provider = {
 
     const out: Stream[] = [];
     for (const f of match.iframes) {
-      if (!f.url) continue;
+      if (!isAllowedIframe(f.url)) continue;
       out.push({ label: "", url: f.url, quality: quality(f.server), language: "EN" });
     }
     return out;

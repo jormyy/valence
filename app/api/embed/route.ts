@@ -5,6 +5,7 @@ import {
   embedHostsCsp,
   isAllowedEmbedUrl,
   isAllowedMediaUrl,
+  originFromEmbedReferer,
 } from "@/lib/streams/providers";
 import { PROXY_FETCH_TIMEOUT_MS, fetchWithTimeout } from "@/lib/upstream";
 import { autoBootstrap } from "@/lib/embed-bootstrap";
@@ -12,18 +13,18 @@ import { autoBootstrap } from "@/lib/embed-bootstrap";
 export const dynamic = "force-dynamic";
 
 const BLOCKED_HOST =
-  /(^|\.)((adcash|popads|popcash|propellerads|adsterra|exoclick|dtscout|adspyglass|hilltopads|yllix|juicyads)\.com|enteringlacquergiant\.com|adexchangerapid\.com|usrpubtrk\.com|ntwkbc\d+\.com|ndcertainlywhen\.com|usasenioraid\.com|multiboardthe\.com|filenebuladrive\.com|wps\.com|wpscdn\.com|llvpn\.com|thewildernessclub\.com|therocketlanguages\.com|optimserve\.agency|cdn-lab\.shop|tiktokcdn\.com|tracking-source\.com|static\.cloudflareinsights\.com|sstatic\d*\.histats\.com|histats\.com)$/i;
+  /(^|\.)((adcash|popads|popcash|propellerads|adsterra|exoclick|dtscout|adspyglass|hilltopads|yllix|juicyads)\.com|acscdn\.com|enteringlacquergiant\.com|adexchangerapid\.com|usrpubtrk\.com|ntwkbc\d+\.com|ndcertainlywhen\.com|usasenioraid\.com|multiboardthe\.com|filenebuladrive\.com|wps\.com|wpscdn\.com|llvpn\.com|thewildernessclub\.com|therocketlanguages\.com|optimserve\.agency|cdn-lab\.shop|tiktokcdn\.com|tracking-source\.com|stats\.embedhd\.org|static\.cloudflareinsights\.com|sstatic\d*\.histats\.com|histats\.com)$/i;
 const BLOCKED_URL =
-  /((^|\/)ad\.html(?:$|[?#])|popunder|popads|popcash|propeller|adsterra|exoclick|adcash|adspyglass|dtscout|adexchange|usrpubtrk|ntwkbc|ndcertainlywhen|senioraid|multiboard|filenebula|wpscdn|wps\.com|wildernessclub|therocketlanguages|optimserve|swarmcloud|cdn-lab|tiktokcdn|tracking-source|cloudflareinsights|histats)/i;
+  /((^|\/)ad\.html(?:$|[?#])|popunder|popads|popcash|propeller|adsterra|exoclick|adcash|adspyglass|dtscout|adexchange|usrpubtrk|ntwkbc|ndcertainlywhen|senioraid|multiboard|filenebula|wpscdn|wps\.com|wildernessclub|therocketlanguages|optimserve|swarmcloud|cdn-lab|tiktokcdn|tracking-source|cloudflareinsights|histats|googletagmanager|google-analytics|disable-devtool)/i;
 
-const BROWSER_HEADERS = (target: URL) => ({
+const BROWSER_HEADERS = (target: URL, upstreamOrigin = target.origin) => ({
   "user-agent":
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
   accept:
     "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
   "accept-language": "en-US,en;q=0.9",
-  referer: `${target.origin}/`,
-  origin: target.origin,
+  referer: `${upstreamOrigin}/`,
+  origin: upstreamOrigin,
 });
 
 function corsHeaders(request: Request, methods: readonly string[]): Headers {
@@ -142,12 +143,22 @@ function stripBlockedScripts(html: string, base: URL, appOrigin: string): string
   );
 }
 
+function sanitizeInlineScriptBody(body: string): string {
+  return body
+    .replace(/\bwindow\s*\[\s*(["'])location\1\s*\]\s*\[\s*(["'])href\2\s*\]\s*=\s*(["'])\/\3/g, "void 0")
+    .replace(/\bwindow\.location\.href\s*=\s*(["'])\/\1/g, "void 0")
+    .replace(/\blocation\.href\s*=\s*(["'])\/\1/g, "void 0")
+    .replace(/\bwindow\.location\s*=\s*(["'])\/\1/g, "void 0")
+    .replace(/\bwindow\.location\.replace\(\s*(["'])https?:\/\/google\.com\/?\1\s*\)/gi, "void 0");
+}
+
 function stripBlockedInlineScripts(html: string): string {
   return html.replace(
     /<script\b(?![^>]*\bsrc=)[^>]*>[\s\S]*?<\/script>/gi,
     (tag: string) => {
       const body = tag.replace(/^<script\b[^>]*>/i, "").replace(/<\/script>$/i, "");
       const small = body.length < 5000;
+      if (small && /window\.self\s*={2,3}\s*window\.top[\s\S]*google\.com/i.test(body)) return "";
       if (small && /\baclib\.runPop\s*\(/i.test(body)) return "";
       if (small && /(?:^|[^\w])zoneId\s*:/i.test(body)) return "";
       if (
@@ -156,7 +167,8 @@ function stripBlockedInlineScripts(html: string): string {
       ) {
         return "";
       }
-      return tag;
+      const sanitized = sanitizeInlineScriptBody(body);
+      return sanitized === body ? tag : tag.replace(body, sanitized);
     },
   );
 }
@@ -172,6 +184,44 @@ function rewriteUrlAttributes(html: string, base: URL, appOrigin: string): strin
   );
 }
 
+function rewriteCssUrlText(css: string, base: URL, appOrigin: string): string {
+  return css.replace(
+    /url\(\s*(["']?)([^"')]+)\1\s*\)/gi,
+    (match, quote: string, value: string) => {
+      const rewritten = rewriteAttrValue(value, base, appOrigin);
+      if (rewritten === value) return match;
+      const nextQuote = quote || "'";
+      return `url(${nextQuote}${escapeAttr(rewritten)}${nextQuote})`;
+    },
+  );
+}
+
+function rewriteCssUrls(html: string, base: URL, appOrigin: string): string {
+  return html
+    .replace(
+      /<style\b([^>]*)>([\s\S]*?)<\/style>/gi,
+      (_tag, attrs: string, css: string) =>
+        `<style${attrs}>${rewriteCssUrlText(css, base, appOrigin)}</style>`,
+    )
+    .replace(
+      /\sstyle=(["'])(.*?)\1/gi,
+      (attr, quote: string, css: string) => {
+        const rewritten = rewriteCssUrlText(css, base, appOrigin);
+        if (rewritten === css) return attr;
+        return ` style=${quote}${escapeAttr(rewritten)}${quote}`;
+      },
+    );
+}
+
+function normalizedHash(target: URL): string {
+  if (!target.hash) return "";
+  try {
+    return `#${decodeURIComponent(target.hash.slice(1))}`;
+  } catch {
+    return target.hash;
+  }
+}
+
 function shim(appOrigin: string, target: URL): string {
   return `<script>(function(){
   "use strict";
@@ -182,6 +232,13 @@ function shim(appOrigin: string, target: URL): string {
   var PROXY=${JSON.stringify(`${appOrigin}/api/embed?u=`)};
   var MEDIA_PROXY=${JSON.stringify(`${appOrigin}/api/media?u=`)};
   var EMBED_ORIGIN=${JSON.stringify(target.origin)};
+  var EMBED_HASH=${JSON.stringify(normalizedHash(target))};
+
+  try{
+    if(EMBED_HASH && location.hash!==EMBED_HASH){
+      history.replaceState(null,"",location.pathname+location.search+EMBED_HASH);
+    }
+  }catch(e){}
 
   function abs(input){
     try{
@@ -212,6 +269,13 @@ function shim(appOrigin: string, target: URL): string {
     return false;
   }
   function isBlocked(u){ return !!u && (BLOCKED_HOST.test(u.hostname) || BLOCKED_URL.test(u.href)); }
+  function requestUrl(input){
+    try{
+      if(typeof input==="string") return input;
+      if(typeof URL!=="undefined" && input instanceof URL) return input.href;
+      return input && input.url;
+    }catch(e){ return input && input.url; }
+  }
   function classify(u){
     if(isMedia(u)) return "media";
     if(isBlocked(u)) return "blocked";
@@ -226,9 +290,29 @@ function shim(appOrigin: string, target: URL): string {
       if(!window.__valenceMediaUrl) window.__valenceMediaUrl=proxyUrl;
     }catch(e){}
   }
+  function rememberRequest(kind,original,next){
+    try{
+      window.__valenceRequests=window.__valenceRequests||[];
+      window.__valenceRequests.push({kind:kind,original:String(original||""),next:String(next||""),at:Date.now()});
+      if(window.__valenceRequests.length>80) window.__valenceRequests.shift();
+    }catch(e){}
+  }
   function isBlockedMarkup(value){
     var text=String(value||"");
     return /Remove sandbox attributes on the iframe tag|ad\\/visit\\.php|\\/ad\\.html|popunder|popads|popcash|adsterra|adcash|adexchangerapid|usrpubtrk|ntwkbc|ndcertainlywhen|histats/i.test(text);
+  }
+  function rewriteMarkup(value){
+    var text=String(value||"").replace(/\\s(src|href|action|poster)=(["'])(.*?)\\2/gi,function(attr,name,quote,raw){
+      var next=proxify(raw);
+      if(next===raw) return attr;
+      return " "+name+"="+quote+(next==="about:blank" ? "about:blank" : next)+quote;
+    });
+    return text.replace(/url\\(\\s*(["']?)([^"')]+)\\1\\s*\\)/gi,function(match,quote,raw){
+      var next=proxify(raw);
+      if(next===raw) return match;
+      var q=quote||"'";
+      return "url("+q+(next==="about:blank" ? "about:blank" : next)+q+")";
+    });
   }
   function proxify(input){
     if(isProxyUrl(input)) return input;
@@ -245,6 +329,9 @@ function shim(appOrigin: string, target: URL): string {
       return PROXY+encodeURIComponent(EMBED_ORIGIN+u.pathname+u.search+u.hash);
     }
     if(u.origin===location.origin && u.pathname==="/fetch") return PROXY+encodeURIComponent(EMBED_ORIGIN+"/fetch");
+    if(u.origin===location.origin){
+      return PROXY+encodeURIComponent(EMBED_ORIGIN+u.pathname+u.search+u.hash);
+    }
     if(kind==="embed" && u.pathname==="/fetch") return PROXY+encodeURIComponent(u.href);
     if(kind==="embed") return PROXY+encodeURIComponent(u.href);
     return input;
@@ -256,6 +343,13 @@ function shim(appOrigin: string, target: URL): string {
   try{
     window.aclib=window.aclib||{};
     window.aclib.runPop=function(){};
+  }catch(e){}
+
+  try{
+    window.P2PEngineHls=window.P2PEngineHls||function(){};
+    window.P2PEngineHls.tryRegisterServiceWorker=window.P2PEngineHls.tryRegisterServiceWorker||function(){
+      return Promise.resolve();
+    };
   }catch(e){}
 
   try{
@@ -309,16 +403,18 @@ function shim(appOrigin: string, target: URL): string {
     var writelnNative=document.writeln;
     document.write=function(){
       for(var i=0;i<arguments.length;i++) if(isBlockedMarkup(arguments[i])) return;
-      return writeNative.apply(this,arguments);
+      var args=Array.prototype.map.call(arguments,rewriteMarkup);
+      return writeNative.apply(this,args);
     };
     document.writeln=function(){
       for(var i=0;i<arguments.length;i++) if(isBlockedMarkup(arguments[i])) return;
-      return writelnNative.apply(this,arguments);
+      var args=Array.prototype.map.call(arguments,rewriteMarkup);
+      return writelnNative.apply(this,args);
     };
     var insertAdjacentHTMLNative=Element.prototype.insertAdjacentHTML;
     Element.prototype.insertAdjacentHTML=function(position,text){
       if(isBlockedMarkup(text)) return;
-      return insertAdjacentHTMLNative.call(this,position,text);
+      return insertAdjacentHTMLNative.call(this,position,rewriteMarkup(text));
     };
     var innerHTMLDescriptor=Object.getOwnPropertyDescriptor(Element.prototype,"innerHTML") || Object.getOwnPropertyDescriptor(HTMLElement.prototype,"innerHTML");
     if(innerHTMLDescriptor && innerHTMLDescriptor.set && innerHTMLDescriptor.get){
@@ -328,10 +424,34 @@ function shim(appOrigin: string, target: URL): string {
         get:function(){ return innerHTMLDescriptor.get.call(this); },
         set:function(value){
           if((this===document.body || this===document.documentElement) && isBlockedMarkup(value)) return;
-          return innerHTMLDescriptor.set.call(this,value);
+          return innerHTMLDescriptor.set.call(this,rewriteMarkup(value));
         }
       });
     }
+    function patchUrlProperty(proto,property){
+      try{
+        if(!proto) return;
+        var descriptor=Object.getOwnPropertyDescriptor(proto,property);
+        if(!descriptor || !descriptor.set || !descriptor.get || descriptor.__valencePatched) return;
+        Object.defineProperty(proto,property,{
+          configurable:true,
+          enumerable:descriptor.enumerable,
+          get:function(){ return descriptor.get.call(this); },
+          set:function(value){
+            var next=proxify(String(value||""));
+            return descriptor.set.call(this,next==="about:blank" ? "about:blank" : next);
+          }
+        });
+      }catch(e){}
+    }
+    patchUrlProperty(window.HTMLIFrameElement && HTMLIFrameElement.prototype,"src");
+    patchUrlProperty(window.HTMLImageElement && HTMLImageElement.prototype,"src");
+    patchUrlProperty(window.HTMLScriptElement && HTMLScriptElement.prototype,"src");
+    patchUrlProperty(window.HTMLMediaElement && HTMLMediaElement.prototype,"src");
+    patchUrlProperty(window.HTMLSourceElement && HTMLSourceElement.prototype,"src");
+    patchUrlProperty(window.HTMLLinkElement && HTMLLinkElement.prototype,"href");
+    patchUrlProperty(window.HTMLAnchorElement && HTMLAnchorElement.prototype,"href");
+    patchUrlProperty(window.HTMLFormElement && HTMLFormElement.prototype,"action");
     function blockedElement(node){
       try{
         if(!node || node.nodeType!==1) return false;
@@ -392,11 +512,14 @@ function shim(appOrigin: string, target: URL): string {
   if(fetchNative){
     window.fetch=function(input,init){
       try{
-        var original=typeof input==="string" ? input : input && input.url;
+        var original=requestUrl(input);
         var next=proxify(original);
+        rememberRequest("fetch",original,next);
         if(next==="about:blank") return emptyFetch();
         if(next!==original){
           if(typeof input==="string"){
+            input=next;
+          }else if(typeof URL!=="undefined" && input instanceof URL){
             input=next;
           }else if(input instanceof Request){
             var request=input;
@@ -431,7 +554,9 @@ function shim(appOrigin: string, target: URL): string {
   var xhrOpen=XMLHttpRequest.prototype.open;
   XMLHttpRequest.prototype.open=function(method,url){
     try{
-      var next=proxify(String(url));
+      var original=requestUrl(url);
+      var next=proxify(original);
+      rememberRequest("xhr",original,next);
       arguments[1]=next==="about:blank" ? "data:text/plain," : next;
     }catch(e){}
     return xhrOpen.apply(this,arguments);
@@ -455,15 +580,16 @@ function contentSecurityPolicy(appOrigin: string): string {
   const inline = "'unsafe-inline'";
   const evalToken = "'unsafe-eval'";
   const embedHosts = embedHostsCsp();
+  const playerAssetHosts = "https://cdn.jsdelivr.net https://vjs.zencdn.net https://cdnjs.cloudflare.com";
   return [
     `default-src ${self} blob: data:`,
-    `script-src ${self} ${inline} ${evalToken} 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net ${embedHosts}`,
+    `script-src ${self} ${inline} ${evalToken} 'wasm-unsafe-eval' blob: ${playerAssetHosts} ${embedHosts}`,
     `worker-src ${self} blob:`,
     `connect-src ${self} blob: data:`,
     `media-src ${self} blob: data:`,
-    `img-src ${self} blob: data:`,
-    `style-src ${self} ${inline}`,
-    `font-src ${self} data:`,
+    `img-src ${self} blob: data: https://upload.wikimedia.org`,
+    `style-src ${self} ${inline} ${playerAssetHosts}`,
+    `font-src ${self} data: https://fonts.gstatic.com`,
     `frame-src ${self} blob:`,
     `child-src ${self} blob:`,
     "object-src 'none'",
@@ -476,7 +602,7 @@ function contentSecurityPolicy(appOrigin: string): string {
 function rewriteHtml(html: string, target: URL, appOrigin: string): string {
   const inject = shim(appOrigin, target) + autoBootstrap(target);
   const cleaned = stripBlockedInlineScripts(stripBlockedScripts(html, target, appOrigin));
-  const rewritten = rewriteUrlAttributes(cleaned, target, appOrigin);
+  const rewritten = rewriteCssUrls(rewriteUrlAttributes(cleaned, target, appOrigin), target, appOrigin);
 
   if (/<head[^>]*>/i.test(rewritten)) {
     return rewritten.replace(/(<head[^>]*>)/i, `$1${inject}`);
@@ -511,7 +637,8 @@ async function proxyEmbed(request: Request) {
 
   let upstream: Response;
   try {
-    const headers = new Headers(BROWSER_HEADERS(target));
+    const upstreamOrigin = originFromEmbedReferer(request, target.origin);
+    const headers = new Headers(BROWSER_HEADERS(target, upstreamOrigin));
     const accept = request.headers.get("accept");
     const contentType = request.headers.get("content-type");
     if (accept) headers.set("accept", accept);
