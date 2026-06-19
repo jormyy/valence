@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { spawn } from "node:child_process";
-import { isAllowedMediaUrl, originFromEmbedReferer } from "@/lib/streams/providers";
+import { isAllowedEmbedUrl, isAllowedMediaUrl, originFromEmbedReferer } from "@/lib/streams/providers";
 import { PROXY_FETCH_TIMEOUT_MS, fetchWithTimeout } from "@/lib/upstream";
 
 export const dynamic = "force-dynamic";
@@ -37,7 +37,14 @@ function corsResponse(
   });
 }
 
-function rewritePlaylist(text: string, target: URL, appOrigin: string): string {
+function proxiedMediaUrl(url: URL, appOrigin: string, refererOrigin: string): string {
+  const params = new URLSearchParams({ r: refererOrigin, u: url.href });
+  return `${appOrigin}/api/media?${params}`;
+}
+
+function rewritePlaylist(text: string, target: URL, appOrigin: string, refererOrigin: string): string {
+  const proxiedMedia = (url: URL) => proxiedMediaUrl(url, appOrigin, refererOrigin);
+
   return text
     .split(/\r?\n/)
     .map((line) => {
@@ -45,7 +52,7 @@ function rewritePlaylist(text: string, target: URL, appOrigin: string): string {
         try {
           const next = new URL(value, target);
           if (isAllowedMediaUrl(next)) {
-            return `URI="/api/media?u=${encodeURIComponent(next.href)}"`;
+            return `URI="${proxiedMedia(next)}"`;
           }
         } catch {
           return `URI="${value}"`;
@@ -59,7 +66,7 @@ function rewritePlaylist(text: string, target: URL, appOrigin: string): string {
       try {
         const next = new URL(trimmed, target);
         if (isAllowedMediaUrl(next)) {
-          return `/api/media?u=${encodeURIComponent(next.href)}`;
+          return proxiedMedia(next);
         }
       } catch {
         return uriRewritten;
@@ -177,7 +184,7 @@ function shouldUseCurlFallback(target: URL, response?: Response): boolean {
 }
 
 async function fetchMedia(target: URL, request: Request): Promise<Response> {
-  const embedOrigin = originFromEmbedReferer(request);
+  const embedOrigin = mediaRefererOrigin(request);
   const headers = new Headers({
     "user-agent": USER_AGENT,
     referer: `${embedOrigin}/`,
@@ -203,6 +210,21 @@ async function fetchMedia(target: URL, request: Request): Promise<Response> {
   return fetchMediaWithCurl(target, headers, request.signal);
 }
 
+function mediaRefererOrigin(request: Request): string {
+  const requestUrl = new URL(request.url);
+  const raw = requestUrl.searchParams.get("r");
+  if (raw) {
+    try {
+      const ref = new URL(raw);
+      if (isAllowedEmbedUrl(ref)) return ref.origin;
+    } catch {
+      // Fall back to the browser referer below.
+    }
+  }
+
+  return originFromEmbedReferer(request);
+}
+
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const raw = requestUrl.searchParams.get("u");
@@ -220,6 +242,7 @@ export async function GET(request: Request) {
   }
 
   let upstream: Response;
+  const refererOrigin = mediaRefererOrigin(request);
   try {
     upstream = await fetchMedia(target, request);
   } catch {
@@ -248,7 +271,7 @@ export async function GET(request: Request) {
 
   if (isPlaylist || contentType.toLowerCase().includes("mpegurl")) {
     const text = await upstream.text();
-    return new NextResponse(rewritePlaylist(text, playlistBaseUrl(upstream, target), requestUrl.origin), {
+    return new NextResponse(rewritePlaylist(text, playlistBaseUrl(upstream, target), requestUrl.origin, refererOrigin), {
       status: upstream.status,
       headers: responseHeaders,
     });

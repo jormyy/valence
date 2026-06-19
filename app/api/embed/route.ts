@@ -14,9 +14,10 @@ import { autoBootstrap } from "@/lib/embed-bootstrap";
 export const dynamic = "force-dynamic";
 
 const BLOCKED_HOST =
-  /(^|\.)((adcash|popads|popcash|propellerads|adsterra|exoclick|dtscout|adspyglass|hilltopads|yllix|juicyads)\.com|acscdn\.com|enteringlacquergiant\.com|adexchangerapid\.com|usrpubtrk\.com|ntwkbc\d+\.com|ndcertainlywhen\.com|usasenioraid\.com|multiboardthe\.com|filenebuladrive\.com|wps\.com|wpscdn\.com|llvpn\.com|thewildernessclub\.com|therocketlanguages\.com|optimserve\.agency|cdn-lab\.shop|tiktokcdn\.com|tracking-source\.com|stats\.embedhd\.org|static\.cloudflareinsights\.com|sstatic\d*\.histats\.com|histats\.com)$/i;
+  /(^|\.)((adcash|popads|popcash|propellerads|adsterra|exoclick|dtscout|adspyglass|hilltopads|yllix|juicyads)\.com|acscdn\.com|enteringlacquergiant\.com|drawerexperienceletting\.com|adexchangerapid\.com|usrpubtrk\.com|ntwkbc\d+\.com|ndcertainlywhen\.com|usasenioraid\.com|multiboardthe\.com|filenebuladrive\.com|wps\.com|wpscdn\.com|llvpn\.com|thewildernessclub\.com|therocketlanguages\.com|optimserve\.agency|cdn-lab\.shop|tiktokcdn\.com|tracking-source\.com|stats\.embedhd\.org|static\.cloudflareinsights\.com|sstatic\d*\.histats\.com|histats\.com)$/i;
 const BLOCKED_URL =
-  /((^|\/)ad\.html(?:$|[?#])|popunder|popads|popcash|propeller|adsterra|exoclick|adcash|adspyglass|dtscout|adexchange|usrpubtrk|ntwkbc|ndcertainlywhen|senioraid|multiboard|filenebula|wpscdn|wps\.com|wildernessclub|therocketlanguages|optimserve|swarmcloud|cdn-lab|tiktokcdn|tracking-source|cloudflareinsights|histats|googletagmanager|google-analytics|disable-devtool)/i;
+  /((^|\/)ads?\.html(?:$|[?#])|popunder|popads|popcash|propeller|adsterra|exoclick|adcash|adspyglass|dtscout|adexchange|drawerexperienceletting|usrpubtrk|ntwkbc|ndcertainlywhen|senioraid|multiboard|filenebula|wpscdn|wps\.com|wildernessclub|therocketlanguages|optimserve|swarmcloud|cdn-lab|tiktokcdn|tracking-source|cloudflareinsights|histats|googletagmanager|google-analytics|disable-devtool)/i;
+const PLAYER_SCRIPT_HOSTS = new Set(["cdn.jsdelivr.net", "vjs.zencdn.net", "cdnjs.cloudflare.com"]);
 
 function corsHeaders(request: Request, methods: readonly string[]): Headers {
   const headers = new Headers({
@@ -61,20 +62,45 @@ function isBlockedUrl(url: URL): boolean {
   return BLOCKED_HOST.test(url.hostname) || BLOCKED_URL.test(url.href);
 }
 
-function proxied(url: URL, appOrigin: string): string {
-  return `${appOrigin}/api/embed?u=${encodeURIComponent(url.href)}`;
+function isTrustedScriptUrl(url: URL): boolean {
+  return isAllowedEmbedUrl(url) || PLAYER_SCRIPT_HOSTS.has(url.hostname);
 }
 
-function proxiedMedia(url: URL): string {
-  return `/api/media?u=${encodeURIComponent(url.href)}`;
+function allowedEmbedOrigin(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+
+  try {
+    const url = new URL(raw);
+    return isAllowedEmbedUrl(url) ? url.origin : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function embedRefererOrigin(request: Request, fallback: string): string {
+  const fromParam = allowedEmbedOrigin(new URL(request.url).searchParams.get("r") ?? undefined);
+  return fromParam ?? originFromEmbedReferer(request, fallback);
+}
+
+function proxied(url: URL, appOrigin: string, refererOrigin?: string): string {
+  const params = new URLSearchParams({ u: url.href });
+  const safeReferer = allowedEmbedOrigin(refererOrigin);
+  if (safeReferer) params.set("r", safeReferer);
+  return `${appOrigin}/api/embed?${params}`;
+}
+
+function proxiedMedia(url: URL, appOrigin: string, refererOrigin?: string): string {
+  const params = new URLSearchParams({ u: url.href });
+  if (refererOrigin) params.set("r", refererOrigin);
+  return `${appOrigin}/api/media?${params}`;
 }
 
 function isHlsPlaylistUrl(url: URL): boolean {
   return isAllowedMediaUrl(url) && /\.m3u8(?:$|[?#])/i.test(url.pathname);
 }
 
-function hlsPlayerHtml(target: URL): string {
-  const mediaUrl = proxiedMedia(target);
+function hlsPlayerHtml(target: URL, appOrigin: string): string {
+  const mediaUrl = proxiedMedia(target, appOrigin);
   return `<!doctype html>
 <html>
 <head>
@@ -163,7 +189,7 @@ function resolveMaybe(raw: string, base: URL): URL | null {
 }
 
 function isAppProxyUrl(raw: string, appOrigin: string): boolean {
-  if (raw.startsWith("/api/embed?u=") || raw.startsWith("/api/media?u=")) return true;
+  if (raw.startsWith("/api/embed?") || raw.startsWith("/api/media?")) return true;
   try {
     const url = new URL(raw, appOrigin);
     return url.origin === appOrigin
@@ -180,11 +206,11 @@ function rewriteAttrValue(raw: string, base: URL, appOrigin: string): string {
   if (!url) return raw;
   switch (classifyUrl(url)) {
     case "media":
-      return proxiedMedia(url);
+      return proxiedMedia(url, appOrigin, base.origin);
     case "blocked":
       return "about:blank";
     case "embed":
-      return proxied(url, appOrigin);
+      return proxied(url, appOrigin, base.origin);
     case "pass":
       return raw;
   }
@@ -195,7 +221,7 @@ function stripBlockedScripts(html: string, base: URL, appOrigin: string): string
     /<script\b([^>]*)\bsrc=(["'])(.*?)\2([^>]*)>\s*<\/script>/gi,
     (tag, before: string, _quote: string, src: string, after: string) => {
       const url = resolveMaybe(src, base);
-      if (url && isBlockedUrl(url)) return "";
+      if (url && (isBlockedUrl(url) || !isTrustedScriptUrl(url))) return "";
       return `<script${before}src="${escapeAttr(rewriteAttrValue(src, base, appOrigin))}"${after}></script>`;
     },
   );
@@ -203,6 +229,8 @@ function stripBlockedScripts(html: string, base: URL, appOrigin: string): string
 
 function sanitizeInlineScriptBody(body: string): string {
   return body
+    .replace(/_tR3Vx\(\{'disableMenu':!\[\][\s\S]*?void 0;\}\}\);/g, "void 0")
+    .replace(/\bdebugger\b/g, "void 0")
     .replace(/\bwindow\s*\[\s*(["'])location\1\s*\]\s*\[\s*(["'])href\2\s*\]\s*=\s*(["'])\/\3/g, "void 0")
     .replace(/\bwindow\.location\.href\s*=\s*(["'])\/\1/g, "void 0")
     .replace(/\blocation\.href\s*=\s*(["'])\/\1/g, "void 0")
@@ -216,8 +244,26 @@ function stripBlockedInlineScripts(html: string): string {
     (tag: string) => {
       const body = tag.replace(/^<script\b[^>]*>/i, "").replace(/<\/script>$/i, "");
       const small = body.length < 5000;
+      const antiDebug = /disable-devtool|isDevToolOpened|DetectorType|while\\x20\(true\)|(?:debu|debug)[\s\S]{0,80}gger/i.test(body);
+      if (body.length < 20000 && antiDebug) return "";
+      if (small && /googletagmanager|gtm\.js|dataLayer/i.test(body)) return "";
       if (small && /window\.self\s*={2,3}\s*window\.top[\s\S]*google\.com/i.test(body)) return "";
+      if (
+        small &&
+        /window\.top\s*={2,3}\s*window\.self/i.test(body) &&
+        /Access Denied|Direct access prevented|only available when embedded/i.test(body)
+      ) {
+        return "";
+      }
+      if (
+        small &&
+        /frameElement[\s\S]*hasAttribute\(\s*(["'])sandbox\1\s*\)/i.test(body) &&
+        /SANDBOX IFRAME NOT ALLOWED|window\.stop/i.test(body)
+      ) {
+        return "";
+      }
       if (small && /\baclib\.runPop\s*\(/i.test(body)) return "";
+      if (small && /(?:llvpn\.com|tag\.min\.js|dataset\.zone)/i.test(body)) return "";
       if (small && /(?:^|[^\w])zoneId\s*:/i.test(body)) return "";
       if (
         small &&
@@ -226,7 +272,9 @@ function stripBlockedInlineScripts(html: string): string {
         return "";
       }
       const sanitized = sanitizeInlineScriptBody(body);
-      return sanitized === body ? tag : tag.replace(body, sanitized);
+      if (sanitized === body) return tag;
+      const open = tag.match(/^<script\b[^>]*>/i)?.[0] ?? "<script>";
+      return `${open}${sanitized}</script>`;
     },
   );
 }
@@ -271,6 +319,29 @@ function rewriteCssUrls(html: string, base: URL, appOrigin: string): string {
     );
 }
 
+function hardenIframes(html: string): string {
+  return html.replace(/<iframe\b([^>]*)>/gi, (_tag, attrs: string) => {
+    const cleaned = attrs
+      .replace(/\s+sandbox=(["'])(.*?)\1/gi, "")
+      .replace(/\s+referrerpolicy=(["'])(.*?)\1/gi, "");
+    return `<iframe${cleaned} sandbox="allow-scripts allow-presentation" referrerpolicy="no-referrer">`;
+  });
+}
+
+function nestedStreamapiEmbed(html: string, target: URL): URL | null {
+  if (target.hostname !== "embed.streamapi.cc") return null;
+
+  const match = html.match(/<iframe\b[^>]*\bsrc=(["'])(.*?)\1/i);
+  if (!match) return null;
+
+  try {
+    const nested = new URL(match[2], target);
+    return isAllowedEmbedUrl(nested) ? nested : null;
+  } catch {
+    return null;
+  }
+}
+
 function normalizedHash(target: URL): string {
   if (!target.hash) return "";
   try {
@@ -285,12 +356,29 @@ function shim(appOrigin: string, target: URL): string {
   "use strict";
   var EMBED_HOSTS=${JSON.stringify(EMBED_HOSTS.map((rule) => rule.hostname))};
   var MEDIA_RULES=${JSON.stringify(MEDIA_HOST_RULES)};
+  var PLAYER_SCRIPT_HOSTS=${JSON.stringify([...PLAYER_SCRIPT_HOSTS])};
   var BLOCKED_HOST=${BLOCKED_HOST.toString()};
   var BLOCKED_URL=${BLOCKED_URL.toString()};
-  var PROXY=${JSON.stringify(`${appOrigin}/api/embed?u=`)};
-  var MEDIA_PROXY=${JSON.stringify(`${appOrigin}/api/media?u=`)};
+  var PROXY=${JSON.stringify(`${appOrigin}/api/embed?r=${encodeURIComponent(target.origin)}&u=`)};
+  var MEDIA_PROXY=${JSON.stringify(`${appOrigin}/api/media?r=${encodeURIComponent(target.origin)}&u=`)};
   var EMBED_ORIGIN=${JSON.stringify(target.origin)};
   var EMBED_HASH=${JSON.stringify(normalizedHash(target))};
+
+  try{
+    var NativeFunction=window.Function;
+    var generatedDebugger=/debugger|while\\s*\\(\\s*true\\s*\\)|while\\\\x20\\(true\\)|(?:debu|debug)[\\s\\S]{0,80}gger/i;
+    var SafeFunction=function(){
+      var body="";
+      try{ body=String(arguments[arguments.length-1]||""); }catch(e){}
+      if(generatedDebugger.test(body)) return function(){};
+      return NativeFunction.apply(this,arguments);
+    };
+    SafeFunction.prototype=NativeFunction.prototype;
+    Object.defineProperty(window,"Function",{configurable:true,writable:true,value:SafeFunction});
+    try{
+      Object.defineProperty(NativeFunction.prototype,"constructor",{configurable:true,writable:true,value:SafeFunction});
+    }catch(e){}
+  }catch(e){}
 
   try{
     if(EMBED_HASH && location.hash!==EMBED_HASH){
@@ -301,7 +389,7 @@ function shim(appOrigin: string, target: URL): string {
   function abs(input){
     try{
       if(!input || typeof input!=="string") return null;
-      if(input.indexOf(PROXY)===0 || input.indexOf(MEDIA_PROXY)===0 || input.indexOf("/api/embed?u=")===0 || input.indexOf("/api/media?u=")===0) return null;
+      if(input.indexOf(PROXY)===0 || input.indexOf(MEDIA_PROXY)===0 || input.indexOf("/api/embed?")===0 || input.indexOf("/api/media?")===0) return null;
       if(/^(about|blob|data|javascript|mailto|tel):/i.test(input) || input.charAt(0)==="#") return null;
       return new URL(input, document.baseURI);
     }catch(e){ return null; }
@@ -309,7 +397,7 @@ function shim(appOrigin: string, target: URL): string {
   function isProxyUrl(input){
     try{
       if(!input || typeof input!=="string") return false;
-      if(input.indexOf(PROXY)===0 || input.indexOf(MEDIA_PROXY)===0 || input.indexOf("/api/embed?u=")===0 || input.indexOf("/api/media?u=")===0) return true;
+      if(input.indexOf(PROXY)===0 || input.indexOf(MEDIA_PROXY)===0 || input.indexOf("/api/embed?")===0 || input.indexOf("/api/media?")===0) return true;
       var u=new URL(input, document.baseURI);
       return u.origin===location.origin && (u.pathname==="/api/embed" || u.pathname==="/api/media") && u.search.indexOf("u=")!==-1;
     }catch(e){ return false; }
@@ -327,6 +415,16 @@ function shim(appOrigin: string, target: URL): string {
     return false;
   }
   function isBlocked(u){ return !!u && (BLOCKED_HOST.test(u.hostname) || BLOCKED_URL.test(u.href)); }
+  function isAppPlayerScript(u){
+    return !!u && u.origin===location.origin && (
+      u.pathname.indexOf("/js/")===0 ||
+      u.pathname.indexOf("/jwp/")===0 ||
+      u.pathname==="/api/embed"
+    );
+  }
+  function isTrustedScript(u){
+    return !!u && (isEmbed(u) || isAppPlayerScript(u) || PLAYER_SCRIPT_HOSTS.indexOf(u.hostname)!==-1);
+  }
   function requestUrl(input){
     try{
       if(typeof input==="string") return input;
@@ -357,7 +455,7 @@ function shim(appOrigin: string, target: URL): string {
   }
   function isBlockedMarkup(value){
     var text=String(value||"");
-    return /Remove sandbox attributes on the iframe tag|ad\\/visit\\.php|\\/ad\\.html|popunder|popads|popcash|adsterra|adcash|adexchangerapid|usrpubtrk|ntwkbc|ndcertainlywhen|histats/i.test(text);
+    return /Remove sandbox attributes on the iframe tag|ad\\/visit\\.php|\\/ads?\\.html|popunder|popads|popcash|adsterra|adcash|adexchangerapid|usrpubtrk|ntwkbc|ndcertainlywhen|histats/i.test(text);
   }
   function rewriteMarkup(value){
     var text=String(value||"").replace(/\\s(src|href|action|poster)=(["'])(.*?)\\2/gi,function(attr,name,quote,raw){
@@ -448,12 +546,16 @@ function shim(appOrigin: string, target: URL): string {
   }catch(e){}
 
   try{
-    var openNative=window.open;
-    window.open=function(url){
-      var u=abs(String(url||""));
-      if(!u || classify(u)==="blocked") return null;
-      return openNative ? openNative.apply(window,arguments) : null;
-    };
+    var blockWindowOpen=function(){ return null; };
+    try{
+      Object.defineProperty(window,"open",{
+        configurable:false,
+        writable:false,
+        value:blockWindowOpen
+      });
+    }catch(e){
+      window.open=blockWindowOpen;
+    }
   }catch(e){}
 
   try{
@@ -497,6 +599,11 @@ function shim(appOrigin: string, target: URL): string {
           get:function(){ return descriptor.get.call(this); },
           set:function(value){
             var next=proxify(String(value||""));
+            try{
+              var tag=String(this.tagName||"").toLowerCase();
+              var u=abs(String(value||""));
+              if(tag==="script" && u && !isTrustedScript(u)) next="about:blank";
+            }catch(e){}
             return descriptor.set.call(this,next==="about:blank" ? "about:blank" : next);
           }
         });
@@ -519,26 +626,55 @@ function shim(appOrigin: string, target: URL): string {
         if(tag==="a" || tag==="link") raw=node.getAttribute("href")||"";
         if(tag==="form") raw=node.getAttribute("action")||"";
         var u=raw ? abs(raw) : null;
+        if(tag==="script" && u && !isTrustedScript(u)) return true;
+        if(tag==="iframe" && u && classify(u)!=="embed") return true;
         return (u && classify(u)==="blocked") || isBlockedMarkup(node.outerHTML||"");
       }catch(e){ return false; }
     }
     var setAttributeNative=Element.prototype.setAttribute;
+    var removeAttributeNative=Element.prototype.removeAttribute;
+    function hardenIframeElement(node){
+      try{
+        if(!node || node.nodeType!==1 || String(node.tagName||"").toLowerCase()!=="iframe") return;
+        setAttributeNative.call(node,"sandbox","allow-scripts allow-presentation");
+        setAttributeNative.call(node,"referrerpolicy","no-referrer");
+      }catch(e){}
+    }
     Element.prototype.setAttribute=function(name,value){
       var attr=String(name||"").toLowerCase();
+      if(String(this.tagName||"").toLowerCase()==="iframe" && (attr==="sandbox" || attr==="referrerpolicy")){
+        return setAttributeNative.call(this,name,attr==="sandbox" ? "allow-scripts allow-presentation" : "no-referrer");
+      }
       if(attr==="src" || attr==="href" || attr==="action" || attr==="poster"){
         var next=proxify(String(value||""));
+        try{
+          var tag=String(this.tagName||"").toLowerCase();
+          var u=abs(String(value||""));
+          if(attr==="src" && tag==="script" && u && !isTrustedScript(u)) next="about:blank";
+          if(attr==="src" && tag==="iframe" && u && classify(u)!=="embed") next="about:blank";
+        }catch(e){}
         value=next==="about:blank" ? "about:blank" : next;
       }
       return setAttributeNative.call(this,name,value);
     };
+    Element.prototype.removeAttribute=function(name){
+      var attr=String(name||"").toLowerCase();
+      if(String(this.tagName||"").toLowerCase()==="iframe" && (attr==="sandbox" || attr==="referrerpolicy")){
+        hardenIframeElement(this);
+        return;
+      }
+      return removeAttributeNative.call(this,name);
+    };
     var appendChildNative=Node.prototype.appendChild;
     Node.prototype.appendChild=function(node){
       if(blockedElement(node)) return node;
+      hardenIframeElement(node);
       return appendChildNative.call(this,node);
     };
     var insertBeforeNative=Node.prototype.insertBefore;
     Node.prototype.insertBefore=function(node,reference){
       if(blockedElement(node)) return node;
+      hardenIframeElement(node);
       return insertBeforeNative.call(this,node,reference);
     };
   }catch(e){}
@@ -547,22 +683,14 @@ function shim(appOrigin: string, target: URL): string {
     try{
       var a=e.target && e.target.closest ? e.target.closest("a") : null;
       if(!a) return;
-      var href=a.getAttribute("href") || "";
-      var u=abs(href);
-      if(/^_?blank$/i.test(a.getAttribute("target")||"") || classify(u)==="blocked"){
-        e.preventDefault();
-        e.stopImmediatePropagation();
-      }
+      e.preventDefault();
+      e.stopImmediatePropagation();
     }catch(err){}
   },true);
   document.addEventListener("submit",function(e){
     try{
-      var form=e.target;
-      var u=abs(form && form.getAttribute ? (form.getAttribute("action")||"") : "");
-      if(/^_?blank$/i.test(form.getAttribute("target")||"") || classify(u)==="blocked"){
-        e.preventDefault();
-        e.stopImmediatePropagation();
-      }
+      e.preventDefault();
+      e.stopImmediatePropagation();
     }catch(err){}
   },true);
 
@@ -660,15 +788,18 @@ function contentSecurityPolicy(appOrigin: string): string {
 function rewriteHtml(html: string, target: URL, appOrigin: string): string {
   const inject = shim(appOrigin, target) + autoBootstrap(target);
   const cleaned = stripBlockedInlineScripts(stripBlockedScripts(html, target, appOrigin));
-  const rewritten = rewriteCssUrls(rewriteUrlAttributes(cleaned, target, appOrigin), target, appOrigin);
+  const rewritten = hardenIframes(
+    rewriteCssUrls(rewriteUrlAttributes(cleaned, target, appOrigin), target, appOrigin),
+  );
+  const sanitized = sanitizeInlineScriptBody(rewritten);
 
-  if (/<head[^>]*>/i.test(rewritten)) {
-    return rewritten.replace(/(<head[^>]*>)/i, `$1${inject}`);
+  if (/<head[^>]*>/i.test(sanitized)) {
+    return sanitized.replace(/(<head[^>]*>)/i, `$1${inject}`);
   }
-  if (/<html[^>]*>/i.test(rewritten)) {
-    return rewritten.replace(/(<html[^>]*>)/i, `$1<head>${inject}</head>`);
+  if (/<html[^>]*>/i.test(sanitized)) {
+    return sanitized.replace(/(<html[^>]*>)/i, `$1<head>${inject}</head>`);
   }
-  return `<!doctype html><html><head>${inject}</head><body>${rewritten}</body></html>`;
+  return `<!doctype html><html><head>${inject}</head><body>${sanitized}</body></html>`;
 }
 
 async function proxyEmbed(request: Request) {
@@ -685,7 +816,7 @@ async function proxyEmbed(request: Request) {
 
   if (!isEmbedUrl(target)) {
     if (isHlsPlaylistUrl(target)) {
-      return new NextResponse(hlsPlayerHtml(target), {
+      return new NextResponse(hlsPlayerHtml(target, requestUrl.origin), {
         status: 200,
         headers: {
           "content-type": "text/html; charset=utf-8",
@@ -705,7 +836,7 @@ async function proxyEmbed(request: Request) {
 
   let upstream: Response;
   try {
-    const upstreamOrigin = originFromEmbedReferer(request, target.origin);
+    const upstreamOrigin = embedRefererOrigin(request, target.origin);
     const headers = new Headers(browserHeaders(target, upstreamOrigin));
     const accept = request.headers.get("accept");
     const contentType = request.headers.get("content-type");
@@ -730,6 +861,11 @@ async function proxyEmbed(request: Request) {
   const contentType = upstream.headers.get("content-type") ?? "";
   if (contentType.includes("text/html")) {
     const html = await upstream.text();
+    const nested = nestedStreamapiEmbed(html, target);
+    if (nested) {
+      return NextResponse.redirect(proxied(nested, requestUrl.origin, target.origin), 302);
+    }
+
     return new NextResponse(rewriteHtml(html, target, requestUrl.origin), {
       status: upstream.status,
       headers: {
