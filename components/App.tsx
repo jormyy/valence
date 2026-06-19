@@ -108,8 +108,11 @@ export default function App({ initialGames }: Props) {
     [rawGames, now]
   );
 
-  // Auto-select first live game once on mount (intentionally empty deps)
+  // Auto-select first live game once on mount, but only on desktop where the
+  // watch panel sits beside the feed. On mobile it covers the screen, so leave
+  // the game list visible as the landing view.
   useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 900) return;
     const live = games.find((g) => g.status === "in");
     if (live) setActiveGameId(live.id);
   // eslint-disable-next-line react-hooks/exhaustive-deps

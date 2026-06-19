@@ -121,10 +121,14 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
           <ShieldedPlayer url={current.url} />
         ) : (
           <div className="player-empty">
-            <div className="player-play"><PlayIcon /></div>
+            {streams.length > 0 && <div className="player-play"><PlayIcon /></div>}
             <div className="player-placeholder">
               <span className="big">{game.awayTeam.name} <span className="dim">vs</span> {game.homeTeam.name}</span>
-              stream embed
+              {streams.length > 0
+                ? "stream embed"
+                : s === "post"
+                  ? "game finished — no stream"
+                  : "no stream available yet"}
             </div>
           </div>
         )}

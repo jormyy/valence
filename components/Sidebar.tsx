@@ -115,9 +115,9 @@ export default function Sidebar({
               >
                 <span className="rail-icon"><SportIcon sport={sport.id} /></span>
                 <span>{sport.label}</span>
-                <span className="rail-count">
-                  {c.live > 0 && <span className="live-n">{c.live}</span>}
-                  <span>{c.total}</span>
+                <span className="rail-count" title={`${c.live} live · ${c.total} total`}>
+                  {c.live > 0 && c.live < c.total && <span className="live-n">{c.live}</span>}
+                  <span className={c.live > 0 && c.live === c.total ? "live-n" : ""}>{c.total}</span>
                 </span>
               </button>
               {isOpen && sportLeagues.length > 0 && (
@@ -137,9 +137,13 @@ export default function Sidebar({
                         }}
                       >
                         <span className="rail-sub-label">{lg.label}</span>
-                        <span className="rail-count">
-                          {(lc?.live ?? 0) > 0 && <span className="live-n">{lc!.live}</span>}
-                          <span>{lc?.total ?? 0}</span>
+                        <span className="rail-count" title={`${lc?.live ?? 0} live · ${lc?.total ?? 0} total`}>
+                          {(lc?.live ?? 0) > 0 && (lc?.live ?? 0) < (lc?.total ?? 0) && (
+                            <span className="live-n">{lc!.live}</span>
+                          )}
+                          <span className={(lc?.live ?? 0) > 0 && lc?.live === lc?.total ? "live-n" : ""}>
+                            {lc?.total ?? 0}
+                          </span>
                         </span>
                       </button>
                     );

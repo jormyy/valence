@@ -51,9 +51,13 @@ export default function GameFeed({ games, activeGameId, onPick, statusFilter, se
           return diff !== 0 ? diff : new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
         });
         const live = gs.filter((x) => x.status === "in").length;
-        return { lg: LEAGUE_BY_ID[lid], games: gs, live };
+        const lg = LEAGUE_BY_ID[lid];
+        // Generic 24/7 channel buckets (no scheduled fixtures) shouldn't bury real games.
+        const isChannel = !lg.espn;
+        return { lg, games: gs, live, isChannel };
       })
       .sort((a, b) => {
+        if (a.isChannel !== b.isChannel) return a.isChannel ? 1 : -1;
         if (a.live !== b.live) return b.live - a.live;
         return (LEAGUE_ORDER[a.lg.id] ?? 99) - (LEAGUE_ORDER[b.lg.id] ?? 99);
       });
