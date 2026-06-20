@@ -55,7 +55,7 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
 
   useEffect(() => {
     const current = streams[activeStream];
-    if (!current || streams.length < 2) return;
+    if (!current) return;
 
     function onMessage(event: MessageEvent) {
       const data = event.data;
@@ -72,6 +72,7 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
       failed.add(activeStream);
       setFailedStreams(failed);
 
+      if (streams.length < 2) return;
       for (let offset = 1; offset < streams.length; offset += 1) {
         const next = (activeStream + offset) % streams.length;
         if (failed.has(next) || streams[next]?.health === "offline") continue;
@@ -123,8 +124,13 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
   const s = game.status;
   const sv = scoreView(game);
   const current = streams[activeStream];
-  const onlineStreams = streams.filter((stream) => stream.health === "online").length;
-  const checkedStreams = streams.filter((stream) => stream.health === "online" || stream.health === "offline").length;
+  const streamHealthAt = (index: number) => failedStreams.has(index) ? "offline" : streams[index]?.health;
+  const currentHealth = current ? streamHealthAt(activeStream) : undefined;
+  const onlineStreams = streams.filter((_stream, index) => streamHealthAt(index) === "online").length;
+  const checkedStreams = streams.filter((_stream, index) => {
+    const health = streamHealthAt(index);
+    return health === "online" || health === "offline";
+  }).length;
   const streamsText = checkedStreams > 0
     ? checkedStreams === streams.length
       ? `${onlineStreams}/${streams.length} working`
@@ -169,9 +175,9 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
           {s === "in" && <span className="live-marker"><span className="live-dot" /> LIVE</span>}
           {s === "pre" && <span>STARTS {formatTimePT(game.startTime)}</span>}
           {s === "post" && <span>FINAL</span>}
-          {current?.health && (
-            <span className={`player-health ${current.health}`}>
-              {current.health === "online" ? "OK" : "DOWN"}
+          {currentHealth && (
+            <span className={`player-health ${currentHealth}`}>
+              {currentHealth === "online" ? "OK" : "DOWN"}
             </span>
           )}
           <span className="spacer" />
@@ -189,22 +195,40 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
 
       {streams.length > 1 && (
         <div className="stream-tabs">
-          {streams.map((st, i) => (
-            <button
-              key={i}
-              className={`stream-tab ${i === activeStream ? "active" : ""} ${st.health ? `health-${st.health}` : ""}`}
-              onClick={() => setActiveStream(i)}
-              title={st.health === "online" ? "Stream checked OK" : st.health === "offline" ? "Stream check failed" : undefined}
-            >
-              {st.label} <span className="q">{st.quality}</span>
-              {st.language && <span className="q">· {st.language}</span>}
-              {st.health && (
-                <span className="stream-health">
-                  {st.health === "online" ? "OK" : "DOWN"}
-                </span>
-              )}
-            </button>
-          ))}
+          {streams.map((st, i) => {
+            const health = streamHealthAt(i);
+            const title = failedStreams.has(i)
+              ? "Stream failed during playback"
+              : health === "online"
+                ? "Stream checked OK"
+                : health === "offline"
+                  ? "Stream check failed"
+                  : undefined;
+            return (
+              <button
+                key={i}
+                className={`stream-tab ${i === activeStream ? "active" : ""} ${health ? `health-${health}` : ""}`}
+                onClick={() => {
+                  setFailedStreams((failed) => {
+                    if (!failed.has(i)) return failed;
+                    const next = new Set(failed);
+                    next.delete(i);
+                    return next;
+                  });
+                  setActiveStream(i);
+                }}
+                title={title}
+              >
+                {st.label} <span className="q">{st.quality}</span>
+                {st.language && <span className="q">· {st.language}</span>}
+                {health && (
+                  <span className="stream-health">
+                    {health === "online" ? "OK" : "DOWN"}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
 
