@@ -142,10 +142,28 @@ video{width:100%;height:100%;object-fit:contain;background:#050608}
 (function(){
   "use strict";
   var source=${JSON.stringify(mediaUrl)};
+  var APP_ORIGIN=${JSON.stringify(appOrigin)};
+  var PLAYER_TARGET=${JSON.stringify(target.href)};
   var video=document.getElementById("video");
   var status=document.getElementById("status");
   function setStatus(text,state){
     if(status){ status.textContent=text; if(state) status.setAttribute("data-state",state); }
+  }
+  function reportFailure(kind,status){
+    try{
+      var message={
+        source:"valence-player",
+        type:"media-error",
+        kind:kind,
+        status:status || 0,
+        original:PLAYER_TARGET,
+        proxied:source,
+        target:PLAYER_TARGET,
+        embedTarget:PLAYER_TARGET
+      };
+      window.parent.postMessage(message, APP_ORIGIN);
+      if(window.top && window.top!==window.parent) window.top.postMessage(message, APP_ORIGIN);
+    }catch(e){}
   }
   function play(){
     try{
@@ -159,8 +177,7 @@ video{width:100%;height:100%;object-fit:contain;background:#050608}
     hls.on(window.Hls.Events.MANIFEST_PARSED,function(){ setStatus("Ready","ready"); play(); });
     hls.on(window.Hls.Events.ERROR,function(_event,data){
       if(!data || !data.fatal) return;
-      if(data.type===window.Hls.ErrorTypes.NETWORK_ERROR){ hls.startLoad(); return; }
-      if(data.type===window.Hls.ErrorTypes.MEDIA_ERROR){ hls.recoverMediaError(); return; }
+      reportFailure("hls",data.response && data.response.code);
       setStatus("Stream failed to load","error");
       hls.destroy();
     });
@@ -170,9 +187,13 @@ video{width:100%;height:100%;object-fit:contain;background:#050608}
   if(video.canPlayType("application/vnd.apple.mpegurl")){
     video.src=source;
     video.addEventListener("loadedmetadata",function(){ setStatus("Ready","ready"); play(); },{once:true});
-    video.addEventListener("error",function(){ setStatus("Stream failed to load","error"); });
+    video.addEventListener("error",function(){
+      reportFailure("native",video.error && video.error.code);
+      setStatus("Stream failed to load","error");
+    });
     return;
   }
+  reportFailure("unsupported",0);
   setStatus("HLS playback is not supported in this browser","error");
 })();
 </script>

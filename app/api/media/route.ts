@@ -284,6 +284,7 @@ async function proxyMedia(request: Request, includeBody: boolean) {
   const contentType = isPlaylist
     ? contentTypeFor(target)
     : upstream.headers.get("content-type") ?? contentTypeFor(target);
+  const rewritesPlaylist = isPlaylist || contentType.toLowerCase().includes("mpegurl");
   const responseHeaders = new Headers({
     "content-type": contentType,
     "cache-control": "no-store",
@@ -296,7 +297,7 @@ async function proxyMedia(request: Request, includeBody: boolean) {
   const contentLength = upstream.headers.get("content-length");
   if (contentRange) responseHeaders.set("content-range", contentRange);
   if (acceptRanges) responseHeaders.set("accept-ranges", acceptRanges);
-  if (contentLength) responseHeaders.set("content-length", contentLength);
+  if (contentLength && !rewritesPlaylist) responseHeaders.set("content-length", contentLength);
 
   if (!includeBody) {
     await upstream.body?.cancel().catch(() => undefined);
@@ -306,9 +307,11 @@ async function proxyMedia(request: Request, includeBody: boolean) {
     });
   }
 
-  if (isPlaylist || contentType.toLowerCase().includes("mpegurl")) {
+  if (rewritesPlaylist) {
     const text = await upstream.text();
-    return new NextResponse(rewritePlaylist(text, playlistBaseUrl(upstream, target), appOrigin, refererOrigin), {
+    const playlist = rewritePlaylist(text, playlistBaseUrl(upstream, target), appOrigin, refererOrigin);
+    responseHeaders.set("content-length", String(new TextEncoder().encode(playlist).length));
+    return new NextResponse(playlist, {
       status: upstream.status,
       headers: responseHeaders,
     });
