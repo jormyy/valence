@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { spawn } from "node:child_process";
+import http from "node:http";
+import https from "node:https";
+import { Readable } from "node:stream";
 import { isAllowedEmbedUrl, isAllowedMediaUrl, originFromEmbedReferer } from "@/lib/streams/providers";
 import { PROXY_FETCH_TIMEOUT_MS, fetchWithTimeout } from "@/lib/upstream";
 import { publicRequestOrigin } from "@/lib/request-origin";
@@ -10,7 +12,7 @@ export const maxDuration = 60;
 
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
-const HEADER_SEPARATOR = Buffer.from("\r\n\r\n");
+const NODE_TRANSPORT_REDIRECT_LIMIT = 4;
 
 function corsHeaders(request: Request): Headers {
   return new Headers({
@@ -102,87 +104,109 @@ function playlistBaseUrl(upstream: Response, fallback: URL): URL {
   return fallback;
 }
 
-function parseCurlResponse(raw: Buffer): Response {
-  const splitAt = raw.indexOf(HEADER_SEPARATOR);
-  if (splitAt === -1) {
-    throw new Error("curl response missing headers");
-  }
-
-  const headerText = raw.subarray(0, splitAt).toString("latin1");
-  const body = raw.subarray(splitAt + HEADER_SEPARATOR.length);
-  const [statusLine = "", ...lines] = headerText.split(/\r?\n/);
-  const status = Number(statusLine.match(/^HTTP\/\S+\s+(\d+)/)?.[1] ?? 502);
-  const headers = new Headers();
-
-  for (const line of lines) {
-    const index = line.indexOf(":");
-    if (index <= 0) continue;
-    headers.append(line.slice(0, index).trim(), line.slice(index + 1).trim());
-  }
-
-  return new Response(new Uint8Array(body), { status, headers });
-}
-
-function fetchMediaWithCurl(
-  target: URL,
-  headers: Headers,
-  signal: AbortSignal,
-): Promise<Response> {
-  const args = [
-    "--http1.1",
-    "--silent",
-    "--show-error",
-    "--max-time",
-    String(Math.ceil(PROXY_FETCH_TIMEOUT_MS / 1000)),
-    "--include",
-  ];
-
-  for (const [key, value] of headers) {
-    args.push("--header", `${key}: ${value}`);
-  }
-  args.push("--url", target.href);
-
-  return new Promise((resolve, reject) => {
-    const child = spawn("curl", args, { stdio: ["ignore", "pipe", "pipe"] });
-    const stdout: Buffer[] = [];
-    const stderr: Buffer[] = [];
-
-    const abort = () => {
-      child.kill("SIGTERM");
-      reject(new Error("curl aborted"));
-    };
-    if (signal.aborted) {
-      abort();
-      return;
-    }
-    signal.addEventListener("abort", abort, { once: true });
-
-    child.stdout.on("data", (chunk: Buffer) => stdout.push(chunk));
-    child.stderr.on("data", (chunk: Buffer) => stderr.push(chunk));
-    child.on("error", (error) => {
-      signal.removeEventListener("abort", abort);
-      reject(error);
-    });
-    child.on("close", (code) => {
-      signal.removeEventListener("abort", abort);
-      if (code !== 0) {
-        reject(new Error(Buffer.concat(stderr).toString("utf8") || `curl exited ${code}`));
-        return;
-      }
-
-      try {
-        resolve(parseCurlResponse(Buffer.concat(stdout)));
-      } catch (error) {
-        reject(error);
-      }
-    });
-  });
-}
-
-function shouldUseCurlTransport(target: URL, response?: Response): boolean {
+function shouldUseNodeTransport(target: URL, response?: Response): boolean {
   return target.hostname === "strmd.st"
     || target.hostname.endsWith(".strmd.st")
     || response?.status === 403;
+}
+
+function copyNodeResponseHeaders(rawHeaders: http.IncomingHttpHeaders): Headers {
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(rawHeaders)) {
+    if (value === undefined) continue;
+    if (Array.isArray(value)) {
+      for (const item of value) headers.append(key, item);
+    } else {
+      headers.set(key, String(value));
+    }
+  }
+  return headers;
+}
+
+function nodeRequestHeaders(headers: Headers): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [key, value] of headers) out[key] = value;
+  out["accept-encoding"] = "identity";
+  return out;
+}
+
+function isRedirect(status: number | undefined): boolean {
+  return status === 301 || status === 302 || status === 303 || status === 307 || status === 308;
+}
+
+function fetchMediaWithNodeTransport(
+  target: URL,
+  headers: Headers,
+  signal: AbortSignal,
+  redirectCount = 0,
+): Promise<Response> {
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new Error("node transport aborted"));
+      return;
+    }
+
+    const client = target.protocol === "http:" ? http : https;
+    const request = client.request(target, {
+      method: "GET",
+      headers: nodeRequestHeaders(headers),
+      timeout: PROXY_FETCH_TIMEOUT_MS,
+    });
+
+    let settled = false;
+    const cleanup = () => {
+      request.off("error", onError);
+      request.off("timeout", onTimeout);
+      signal.removeEventListener("abort", onAbort);
+    };
+    const fail = (error: Error) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      request.destroy();
+      reject(error);
+    };
+    const onError = (error: Error) => fail(error);
+    const onTimeout = () => fail(new Error("node transport timed out"));
+    const onAbort = () => fail(new Error("node transport aborted"));
+
+    request.on("error", onError);
+    request.on("timeout", onTimeout);
+    signal.addEventListener("abort", onAbort, { once: true });
+
+    request.on("response", (upstream) => {
+      const location = upstream.headers.location;
+      if (isRedirect(upstream.statusCode) && location && redirectCount < NODE_TRANSPORT_REDIRECT_LIMIT) {
+        upstream.resume();
+        let next: URL;
+        try {
+          next = new URL(Array.isArray(location) ? location[0] : location, target);
+        } catch {
+          fail(new Error("bad media redirect"));
+          return;
+        }
+        if (!isAllowedMediaUrl(next)) {
+          fail(new Error("media redirect host not allowed"));
+          return;
+        }
+
+        settled = true;
+        cleanup();
+        resolve(fetchMediaWithNodeTransport(next, headers, signal, redirectCount + 1));
+        return;
+      }
+
+      settled = true;
+      cleanup();
+      resolve(new Response(Readable.toWeb(upstream) as BodyInit, {
+        status: upstream.statusCode ?? 502,
+        statusText: upstream.statusMessage,
+        headers: copyNodeResponseHeaders(upstream.headers),
+      }));
+    });
+
+    request.end();
+  });
 }
 
 async function fetchMedia(target: URL, request: Request): Promise<Response> {
@@ -204,12 +228,12 @@ async function fetchMedia(target: URL, request: Request): Promise<Response> {
       cache: "no-store",
       timeoutMs: PROXY_FETCH_TIMEOUT_MS,
     });
-    if (upstream.ok || !shouldUseCurlTransport(target, upstream)) return upstream;
+    if (upstream.ok || !shouldUseNodeTransport(target, upstream)) return upstream;
   } catch {
-    if (!shouldUseCurlTransport(target)) throw new Error("native media fetch failed");
+    if (!shouldUseNodeTransport(target)) throw new Error("native media fetch failed");
   }
 
-  return fetchMediaWithCurl(target, headers, request.signal);
+  return fetchMediaWithNodeTransport(target, headers, request.signal);
 }
 
 function mediaRefererOrigin(request: Request): string {
@@ -227,7 +251,7 @@ function mediaRefererOrigin(request: Request): string {
   return originFromEmbedReferer(request);
 }
 
-export async function GET(request: Request) {
+async function proxyMedia(request: Request, includeBody: boolean) {
   const requestUrl = new URL(request.url);
   const appOrigin = publicRequestOrigin(request);
   const raw = requestUrl.searchParams.get("u");
@@ -269,8 +293,18 @@ export async function GET(request: Request) {
   }
   const contentRange = upstream.headers.get("content-range");
   const acceptRanges = upstream.headers.get("accept-ranges");
+  const contentLength = upstream.headers.get("content-length");
   if (contentRange) responseHeaders.set("content-range", contentRange);
   if (acceptRanges) responseHeaders.set("accept-ranges", acceptRanges);
+  if (contentLength) responseHeaders.set("content-length", contentLength);
+
+  if (!includeBody) {
+    await upstream.body?.cancel().catch(() => undefined);
+    return new NextResponse(null, {
+      status: upstream.status,
+      headers: responseHeaders,
+    });
+  }
 
   if (isPlaylist || contentType.toLowerCase().includes("mpegurl")) {
     const text = await upstream.text();
@@ -284,6 +318,14 @@ export async function GET(request: Request) {
     status: upstream.status,
     headers: responseHeaders,
   });
+}
+
+export async function GET(request: Request) {
+  return proxyMedia(request, true);
+}
+
+export async function HEAD(request: Request) {
+  return proxyMedia(request, false);
 }
 
 export async function OPTIONS(request: Request) {

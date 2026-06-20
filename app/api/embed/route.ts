@@ -84,10 +84,26 @@ function embedRefererOrigin(request: Request, fallback: string): string {
   return fromParam ?? originFromEmbedReferer(request, fallback);
 }
 
-function proxied(url: URL, appOrigin: string, refererOrigin?: string): string {
+function allowedStreamTarget(raw: string | null): string | undefined {
+  if (!raw) return undefined;
+  try {
+    const url = new URL(raw);
+    return isAllowedEmbedUrl(url) || isAllowedMediaUrl(url) ? url.href : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function proxied(
+  url: URL,
+  appOrigin: string,
+  refererOrigin?: string,
+  parentTarget?: string,
+): string {
   const params = new URLSearchParams({ u: url.href });
   const safeReferer = allowedEmbedOrigin(refererOrigin);
   if (safeReferer) params.set("r", safeReferer);
+  if (parentTarget) params.set("p", parentTarget);
   return `${appOrigin}/api/embed?${params}`;
 }
 
@@ -202,7 +218,12 @@ function isAppProxyUrl(raw: string, appOrigin: string): boolean {
   }
 }
 
-function rewriteAttrValue(raw: string, base: URL, appOrigin: string): string {
+function rewriteAttrValue(
+  raw: string,
+  base: URL,
+  appOrigin: string,
+  parentTarget?: string,
+): string {
   if (isAppProxyUrl(raw, appOrigin)) return raw;
   const url = resolveMaybe(raw, base);
   if (!url) return raw;
@@ -212,19 +233,24 @@ function rewriteAttrValue(raw: string, base: URL, appOrigin: string): string {
     case "blocked":
       return "about:blank";
     case "embed":
-      return proxied(url, appOrigin, base.origin);
+      return proxied(url, appOrigin, base.origin, parentTarget);
     case "pass":
       return raw;
   }
 }
 
-function stripBlockedScripts(html: string, base: URL, appOrigin: string): string {
+function stripBlockedScripts(
+  html: string,
+  base: URL,
+  appOrigin: string,
+  parentTarget?: string,
+): string {
   return html.replace(
     /<script\b([^>]*)\bsrc=(["'])(.*?)\2([^>]*)>\s*<\/script>/gi,
     (tag, before: string, _quote: string, src: string, after: string) => {
       const url = resolveMaybe(src, base);
       if (url && (isBlockedUrl(url) || !isTrustedScriptUrl(url))) return "";
-      return `<script${before}src="${escapeAttr(rewriteAttrValue(src, base, appOrigin))}"${after}></script>`;
+      return `<script${before}src="${escapeAttr(rewriteAttrValue(src, base, appOrigin, parentTarget))}"${after}></script>`;
     },
   );
 }
@@ -281,22 +307,32 @@ function stripBlockedInlineScripts(html: string): string {
   );
 }
 
-function rewriteUrlAttributes(html: string, base: URL, appOrigin: string): string {
+function rewriteUrlAttributes(
+  html: string,
+  base: URL,
+  appOrigin: string,
+  parentTarget?: string,
+): string {
   return html.replace(
     /\s(src|href|action|poster)=(["'])(.*?)\2/gi,
     (attr, name: string, quote: string, value: string) => {
-      const rewritten = rewriteAttrValue(value, base, appOrigin);
+      const rewritten = rewriteAttrValue(value, base, appOrigin, parentTarget);
       if (rewritten === value) return attr;
       return ` ${name}=${quote}${escapeAttr(rewritten)}${quote}`;
     },
   );
 }
 
-function rewriteCssUrlText(css: string, base: URL, appOrigin: string): string {
+function rewriteCssUrlText(
+  css: string,
+  base: URL,
+  appOrigin: string,
+  parentTarget?: string,
+): string {
   return css.replace(
     /url\(\s*(["']?)([^"')]+)\1\s*\)/gi,
     (match, quote: string, value: string) => {
-      const rewritten = rewriteAttrValue(value, base, appOrigin);
+      const rewritten = rewriteAttrValue(value, base, appOrigin, parentTarget);
       if (rewritten === value) return match;
       const nextQuote = quote || "'";
       return `url(${nextQuote}${escapeAttr(rewritten)}${nextQuote})`;
@@ -304,17 +340,22 @@ function rewriteCssUrlText(css: string, base: URL, appOrigin: string): string {
   );
 }
 
-function rewriteCssUrls(html: string, base: URL, appOrigin: string): string {
+function rewriteCssUrls(
+  html: string,
+  base: URL,
+  appOrigin: string,
+  parentTarget?: string,
+): string {
   return html
     .replace(
       /<style\b([^>]*)>([\s\S]*?)<\/style>/gi,
       (_tag, attrs: string, css: string) =>
-        `<style${attrs}>${rewriteCssUrlText(css, base, appOrigin)}</style>`,
+        `<style${attrs}>${rewriteCssUrlText(css, base, appOrigin, parentTarget)}</style>`,
     )
     .replace(
       /\sstyle=(["'])(.*?)\1/gi,
       (attr, quote: string, css: string) => {
-        const rewritten = rewriteCssUrlText(css, base, appOrigin);
+        const rewritten = rewriteCssUrlText(css, base, appOrigin, parentTarget);
         if (rewritten === css) return attr;
         return ` style=${quote}${escapeAttr(rewritten)}${quote}`;
       },
@@ -353,7 +394,7 @@ function normalizedHash(target: URL): string {
   }
 }
 
-function shim(appOrigin: string, target: URL): string {
+function shim(appOrigin: string, target: URL, parentTarget?: string): string {
   return `<script>(function(){
   "use strict";
   var EMBED_HOSTS=${JSON.stringify(EMBED_HOSTS.map((rule) => rule.hostname))};
@@ -361,9 +402,12 @@ function shim(appOrigin: string, target: URL): string {
   var PLAYER_SCRIPT_HOSTS=${JSON.stringify([...PLAYER_SCRIPT_HOSTS])};
   var BLOCKED_HOST=${BLOCKED_HOST.toString()};
   var BLOCKED_URL=${BLOCKED_URL.toString()};
-  var PROXY=${JSON.stringify(`${appOrigin}/api/embed?r=${encodeURIComponent(target.origin)}&u=`)};
+  var PROXY=${JSON.stringify(`${appOrigin}/api/embed?r=${encodeURIComponent(target.origin)}&p=${encodeURIComponent(parentTarget ?? target.href)}&u=`)};
   var MEDIA_PROXY=${JSON.stringify(`${appOrigin}/api/media?r=${encodeURIComponent(target.origin)}&u=`)};
+  var APP_ORIGIN=${JSON.stringify(appOrigin)};
   var EMBED_ORIGIN=${JSON.stringify(target.origin)};
+  var EMBED_TARGET=${JSON.stringify(target.href)};
+  var PLAYER_TARGET=${JSON.stringify(parentTarget ?? target.href)};
   var EMBED_HASH=${JSON.stringify(normalizedHash(target))};
 
   try{
@@ -454,6 +498,43 @@ function shim(appOrigin: string, target: URL): string {
       window.__valenceRequests.push({kind:kind,original:String(original||""),next:String(next||""),at:Date.now()});
       if(window.__valenceRequests.length>80) window.__valenceRequests.shift();
     }catch(e){}
+  }
+  function isMediaProxyUrl(input){
+    try{
+      if(!input || typeof input!=="string") return false;
+      if(input.indexOf(MEDIA_PROXY)===0 || input.indexOf("/api/media?")===0) return true;
+      var u=new URL(input, document.baseURI);
+      return u.origin===location.origin && u.pathname==="/api/media" && u.search.indexOf("u=")!==-1;
+    }catch(e){ return false; }
+  }
+  function reportMediaFailure(kind,original,next,status){
+    try{
+      if(!isMediaProxyUrl(next)) return;
+      var message={
+        source:"valence-player",
+        type:"media-error",
+        kind:kind,
+        status:status || 0,
+        original:String(original||""),
+        proxied:String(next||""),
+        target:PLAYER_TARGET,
+        embedTarget:EMBED_TARGET
+      };
+      window.parent.postMessage(message, APP_ORIGIN);
+      if(window.top && window.top!==window.parent) window.top.postMessage(message, APP_ORIGIN);
+    }catch(e){}
+  }
+  function observeMediaFetch(promise,original,next){
+    if(!isMediaProxyUrl(next)) return promise;
+    return promise.then(function(response){
+      try{
+        if(response && response.status>=400) reportMediaFailure("fetch",original,next,response.status);
+      }catch(e){}
+      return response;
+    },function(error){
+      reportMediaFailure("fetch",original,next,0);
+      throw error;
+    });
   }
   function isBlockedMarkup(value){
     var text=String(value||"");
@@ -699,9 +780,11 @@ function shim(appOrigin: string, target: URL): string {
   var fetchNative=window.fetch;
   if(fetchNative){
     window.fetch=function(input,init){
+      var original=null;
+      var next=null;
       try{
-        var original=requestUrl(input);
-        var next=proxify(original);
+        original=requestUrl(input);
+        next=proxify(original);
         rememberRequest("fetch",original,next);
         if(next==="about:blank") return emptyFetch();
         if(next!==original){
@@ -727,16 +810,16 @@ function shim(appOrigin: string, target: URL): string {
             if(method!=="GET" && method!=="HEAD"){
               return request.clone().arrayBuffer().then(function(body){
                 requestInit.body=body;
-                return fetchNative.call(window,next,requestInit);
+                return observeMediaFetch(fetchNative.call(window,next,requestInit),original,next);
               });
             }
-            return fetchNative.call(window,next,requestInit);
+            return observeMediaFetch(fetchNative.call(window,next,requestInit),original,next);
           }else{
             input=next;
           }
         }
       }catch(e){}
-      return fetchNative.call(this,input,init);
+      return observeMediaFetch(fetchNative.call(this,input,init),original,next);
     };
   }
   var xhrOpen=XMLHttpRequest.prototype.open;
@@ -745,6 +828,17 @@ function shim(appOrigin: string, target: URL): string {
       var original=requestUrl(url);
       var next=proxify(original);
       rememberRequest("xhr",original,next);
+      if(isMediaProxyUrl(next)){
+        var xhr=this;
+        xhr.addEventListener("loadend",function(){
+          try{
+            if(xhr.status>=400) reportMediaFailure("xhr",original,next,xhr.status);
+          }catch(e){}
+        },{once:true});
+        xhr.addEventListener("error",function(){
+          reportMediaFailure("xhr",original,next,0);
+        },{once:true});
+      }
       arguments[1]=next==="about:blank" ? "data:text/plain," : next;
     }catch(e){}
     return xhrOpen.apply(this,arguments);
@@ -787,11 +881,16 @@ function contentSecurityPolicy(appOrigin: string): string {
   ].join("; ");
 }
 
-function rewriteHtml(html: string, target: URL, appOrigin: string): string {
-  const inject = shim(appOrigin, target) + autoBootstrap(target);
-  const cleaned = stripBlockedInlineScripts(stripBlockedScripts(html, target, appOrigin));
+function rewriteHtml(html: string, target: URL, appOrigin: string, parentTarget?: string): string {
+  const inject = shim(appOrigin, target, parentTarget) + autoBootstrap(target);
+  const cleaned = stripBlockedInlineScripts(stripBlockedScripts(html, target, appOrigin, parentTarget));
   const rewritten = hardenIframes(
-    rewriteCssUrls(rewriteUrlAttributes(cleaned, target, appOrigin), target, appOrigin),
+    rewriteCssUrls(
+      rewriteUrlAttributes(cleaned, target, appOrigin, parentTarget),
+      target,
+      appOrigin,
+      parentTarget,
+    ),
   );
   const sanitized = sanitizeInlineScriptBody(rewritten);
 
@@ -816,6 +915,7 @@ async function proxyEmbed(request: Request) {
   } catch {
     return corsResponse(request, "bad url", { status: 400 });
   }
+  const parentTarget = allowedStreamTarget(requestUrl.searchParams.get("p")) ?? target.href;
 
   if (!isEmbedUrl(target)) {
     if (isHlsPlaylistUrl(target)) {
@@ -866,10 +966,10 @@ async function proxyEmbed(request: Request) {
     const html = await upstream.text();
     const nested = nestedStreamapiEmbed(html, target);
     if (nested) {
-      return NextResponse.redirect(proxied(nested, appOrigin, target.origin), 302);
+      return NextResponse.redirect(proxied(nested, appOrigin, target.origin, parentTarget), 302);
     }
 
-    return new NextResponse(rewriteHtml(html, target, appOrigin), {
+    return new NextResponse(rewriteHtml(html, target, appOrigin, parentTarget), {
       status: upstream.status,
       headers: {
         "content-type": "text/html; charset=utf-8",

@@ -20,12 +20,14 @@ interface Props {
 
 export default function WatchPanel({ game, streams, onClose, allGames, onPick }: Props) {
   const [activeStream, setActiveStream] = useState(0);
+  const [failedStreams, setFailedStreams] = useState<Set<number>>(() => new Set());
   const [tab, setTab] = useState<"info" | "stats">("info");
   const [fullscreenFallback, setFullscreenFallback] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setActiveStream(0);
+    setFailedStreams(new Set());
     setTab("info");
     setFullscreenFallback(false);
   }, [game.id]);
@@ -50,6 +52,37 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
     document.body.classList.toggle("player-fullscreen-open", fullscreenFallback);
     return () => document.body.classList.remove("player-fullscreen-open");
   }, [fullscreenFallback]);
+
+  useEffect(() => {
+    const current = streams[activeStream];
+    if (!current || streams.length < 2) return;
+
+    function onMessage(event: MessageEvent) {
+      const data = event.data;
+      if (
+        !data ||
+        data.source !== "valence-player" ||
+        data.type !== "media-error" ||
+        data.target !== current.url
+      ) {
+        return;
+      }
+
+      const failed = new Set(failedStreams);
+      failed.add(activeStream);
+      setFailedStreams(failed);
+
+      for (let offset = 1; offset < streams.length; offset += 1) {
+        const next = (activeStream + offset) % streams.length;
+        if (failed.has(next) || streams[next]?.health === "offline") continue;
+        setActiveStream(next);
+        return;
+      }
+    }
+
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [activeStream, failedStreams, streams]);
 
   async function handleFullscreen() {
     const doc = document as Document & {

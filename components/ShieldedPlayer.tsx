@@ -1,5 +1,5 @@
 export default function ShieldedPlayer({ url }: { url: string }) {
-  const src = `/api/embed?u=${encodeURIComponent(url)}`;
+  const src = `/api/embed?u=${encodeURIComponent(url)}&p=${encodeURIComponent(url)}`;
 
   return (
     <iframe
