@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import type { Game, GameWithStreams } from "@/lib/types";
 import { PT_TZ } from "@/lib/espn";
 import type { SportScope, StatusFilter } from "@/lib/scope";
@@ -46,6 +46,17 @@ function makeDateLabels(): [string, string, string] {
 
 interface GamesResponse { games: GameWithStreams[] }
 
+function hasStreamBadge(game: GameWithStreams): boolean {
+  return (game.streamCount ?? 0) > 0;
+}
+
+function initialDesktopGame(games: readonly GameWithStreams[]): GameWithStreams | undefined {
+  return games.find((g) => g.status === "in" && hasStreamBadge(g))
+    ?? games.find((g) => g.status === "pre" && hasStreamBadge(g))
+    ?? games.find(hasStreamBadge)
+    ?? games.find((g) => g.status === "in");
+}
+
 export default function App({ initialGames }: Props) {
   const [search, setSearch] = useState("");
   const [dateIdx, setDateIdx] = useState(1);
@@ -57,6 +68,7 @@ export default function App({ initialGames }: Props) {
   const [fetchedGames, setFetchedGames] = useState<GameWithStreams[] | null>(null);
   const [dateLoading, setDateLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const didInitialDesktopSelect = useRef(false);
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 30_000);
@@ -112,11 +124,12 @@ export default function App({ initialGames }: Props) {
   // watch panel sits beside the feed. On mobile it covers the screen, so leave
   // the game list visible as the landing view.
   useEffect(() => {
+    if (didInitialDesktopSelect.current) return;
+    didInitialDesktopSelect.current = true;
     if (typeof window !== "undefined" && window.innerWidth < 900) return;
-    const live = games.find((g) => g.status === "in");
-    if (live) setActiveGameId(live.id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const game = initialDesktopGame(games);
+    if (game) setActiveGameId(game.id);
+  }, [games]);
 
   const hasLive = useMemo(() => games.some((g) => g.status === "in"), [games]);
 

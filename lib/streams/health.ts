@@ -85,6 +85,12 @@ function healthCacheKey(target: URL): string {
   return key.href;
 }
 
+function isKnownCloudBlockedWrapper(target: URL): boolean {
+  return target.hostname === "embed.st"
+    || target.hostname === "embedindia.st"
+    || target.hostname === "embed.streamapi.cc";
+}
+
 function abortError(): Error {
   const error = new Error("Aborted");
   error.name = "AbortError";
@@ -200,6 +206,7 @@ export async function probeStreamHealth(
   const allowEmbedUrl = options.allowEmbedUrl ?? isAllowedStreamUrl;
   if (!allowEmbedUrl(target)) return "offline";
   if (options.signal?.aborted) return "offline";
+  if (isKnownCloudBlockedWrapper(target)) return "offline";
 
   const key = healthCacheKey(target);
   const now = Date.now();
@@ -254,6 +261,21 @@ function healthRank(health: StreamHealth | undefined): number {
   return 2;
 }
 
+function cloudPlaybackRank(stream: Stream): number {
+  try {
+    const target = new URL(stream.url);
+    if (isAllowedStreamUrl(target) && target.hostname === "streams.esportex.site") return 0;
+    if (target.hostname === "embedindia.st") return 1;
+    if (target.hostname === "embedhd.org" || target.hostname === "exposestrat.com") return 1;
+    if (target.hostname === "embed.st" && target.pathname.startsWith("/embed/golf/")) return 1;
+    if (target.hostname === "embed.st" || target.hostname === "embed.streamapi.cc") return 3;
+  } catch {
+    return 4;
+  }
+
+  return 2;
+}
+
 export async function rankStreamsByHealth(
   streams: readonly Stream[],
   options: StreamHealthOptions = {},
@@ -281,6 +303,10 @@ export async function rankStreamsByHealth(
     ...checked,
     ...unchecked.map((stream, index) => ({ stream, index: checkLimit + index })),
   ]
-    .sort((a, b) => healthRank(a.stream.health) - healthRank(b.stream.health) || a.index - b.index)
+    .sort((a, b) =>
+      healthRank(a.stream.health) - healthRank(b.stream.health)
+      || cloudPlaybackRank(a.stream) - cloudPlaybackRank(b.stream)
+      || a.index - b.index
+    )
     .map(({ stream }) => stream);
 }

@@ -55,7 +55,7 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
 
   useEffect(() => {
     const current = streams[activeStream];
-    if (!current) return;
+    if (!current || current.health === "offline" || failedStreams.has(activeStream)) return;
 
     function onMessage(event: MessageEvent) {
       const data = event.data;
@@ -83,6 +83,16 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
 
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
+  }, [activeStream, failedStreams, streams]);
+
+  useEffect(() => {
+    const current = streams[activeStream];
+    if (current && current.health !== "offline" && !failedStreams.has(activeStream)) return;
+
+    const next = streams.findIndex((_stream, index) =>
+      streams[index]?.health !== "offline" && !failedStreams.has(index)
+    );
+    if (next !== -1 && next !== activeStream) setActiveStream(next);
   }, [activeStream, failedStreams, streams]);
 
   async function handleFullscreen() {
@@ -123,14 +133,16 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
   const lg = LEAGUE_BY_ID[game.league];
   const s = game.status;
   const sv = scoreView(game);
-  const current = streams[activeStream];
   const streamHealthAt = (index: number) => failedStreams.has(index) ? "offline" : streams[index]?.health;
-  const currentHealth = current ? streamHealthAt(activeStream) : undefined;
+  const currentCandidate = streams[activeStream];
+  const currentHealth = currentCandidate ? streamHealthAt(activeStream) : undefined;
+  const current = currentCandidate && currentHealth !== "offline" ? currentCandidate : undefined;
   const onlineStreams = streams.filter((_stream, index) => streamHealthAt(index) === "online").length;
   const checkedStreams = streams.filter((_stream, index) => {
     const health = streamHealthAt(index);
     return health === "online" || health === "offline";
   }).length;
+  const playableStreams = streams.filter((_stream, index) => streamHealthAt(index) !== "offline").length;
   const streamsText = checkedStreams > 0
     ? checkedStreams === streams.length
       ? `${onlineStreams}/${streams.length} working`
@@ -160,11 +172,11 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
           <ShieldedPlayer url={current.url} />
         ) : (
           <div className="player-empty">
-            {streams.length > 0 && <div className="player-play"><PlayIcon /></div>}
+            {playableStreams > 0 && <div className="player-play"><PlayIcon /></div>}
             <div className="player-placeholder">
               <span className="big">{game.awayTeam.name} <span className="dim">vs</span> {game.homeTeam.name}</span>
               {streams.length > 0
-                ? "stream embed"
+                ? playableStreams > 0 ? "stream embed" : "all streams down"
                 : s === "post"
                   ? "game finished — no stream"
                   : "no stream available yet"}

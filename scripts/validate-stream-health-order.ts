@@ -1,7 +1,15 @@
 import { strict as assert } from "node:assert";
 import { createServer } from "node:http";
 import type { Stream } from "../lib/types";
+import {
+  decodeEsportexPlayerId,
+  parseEmbedhdFid,
+  parseExposestratHlsUrl,
+  parseXoredEsportexData,
+  resolveEsportexEmbed,
+} from "../lib/streams/esportex-resolver";
 import { probeStreamHealth, rankStreamsByHealth } from "../lib/streams/health";
+import { MEDIA_HOST_RULES } from "../lib/streams/providers";
 
 function stream(url: string, label: string): Stream {
   return { label, url, quality: "HD", language: "EN" };
@@ -85,6 +93,60 @@ async function main() {
   const base = `http://127.0.0.1:${port}`;
   const options = { allowEmbedUrl: () => true };
 
+  assert.equal(
+    decodeEsportexPlayerId(new URL("https://streams.esportex.site/player#ZWhkLzcx")),
+    "ehd/71",
+  );
+  assert.equal(
+    decodeEsportexPlayerId(new URL("https://streams.esportex.site/player#cHB2LzIzNDM4")),
+    "ppv/23438",
+  );
+  assert.ok(
+    MEDIA_HOST_RULES.some((rule) =>
+      rule.hostname === "indianservers.st"
+      && rule.includeSubdomains === true
+      && rule.pathPrefix === "/secure/"
+    ),
+    "EmbedIndia PPV HLS host should be proxied",
+  );
+
+  const esportexData = JSON.stringify({
+    id: "ehd/71",
+    type: "iframe",
+    url: "https://embedhd.org/source/fetch.php?hd=71",
+  });
+  const xored = new Uint8Array(Buffer.from(esportexData).map((byte) => byte ^ 90));
+  assert.deepEqual(parseXoredEsportexData(xored.buffer), {
+    id: "ehd/71",
+    type: "iframe",
+    url: "https://embedhd.org/source/fetch.php?hd=71",
+  });
+  const ppvData = JSON.stringify({
+    id: "ppv/23438",
+    type: "iframe",
+    url: "https://embedindia.st/embed/wnba/2026-06-20/ind-atl",
+  });
+  const ppvXored = new Uint8Array(Buffer.from(ppvData).map((byte) => byte ^ 90));
+  const resolvedPpv = await resolveEsportexEmbed(
+    new URL("https://streams.esportex.site/player#cHB2LzIzNDM4"),
+    {
+      fetcher: async () => new Response(ppvXored),
+    },
+  );
+  assert.equal(
+    resolvedPpv?.embedUrl.href,
+    "https://embedindia.st/embed/wnba/2026-06-20/ind-atl",
+  );
+  assert.equal(parseEmbedhdFid(`<script>fid="ntsn1fhd";</script>`), "ntsn1fhd");
+  assert.equal(
+    parseExposestratHlsUrl(`
+      function tleptrgtUH(){
+        return(["h","t","t","p","s",":","\\/","\\/","c","d","n","1","5",".","z","o","h","a","n","a","y","a","a","n",".","c","o","m",":","1","6","8","6","\\/","h","l","s","\\/","n","t","s","n","1","f","h","d",".","m","3","u","8","?","m","d","5","=","a","b","c","&","e","x","p","i","r","e","s","=","1"].join("") + "");
+      }
+    `),
+    "https://cdn15.zohanayaan.com:1686/hls/ntsn1fhd.m3u8?md5=abc&expires=1",
+  );
+
   assert.equal(await probeStreamHealth(`${base}/good-a`, options), "online");
   assert.equal(await probeStreamHealth(`${base}/bad-a`, options), "offline");
   assert.equal(await probeStreamHealth(`${base}/missing`, options), "offline");
@@ -146,6 +208,42 @@ async function main() {
     assertOnlineFirst(item.name, ranked);
     assert.deepEqual(ranked.map((entry) => entry.label), item.expectedLabels, item.name);
   }
+
+  const cloudPlayableTies = await rankStreamsByHealth(
+    [
+      stream("https://embed.st/embed/event-slug/1", "embed shell"),
+      stream("https://streams.esportex.site/player#ZWhkLzcx", "cloud playable"),
+      stream("https://embedindia.st/embed/event-slug/2", "token shell"),
+    ],
+    {
+      allowEmbedUrl: () => true,
+      fetcher: async () => new Response("<html>ok</html>", { status: 200 }),
+      maxHealthChecks: 3,
+    },
+  );
+  assert.deepEqual(
+    cloudPlayableTies.map((entry) => entry.label),
+    ["cloud playable", "token shell", "embed shell"],
+    "cloud-playable players should win online health ties",
+  );
+
+  const embedStFamilies = await rankStreamsByHealth(
+    [
+      stream("https://embed.st/embed/admin/event/1", "strmd admin shell"),
+      stream("https://embed.st/embed/golf/23290/1", "embedhd golf shell"),
+      stream("https://embed.st/embed/delta/event/1", "strmd delta shell"),
+    ],
+    {
+      allowEmbedUrl: () => true,
+      fetcher: async () => new Response("<html>ok</html>", { status: 200 }),
+      maxHealthChecks: 3,
+    },
+  );
+  assert.deepEqual(
+    embedStFamilies.map((entry) => entry.label),
+    ["embedhd golf shell", "strmd admin shell", "strmd delta shell"],
+    "EmbedHD-backed embed.st sources should be tried before strmd-backed shells",
+  );
 
   const windowed = await rankStreamsByHealth(
     Array.from({ length: 50 }, (_, index) => stream(`${base}/window-${index}`, `window ${index}`)),

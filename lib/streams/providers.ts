@@ -4,8 +4,10 @@ import { sportsrc } from "./sportsrc";
 import { embedsportex } from "./embedsportex";
 import { ppv } from "./ppv";
 
-// Order matters: earlier providers appear first in the watch panel after URL deduping.
-export const PROVIDERS = [streamed, sportsrc, embedsportex, ppv] as const satisfies readonly Provider[];
+// Order matters: earlier providers appear first after URL deduping when health ties.
+// Prefer sources that resolve to media hosts Vercel can proxy before embed.st wrappers,
+// which often expose live HTML but return 403 for their strmd.st playlists from Vercel.
+export const PROVIDERS = [embedsportex, streamed, sportsrc, ppv] as const satisfies readonly Provider[];
 
 export const EMBED_HOSTS: EmbedHostRule[] = [
   ...new Map(

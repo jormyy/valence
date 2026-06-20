@@ -11,12 +11,13 @@ import {
 import { PROXY_FETCH_TIMEOUT_MS, fetchWithTimeout } from "@/lib/upstream";
 import { autoBootstrap } from "@/lib/embed-bootstrap";
 import { publicRequestOrigin } from "@/lib/request-origin";
+import { resolveEsportexEmbed, resolveEsportexHls } from "@/lib/streams/esportex-resolver";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const BLOCKED_HOST =
-  /(^|\.)((adcash|popads|popcash|propellerads|adsterra|exoclick|dtscout|adspyglass|hilltopads|yllix|juicyads)\.com|acscdn\.com|enteringlacquergiant\.com|drawerexperienceletting\.com|adexchangerapid\.com|usrpubtrk\.com|ntwkbc\d+\.com|ndcertainlywhen\.com|usasenioraid\.com|multiboardthe\.com|filenebuladrive\.com|wps\.com|wpscdn\.com|llvpn\.com|thewildernessclub\.com|therocketlanguages\.com|optimserve\.agency|cdn-lab\.shop|tiktokcdn\.com|tracking-source\.com|stats\.embedhd\.org|static\.cloudflareinsights\.com|sstatic\d*\.histats\.com|histats\.com)$/i;
+  /(^|\.)((adcash|popads|popcash|propellerads|adsterra|exoclick|dtscout|adspyglass|hilltopads|yllix|juicyads)\.com|acscdn\.com|enteringlacquergiant\.com|drawerexperienceletting\.com|adexchangerapid\.com|usrpubtrk\.com|ntwkbc\d+\.com|ndcertainlywhen\.com|usasenioraid\.com|multiboardthe\.com|filenebuladrive\.com|wps\.com|wpscdn\.com|llvpn\.com|thewildernessclub\.com|therocketlanguages\.com|optimserve\.agency|cdn-lab\.shop|tiktokcdn\.com|tracking-source\.com|tonicgoverness\.com|googletagmanager\.com|google-analytics\.com|googlesyndication\.com|doubleclick\.net|stats\.embedhd\.org|static\.cloudflareinsights\.com|sstatic\d*\.histats\.com|histats\.com)$/i;
 const BLOCKED_URL =
   /((^|\/)ads?\.html(?:$|[?#])|popunder|popads|popcash|propeller|adsterra|exoclick|adcash|adspyglass|dtscout|adexchange|drawerexperienceletting|usrpubtrk|ntwkbc|ndcertainlywhen|senioraid|multiboard|filenebula|wpscdn|wps\.com|wildernessclub|therocketlanguages|optimserve|swarmcloud|cdn-lab|tiktokcdn|tracking-source|cloudflareinsights|histats|googletagmanager|google-analytics|disable-devtool)/i;
 const PLAYER_SCRIPT_HOSTS = new Set(["cdn.jsdelivr.net", "vjs.zencdn.net", "cdnjs.cloudflare.com"]);
@@ -27,7 +28,7 @@ function corsHeaders(request: Request, methods: readonly string[]): Headers {
     "access-control-allow-methods": methods.join(", "),
     "access-control-allow-headers":
       request.headers.get("access-control-request-headers") ??
-      "accept, content-type, goat, range",
+      "accept, content-type, goat, indians, island, range",
     "access-control-max-age": "86400",
   });
   return headers;
@@ -117,8 +118,16 @@ function isHlsPlaylistUrl(url: URL): boolean {
   return isAllowedMediaUrl(url) && /\.m3u8(?:$|[?#])/i.test(url.pathname);
 }
 
-function hlsPlayerHtml(target: URL, appOrigin: string): string {
-  const mediaUrl = proxiedMedia(target, appOrigin);
+function hlsPlayerHtml(
+  target: URL,
+  appOrigin: string,
+  options: {
+    readonly refererOrigin?: string;
+    readonly playerTarget?: string;
+  } = {},
+): string {
+  const mediaUrl = proxiedMedia(target, appOrigin, allowedEmbedOrigin(options.refererOrigin));
+  const playerTarget = options.playerTarget ?? target.href;
   return `<!doctype html>
 <html>
 <head>
@@ -143,7 +152,7 @@ video{width:100%;height:100%;object-fit:contain;background:#050608}
   "use strict";
   var source=${JSON.stringify(mediaUrl)};
   var APP_ORIGIN=${JSON.stringify(appOrigin)};
-  var PLAYER_TARGET=${JSON.stringify(target.href)};
+  var PLAYER_TARGET=${JSON.stringify(playerTarget)};
   var video=document.getElementById("video");
   var status=document.getElementById("status");
   function setStatus(text,state){
@@ -430,6 +439,7 @@ function shim(appOrigin: string, target: URL, parentTarget?: string): string {
   var EMBED_TARGET=${JSON.stringify(target.href)};
   var PLAYER_TARGET=${JSON.stringify(parentTarget ?? target.href)};
   var EMBED_HASH=${JSON.stringify(normalizedHash(target))};
+  var PROVIDER_GOAT="";
 
   try{
     var NativeFunction=window.Function;
@@ -505,12 +515,37 @@ function shim(appOrigin: string, target: URL, parentTarget?: string): string {
     if(isEmbed(u)) return "embed";
     return "pass";
   }
+  function directEmbedindiaFetchUrl(u){
+    return false;
+  }
+  function directEmbedindiaMedia(u){
+    return EMBED_ORIGIN==="https://embedindia.st" && isMedia(u) && (
+      mediaHostMatches({hostname:"indianservers.st",includeSubdomains:true},u.hostname) ||
+      mediaHostMatches({hostname:"tiktokcdn.com",includeSubdomains:true},u.hostname)
+    );
+  }
   function rememberMedia(u,proxyUrl){
     try{
       if(!/\\.m3u8(?:$|[?#])/i.test(u.pathname)) return;
       window.__valenceMediaUrls=window.__valenceMediaUrls||[];
       if(window.__valenceMediaUrls.indexOf(proxyUrl)===-1) window.__valenceMediaUrls.push(proxyUrl);
       if(!window.__valenceMediaUrl) window.__valenceMediaUrl=proxyUrl;
+    }catch(e){}
+  }
+  function safeGoat(value){
+    try{
+      value=String(value||"").trim();
+      if(!value || value.length>2048) return "";
+      return /^[A-Za-z0-9+/=_:.,-]+$/.test(value) ? value : "";
+    }catch(e){ return ""; }
+  }
+  function rememberGoat(response){
+    try{
+      if(!response || !response.headers || typeof response.headers.get!=="function") return;
+      var goat=safeGoat(response.headers.get("goat"));
+      if(!goat) return;
+      PROVIDER_GOAT=goat;
+      window.__valenceGoat=goat;
     }catch(e){}
   }
   function rememberRequest(kind,original,next){
@@ -546,14 +581,14 @@ function shim(appOrigin: string, target: URL, parentTarget?: string): string {
     }catch(e){}
   }
   function observeMediaFetch(promise,original,next){
-    if(!isMediaProxyUrl(next)) return promise;
     return promise.then(function(response){
       try{
-        if(response && response.status>=400) reportMediaFailure("fetch",original,next,response.status);
+        rememberGoat(response);
+        if(isMediaProxyUrl(next) && response && response.status>=400) reportMediaFailure("fetch",original,next,response.status);
       }catch(e){}
       return response;
     },function(error){
-      reportMediaFailure("fetch",original,next,0);
+      if(isMediaProxyUrl(next)) reportMediaFailure("fetch",original,next,0);
       throw error;
     });
   }
@@ -580,14 +615,22 @@ function shim(appOrigin: string, target: URL, parentTarget?: string): string {
     if(!u) return input;
     var kind=classify(u);
     if(kind==="media"){
+      if(directEmbedindiaMedia(u)){
+        var embedindiaMediaUrl=MEDIA_PROXY+encodeURIComponent(u.href);
+        rememberMedia(u,embedindiaMediaUrl);
+        return embedindiaMediaUrl;
+      }
       var mediaUrl=MEDIA_PROXY+encodeURIComponent(u.href);
+      if(PROVIDER_GOAT) mediaUrl+="&g="+encodeURIComponent(PROVIDER_GOAT);
       rememberMedia(u,mediaUrl);
       return mediaUrl;
     }
     if(kind==="blocked") return "about:blank";
+    if(u.origin===location.origin && u.pathname.indexOf("/api/wasm/")===0) return input;
     if(u.origin===location.origin && (u.pathname.indexOf("/js/")===0 || u.pathname.indexOf("/jwp/")===0)){
       return PROXY+encodeURIComponent(EMBED_ORIGIN+u.pathname+u.search+u.hash);
     }
+    if(directEmbedindiaFetchUrl(u)) return EMBED_ORIGIN+"/fetch";
     if(u.origin===location.origin && u.pathname==="/fetch") return PROXY+encodeURIComponent(EMBED_ORIGIN+"/fetch");
     if(u.origin===location.origin){
       return PROXY+encodeURIComponent(EMBED_ORIGIN+u.pathname+u.search+u.hash);
@@ -618,13 +661,18 @@ function shim(appOrigin: string, target: URL, parentTarget?: string): string {
     var instantiateStreamingNative=WebAssembly.instantiateStreaming;
     function wrapWasmImports(imports){
       try{
-        var bg=imports && imports["./locked_bg.js"];
-        if(!bg || bg.__valenceHostnameWrapped) return imports;
-        var getNative=bg.__wbg_get_b3ed3ad4be2bc8ac;
-        if(typeof getNative==="function"){
+        if(!imports || typeof imports!=="object") return imports;
+        Object.keys(imports).forEach(function(key){
+          var bg=imports[key];
+          if(!bg || bg.__valenceHostnameWrapped) return;
+          var getNative=bg.__wbg_get_b3ed3ad4be2bc8ac;
+          if(typeof getNative!=="function") return;
           bg.__wbg_get_b3ed3ad4be2bc8ac=function(object, property){
             try{
-              if(object==null || (typeof object!=="object" && typeof object!=="function")) return undefined;
+              if(object==null || (typeof object!=="object" && typeof object!=="function")){
+                if(property==="hostname") return EMBED_HOSTNAME;
+                return undefined;
+              }
               if(property==="hostname" && object===location) return EMBED_HOSTNAME;
               var value=getNative.apply(this,arguments);
               if(property==="hostname" && value===location.hostname) return EMBED_HOSTNAME;
@@ -635,7 +683,7 @@ function shim(appOrigin: string, target: URL, parentTarget?: string): string {
             }
           };
           bg.__valenceHostnameWrapped=true;
-        }
+        });
       }catch(e){}
       return imports;
     }
@@ -800,6 +848,16 @@ function shim(appOrigin: string, target: URL, parentTarget?: string): string {
 
   var fetchNative=window.fetch;
   if(fetchNative){
+    function normalizeDirectEmbedindiaFetch(next,requestInit){
+      try{
+        if(EMBED_ORIGIN!=="https://embedindia.st" || next!==EMBED_ORIGIN+"/fetch") return;
+        var headers=new Headers(requestInit.headers);
+        headers.delete("indians");
+        headers.set("content-type","text/plain;charset=UTF-8");
+        requestInit.headers=headers;
+        requestInit.credentials="omit";
+      }catch(e){}
+    }
     window.fetch=function(input,init){
       var original=null;
       var next=null;
@@ -828,6 +886,7 @@ function shim(appOrigin: string, target: URL, parentTarget?: string): string {
             if(init){
               for(var key in init) requestInit[key]=init[key];
             }
+            normalizeDirectEmbedindiaFetch(next,requestInit);
             if(method!=="GET" && method!=="HEAD"){
               return request.clone().arrayBuffer().then(function(body){
                 requestInit.body=body;
@@ -883,13 +942,18 @@ function contentSecurityPolicy(appOrigin: string): string {
   const inline = "'unsafe-inline'";
   const evalToken = "'unsafe-eval'";
   const embedHosts = embedHostsCsp();
+  const mediaHosts = MEDIA_HOST_RULES
+    .map((rule) => rule.includeSubdomains
+      ? `https://${rule.hostname} https://*.${rule.hostname}`
+      : `https://${rule.hostname}`)
+    .join(" ");
   const playerAssetHosts = "https://cdn.jsdelivr.net https://vjs.zencdn.net https://cdnjs.cloudflare.com";
   return [
     `default-src ${self} blob: data:`,
     `script-src ${self} ${inline} ${evalToken} 'wasm-unsafe-eval' blob: ${playerAssetHosts} ${embedHosts}`,
     `worker-src ${self} blob:`,
-    `connect-src ${self} blob: data:`,
-    `media-src ${self} blob: data:`,
+    `connect-src ${self} blob: data: ${embedHosts} ${mediaHosts}`,
+    `media-src ${self} blob: data: ${mediaHosts}`,
     `img-src ${self} blob: data: https://upload.wikimedia.org`,
     `style-src ${self} ${inline} ${playerAssetHosts}`,
     `font-src ${self} data: https://fonts.gstatic.com`,
@@ -940,7 +1004,10 @@ async function proxyEmbed(request: Request) {
 
   if (!isEmbedUrl(target)) {
     if (isHlsPlaylistUrl(target)) {
-      return new NextResponse(hlsPlayerHtml(target, appOrigin), {
+      return new NextResponse(hlsPlayerHtml(target, appOrigin, {
+        refererOrigin: allowedEmbedOrigin(requestUrl.searchParams.get("r") ?? undefined),
+        playerTarget: parentTarget,
+      }), {
         status: 200,
         headers: {
           "content-type": "text/html; charset=utf-8",
@@ -958,14 +1025,48 @@ async function proxyEmbed(request: Request) {
     });
   }
 
+  const resolvedEsportexHls = await resolveEsportexHls(target, { signal: request.signal }).catch(
+    () => null,
+  );
+  if (resolvedEsportexHls) {
+    return new NextResponse(hlsPlayerHtml(resolvedEsportexHls.hlsUrl, appOrigin, {
+      refererOrigin: resolvedEsportexHls.refererOrigin,
+      playerTarget: parentTarget,
+    }), {
+      status: 200,
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "content-security-policy": contentSecurityPolicy(appOrigin),
+      },
+    });
+  }
+
+  const resolvedEsportexEmbed = await resolveEsportexEmbed(target, { signal: request.signal }).catch(
+    () => null,
+  );
+  if (resolvedEsportexEmbed) {
+    return NextResponse.redirect(
+      proxied(resolvedEsportexEmbed.embedUrl, appOrigin, resolvedEsportexEmbed.embedUrl.origin, parentTarget),
+      302,
+    );
+  }
+
   let upstream: Response;
   try {
     const upstreamOrigin = embedRefererOrigin(request, target.origin);
+    const isEmbedindiaFetch = target.hostname === "embedindia.st" && target.pathname === "/fetch";
     const headers = new Headers(browserHeaders(target, upstreamOrigin));
     const accept = request.headers.get("accept");
     const contentType = request.headers.get("content-type");
+    const indians = request.headers.get("indians");
     if (accept) headers.set("accept", accept);
-    if (contentType) headers.set("content-type", contentType);
+    if (contentType) {
+      headers.set("content-type", isEmbedindiaFetch ? "text/plain;charset=UTF-8" : contentType);
+    }
+    if (!isEmbedindiaFetch && indians && /^[A-Za-z0-9+/=_:.,-]+$/.test(indians)) {
+      headers.set("indians", indians);
+    }
 
     upstream = await fetchWithTimeout(target.href, {
       signal: request.signal,
@@ -1007,10 +1108,11 @@ async function proxyEmbed(request: Request) {
     headers.set(key, value);
   }
   const exposedHeaders: string[] = [];
-  const goat = upstream.headers.get("goat");
-  if (goat) {
-    headers.set("goat", goat);
-    exposedHeaders.push("goat");
+  for (const key of ["goat", "island"]) {
+    const value = upstream.headers.get(key);
+    if (!value) continue;
+    headers.set(key, value);
+    exposedHeaders.push(key);
   }
   if (exposedHeaders.length) {
     headers.set("access-control-expose-headers", exposedHeaders.join(", "));

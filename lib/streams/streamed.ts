@@ -114,7 +114,7 @@ export const streamed: Provider = {
   capabilities: {
     embedHosts: [
       { hostname: "embed.st", bootstrapStrategy: "wasm-lock" },
-      { hostname: "embedindia.st", bootstrapStrategy: "provider-token" },
+      { hostname: "embedindia.st", bootstrapStrategy: "wasm-gasm" },
     ],
     mediaHosts: [
       { hostname: "strmd.st", includeSubdomains: true },

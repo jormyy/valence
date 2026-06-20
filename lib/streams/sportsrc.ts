@@ -39,8 +39,8 @@ function matchText(m: SportsrcMatch): string {
   return `${m.title ?? ""} ${m.teams?.home?.name ?? ""} ${m.teams?.away?.name ?? ""}`;
 }
 
-function findMatch(matches: SportsrcMatch[], game: StreamLookup): SportsrcMatch | undefined {
-  return matches.find((m) => gameInText(matchText(m), game));
+function findMatches(matches: SportsrcMatch[], game: StreamLookup): SportsrcMatch[] {
+  return matches.filter((m) => gameInText(matchText(m), game));
 }
 
 async function fetchMatchesByCategory(
@@ -78,21 +78,24 @@ export const sportsrc: Provider = {
 
   async getStreams(game, options) {
     const category = categoryFor(game);
-    const match = findMatch(await fetchMatches(category, options), game);
-    if (!match) return [];
+    const matches = findMatches(await fetchMatches(category, options), game);
 
-    const sources = await fetchDetail(category, match.id, options);
-    const out: Stream[] = [];
-    for (const s of sources) {
-      if (!s.embedUrl) continue;
-      out.push({
-        label: "",
-        url: s.embedUrl,
-        quality: s.hd === false ? "SD" : "HD",
-        language: s.language || "EN",
-      });
+    for (const match of matches) {
+      const sources = await fetchDetail(category, match.id, options);
+      const out: Stream[] = [];
+      for (const s of sources) {
+        if (!s.embedUrl) continue;
+        out.push({
+          label: "",
+          url: s.embedUrl,
+          quality: s.hd === false ? "SD" : "HD",
+          language: s.language || "EN",
+        });
+      }
+      if (out.length > 0) return out;
     }
-    return out;
+
+    return [];
   },
 
   async getCounts(games, options) {
@@ -100,7 +103,7 @@ export const sportsrc: Provider = {
     return new Map(
       games.map((game) => {
         const category = categoryFor(game);
-        return [game.id, findMatch(matchesByCategory.get(category) ?? [], game) ? 1 : 0];
+        return [game.id, findMatches(matchesByCategory.get(category) ?? [], game).length > 0 ? 1 : 0];
       }),
     ) satisfies StreamCountMap;
   },

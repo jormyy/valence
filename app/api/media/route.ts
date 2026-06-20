@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { execFile } from "node:child_process";
 import http from "node:http";
 import https from "node:https";
 import { Readable } from "node:stream";
@@ -13,6 +14,8 @@ export const maxDuration = 60;
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 const NODE_TRANSPORT_REDIRECT_LIMIT = 4;
+const CURL_MAX_BUFFER_BYTES = 32 * 1024 * 1024;
+const CURL_STATUS_MARKER = "\n__VALENCE_CURL_STATUS__:";
 
 function corsHeaders(request: Request): Headers {
   return new Headers({
@@ -20,7 +23,7 @@ function corsHeaders(request: Request): Headers {
     "access-control-allow-methods": "GET, HEAD, OPTIONS",
     "access-control-allow-headers":
       request.headers.get("access-control-request-headers") ??
-      "accept, content-type, range",
+      "accept, content-type, goat, range",
     "access-control-expose-headers": "accept-ranges, content-length, content-range",
     "access-control-max-age": "86400",
   });
@@ -41,13 +44,36 @@ function corsResponse(
   });
 }
 
-function proxiedMediaUrl(url: URL, appOrigin: string, refererOrigin: string): string {
+function safeGoat(value: string | null): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed || trimmed.length > 2048) return undefined;
+  return /^[A-Za-z0-9+/=_:.,-]+$/.test(trimmed) ? trimmed : undefined;
+}
+
+function mediaGoat(request: Request): string | undefined {
+  const requestUrl = new URL(request.url);
+  return safeGoat(request.headers.get("goat")) ?? safeGoat(requestUrl.searchParams.get("g"));
+}
+
+function proxiedMediaUrl(
+  url: URL,
+  appOrigin: string,
+  refererOrigin: string,
+  goat?: string,
+): string {
   const params = new URLSearchParams({ r: refererOrigin, u: url.href });
+  if (goat) params.set("g", goat);
   return `${appOrigin}/api/media?${params}`;
 }
 
-function rewritePlaylist(text: string, target: URL, appOrigin: string, refererOrigin: string): string {
-  const proxiedMedia = (url: URL) => proxiedMediaUrl(url, appOrigin, refererOrigin);
+function rewritePlaylist(
+  text: string,
+  target: URL,
+  appOrigin: string,
+  refererOrigin: string,
+  goat?: string,
+): string {
+  const proxiedMedia = (url: URL) => proxiedMediaUrl(url, appOrigin, refererOrigin, goat);
 
   return text
     .split(/\r?\n/)
@@ -108,6 +134,14 @@ function shouldUseNodeTransport(target: URL, response?: Response): boolean {
   return target.hostname === "strmd.st"
     || target.hostname.endsWith(".strmd.st")
     || response?.status === 403;
+}
+
+function shouldUseCurlTransport(target: URL, response?: Response): boolean {
+  if (response && response.status !== 403) return false;
+  return target.hostname === "indianservers.st"
+    || target.hostname.endsWith(".indianservers.st")
+    || target.hostname === "strmd.st"
+    || target.hostname.endsWith(".strmd.st");
 }
 
 function copyNodeResponseHeaders(rawHeaders: http.IncomingHttpHeaders): Headers {
@@ -209,16 +243,85 @@ function fetchMediaWithNodeTransport(
   });
 }
 
+function fetchMediaWithCurlTransport(
+  target: URL,
+  headers: Headers,
+  signal: AbortSignal,
+): Promise<Response> {
+  return new Promise((resolve, reject) => {
+    const args = [
+      "-sS",
+      "-L",
+      "--http1.1",
+      "--max-time",
+      String(Math.ceil(PROXY_FETCH_TIMEOUT_MS / 1000)),
+      "-A",
+      headers.get("user-agent") ?? USER_AGENT,
+      "-w",
+      `${CURL_STATUS_MARKER}%{http_code}`,
+    ];
+
+    for (const key of ["referer", "origin", "accept", "range", "goat"]) {
+      const value = headers.get(key);
+      if (value) args.push("-H", `${key}: ${value}`);
+    }
+    args.push(target.href);
+
+    const child = execFile("curl", args, {
+      encoding: "buffer",
+      maxBuffer: CURL_MAX_BUFFER_BYTES,
+    }, (error, stdout) => {
+      signal.removeEventListener("abort", abort);
+      if (error) {
+        reject(error);
+        return;
+      }
+
+      const marker = Buffer.from(CURL_STATUS_MARKER);
+      const markerIndex = stdout.lastIndexOf(marker);
+      if (markerIndex < 0) {
+        reject(new Error("curl media status missing"));
+        return;
+      }
+
+      const body = stdout.subarray(0, markerIndex);
+      const statusText = stdout.subarray(markerIndex + marker.length).toString("utf8").trim();
+      const status = Number.parseInt(statusText, 10);
+      if (!Number.isFinite(status)) {
+        reject(new Error("curl media status invalid"));
+        return;
+      }
+
+      resolve(new Response(body, {
+        status,
+        headers: {
+          "content-type": contentTypeFor(target),
+          "content-length": String(body.length),
+        },
+      }));
+    });
+
+    const abort = () => {
+      child.kill();
+      reject(new Error("curl media aborted"));
+    };
+    signal.addEventListener("abort", abort, { once: true });
+  });
+}
+
 async function fetchMedia(target: URL, request: Request): Promise<Response> {
   const embedOrigin = mediaRefererOrigin(request);
   const headers = new Headers({
     "user-agent": USER_AGENT,
     referer: `${embedOrigin}/`,
+    origin: embedOrigin,
     accept: request.headers.get("accept") ?? "*/*",
   });
 
   const range = request.headers.get("range");
   if (range) headers.set("range", range);
+  const goat = mediaGoat(request);
+  if (goat) headers.set("goat", goat);
 
   try {
     const upstream = await fetchWithTimeout(target, {
@@ -229,11 +332,23 @@ async function fetchMedia(target: URL, request: Request): Promise<Response> {
       timeoutMs: PROXY_FETCH_TIMEOUT_MS,
     });
     if (upstream.ok || !shouldUseNodeTransport(target, upstream)) return upstream;
+    await upstream.body?.cancel().catch(() => undefined);
+    if (shouldUseCurlTransport(target, upstream)) {
+      return fetchMediaWithCurlTransport(target, headers, request.signal);
+    }
   } catch {
+    if (shouldUseCurlTransport(target)) {
+      return fetchMediaWithCurlTransport(target, headers, request.signal);
+    }
     if (!shouldUseNodeTransport(target)) throw new Error("native media fetch failed");
   }
 
-  return fetchMediaWithNodeTransport(target, headers, request.signal);
+  const upstream = await fetchMediaWithNodeTransport(target, headers, request.signal);
+  if (!upstream.ok && shouldUseCurlTransport(target, upstream)) {
+    await upstream.body?.cancel().catch(() => undefined);
+    return fetchMediaWithCurlTransport(target, headers, request.signal);
+  }
+  return upstream;
 }
 
 function mediaRefererOrigin(request: Request): string {
@@ -270,6 +385,7 @@ async function proxyMedia(request: Request, includeBody: boolean) {
 
   let upstream: Response;
   const refererOrigin = mediaRefererOrigin(request);
+  const goat = mediaGoat(request);
   try {
     upstream = await fetchMedia(target, request);
   } catch {
@@ -309,7 +425,7 @@ async function proxyMedia(request: Request, includeBody: boolean) {
 
   if (rewritesPlaylist) {
     const text = await upstream.text();
-    const playlist = rewritePlaylist(text, playlistBaseUrl(upstream, target), appOrigin, refererOrigin);
+    const playlist = rewritePlaylist(text, playlistBaseUrl(upstream, target), appOrigin, refererOrigin, goat);
     responseHeaders.set("content-length", String(new TextEncoder().encode(playlist).length));
     return new NextResponse(playlist, {
       status: upstream.status,

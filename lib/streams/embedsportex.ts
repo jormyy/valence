@@ -23,7 +23,7 @@ const CATEGORY_KEYS: Record<string, string> = {
 // Keep only player families that have been verified to resolve through our
 // proxy to media URLs. Other ESX families return a 200 shell but often never
 // reach a playable stream.
-const SUPPORTED_PLAYER_PREFIXES = ["ehd/"];
+const SUPPORTED_PLAYER_PREFIXES = ["ehd/", "ppv/"];
 
 interface EsxIframe {
   server?: string;
@@ -112,7 +112,7 @@ export const embedsportex: Provider = {
   capabilities: {
     embedHosts: [
       { hostname: "embed.st", bootstrapStrategy: "wasm-lock" },
-      { hostname: "embedindia.st", bootstrapStrategy: "provider-token" },
+      { hostname: "embedindia.st", bootstrapStrategy: "wasm-gasm" },
       { hostname: "embed.streamapi.cc", bootstrapStrategy: "wasm-lock" },
       { hostname: "streams.esportex.site", bootstrapStrategy: "none" },
       { hostname: "data.esportex.site", bootstrapStrategy: "none" },
@@ -120,6 +120,7 @@ export const embedsportex: Provider = {
       { hostname: "exposestrat.com", bootstrapStrategy: "none" },
     ],
     mediaHosts: [
+      { hostname: "indianservers.st", includeSubdomains: true, pathPrefix: "/secure/" },
       { hostname: "zohanayaan.com", includeSubdomains: true, pathPrefix: "/hls/" },
     ],
   },

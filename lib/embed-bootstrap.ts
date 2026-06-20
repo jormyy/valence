@@ -122,12 +122,46 @@ function wasmLockBootstrap(): string {
   }`;
 }
 
+function wasmGasmBootstrap(): string {
+  return `
+  async function start(){
+    if(window.__valencePlayerStarted) return;
+    if(!hasPlayer()) return schedule();
+    window.__valencePlayerStarted=true;
+    try{
+      for(var k=0;k<160 && typeof window.setStream!=="function";k++){
+        await sleep(125);
+      }
+      if(typeof window.setStream!=="function"){
+        throw new Error("stream resolver unavailable");
+      }
+      var resolver=window.setStream(SOURCE+"/"+SLUG+"/"+CHANNEL).catch(function(error){
+        window.__valenceResolverError=String(error||"");
+      });
+      for(var i=0;i<80 && !setupResolvedPlayer();i++){
+        await sleep(250);
+      }
+      if(!playerConfigured()) await resolver;
+      for(var j=0;j<20 && !setupResolvedPlayer();j++){
+        await sleep(250);
+      }
+      if(!playerConfigured()) throw new Error("no playable media resolved");
+    }catch(e){
+      window.__valenceResolverError=String(e||"");
+      window.__valencePlayerStarted=false;
+      if(attempts<80) schedule();
+    }
+  }`;
+}
+
 function strategyBootstrap(strategy: BootstrapStrategy): string {
   switch (strategy) {
     case "provider-token":
       return providerTokenBootstrap();
     case "wasm-lock":
       return wasmLockBootstrap();
+    case "wasm-gasm":
+      return wasmGasmBootstrap();
     case "none":
       return "";
   }
