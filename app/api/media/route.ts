@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { spawn } from "node:child_process";
 import { isAllowedEmbedUrl, isAllowedMediaUrl, originFromEmbedReferer } from "@/lib/streams/providers";
 import { PROXY_FETCH_TIMEOUT_MS, fetchWithTimeout } from "@/lib/upstream";
+import { publicRequestOrigin } from "@/lib/request-origin";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
@@ -177,7 +179,7 @@ function fetchMediaWithCurl(
   });
 }
 
-function shouldUseCurlFallback(target: URL, response?: Response): boolean {
+function shouldUseCurlTransport(target: URL, response?: Response): boolean {
   return target.hostname === "strmd.st"
     || target.hostname.endsWith(".strmd.st")
     || response?.status === 403;
@@ -202,9 +204,9 @@ async function fetchMedia(target: URL, request: Request): Promise<Response> {
       cache: "no-store",
       timeoutMs: PROXY_FETCH_TIMEOUT_MS,
     });
-    if (upstream.ok || !shouldUseCurlFallback(target, upstream)) return upstream;
+    if (upstream.ok || !shouldUseCurlTransport(target, upstream)) return upstream;
   } catch {
-    if (!shouldUseCurlFallback(target)) throw new Error("native media fetch failed");
+    if (!shouldUseCurlTransport(target)) throw new Error("native media fetch failed");
   }
 
   return fetchMediaWithCurl(target, headers, request.signal);
@@ -227,6 +229,7 @@ function mediaRefererOrigin(request: Request): string {
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
+  const appOrigin = publicRequestOrigin(request);
   const raw = requestUrl.searchParams.get("u");
   if (!raw) return corsResponse(request, "missing u", { status: 400 });
 
@@ -271,7 +274,7 @@ export async function GET(request: Request) {
 
   if (isPlaylist || contentType.toLowerCase().includes("mpegurl")) {
     const text = await upstream.text();
-    return new NextResponse(rewritePlaylist(text, playlistBaseUrl(upstream, target), requestUrl.origin, refererOrigin), {
+    return new NextResponse(rewritePlaylist(text, playlistBaseUrl(upstream, target), appOrigin, refererOrigin), {
       status: upstream.status,
       headers: responseHeaders,
     });

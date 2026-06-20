@@ -10,8 +10,10 @@ import {
 } from "@/lib/streams/providers";
 import { PROXY_FETCH_TIMEOUT_MS, fetchWithTimeout } from "@/lib/upstream";
 import { autoBootstrap } from "@/lib/embed-bootstrap";
+import { publicRequestOrigin } from "@/lib/request-origin";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 const BLOCKED_HOST =
   /(^|\.)((adcash|popads|popcash|propellerads|adsterra|exoclick|dtscout|adspyglass|hilltopads|yllix|juicyads)\.com|acscdn\.com|enteringlacquergiant\.com|drawerexperienceletting\.com|adexchangerapid\.com|usrpubtrk\.com|ntwkbc\d+\.com|ndcertainlywhen\.com|usasenioraid\.com|multiboardthe\.com|filenebuladrive\.com|wps\.com|wpscdn\.com|llvpn\.com|thewildernessclub\.com|therocketlanguages\.com|optimserve\.agency|cdn-lab\.shop|tiktokcdn\.com|tracking-source\.com|stats\.embedhd\.org|static\.cloudflareinsights\.com|sstatic\d*\.histats\.com|histats\.com)$/i;
@@ -804,6 +806,7 @@ function rewriteHtml(html: string, target: URL, appOrigin: string): string {
 
 async function proxyEmbed(request: Request) {
   const requestUrl = new URL(request.url);
+  const appOrigin = publicRequestOrigin(request);
   const raw = requestUrl.searchParams.get("u");
   if (!raw) return corsResponse(request, "missing u", { status: 400 });
 
@@ -816,12 +819,12 @@ async function proxyEmbed(request: Request) {
 
   if (!isEmbedUrl(target)) {
     if (isHlsPlaylistUrl(target)) {
-      return new NextResponse(hlsPlayerHtml(target, requestUrl.origin), {
+      return new NextResponse(hlsPlayerHtml(target, appOrigin), {
         status: 200,
         headers: {
           "content-type": "text/html; charset=utf-8",
           "cache-control": "no-store",
-          "content-security-policy": contentSecurityPolicy(requestUrl.origin),
+          "content-security-policy": contentSecurityPolicy(appOrigin),
         },
       });
     }
@@ -863,15 +866,15 @@ async function proxyEmbed(request: Request) {
     const html = await upstream.text();
     const nested = nestedStreamapiEmbed(html, target);
     if (nested) {
-      return NextResponse.redirect(proxied(nested, requestUrl.origin, target.origin), 302);
+      return NextResponse.redirect(proxied(nested, appOrigin, target.origin), 302);
     }
 
-    return new NextResponse(rewriteHtml(html, target, requestUrl.origin), {
+    return new NextResponse(rewriteHtml(html, target, appOrigin), {
       status: upstream.status,
       headers: {
         "content-type": "text/html; charset=utf-8",
         "cache-control": "no-store",
-        "content-security-policy": contentSecurityPolicy(requestUrl.origin),
+        "content-security-policy": contentSecurityPolicy(appOrigin),
       },
     });
   }
