@@ -180,7 +180,15 @@ video{width:100%;height:100%;object-fit:contain;background:#050608}
       if(promise && typeof promise.catch==="function") promise.catch(function(){});
     }catch(e){}
   }
-  if(window.Hls && window.Hls.isSupported()){
+  function startNative(){
+    video.src=source;
+    video.addEventListener("loadedmetadata",function(){ setStatus("Ready","ready"); play(); },{once:true});
+    video.addEventListener("error",function(){
+      reportFailure("native",video.error && video.error.code);
+      setStatus("Stream failed to load","error");
+    });
+  }
+  function startHlsJs(){
     var hls=new window.Hls({enableWorker:true,lowLatencyMode:false,backBufferLength:60});
     hls.on(window.Hls.Events.MEDIA_ATTACHED,function(){ hls.loadSource(source); });
     hls.on(window.Hls.Events.MANIFEST_PARSED,function(){ setStatus("Ready","ready"); play(); });
@@ -191,15 +199,24 @@ video{width:100%;height:100%;object-fit:contain;background:#050608}
       hls.destroy();
     });
     hls.attachMedia(video);
+  }
+  var canNativeHls=!!video.canPlayType("application/vnd.apple.mpegurl");
+  var hasMediaSource=typeof window.MediaSource!=="undefined";
+  // iPhone (and pre-desktop-class iPad) WebKit ships native HLS but no full
+  // MediaSource, so hls.js can't run there. Detecting the missing MediaSource
+  // is the exact iPhone signature: every browser that works today (desktop,
+  // Android Chrome, macOS/iPad Safari) has MediaSource and keeps the hls.js
+  // path untouched; only Apple-mobile is routed to the native player.
+  if(canNativeHls && !hasMediaSource){
+    startNative();
     return;
   }
-  if(video.canPlayType("application/vnd.apple.mpegurl")){
-    video.src=source;
-    video.addEventListener("loadedmetadata",function(){ setStatus("Ready","ready"); play(); },{once:true});
-    video.addEventListener("error",function(){
-      reportFailure("native",video.error && video.error.code);
-      setStatus("Stream failed to load","error");
-    });
+  if(window.Hls && window.Hls.isSupported()){
+    startHlsJs();
+    return;
+  }
+  if(canNativeHls){
+    startNative();
     return;
   }
   reportFailure("unsupported",0);

@@ -412,7 +412,11 @@ async function proxyMedia(request: Request, includeBody: boolean) {
   const acceptRanges = upstream.headers.get("accept-ranges");
   const contentLength = upstream.headers.get("content-length");
   if (contentRange) responseHeaders.set("content-range", contentRange);
-  if (acceptRanges) responseHeaders.set("accept-ranges", acceptRanges);
+  // Some upstreams (and the curl/node transports) echo "bytes, bytes"; native
+  // iOS HLS wants a single clean token. Collapse any byte-range support to "bytes".
+  if (acceptRanges) {
+    responseHeaders.set("accept-ranges", /bytes/i.test(acceptRanges) ? "bytes" : acceptRanges);
+  }
   if (contentLength && !rewritesPlaylist) responseHeaders.set("content-length", contentLength);
 
   if (!includeBody) {
