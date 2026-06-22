@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import type { GameWithStreams, Stream } from "@/lib/types";
-import { LEAGUE_BY_ID, teamColor } from "@/lib/metadata";
-import { formatTimePT } from "@/lib/espn";
+import { LEAGUE_BY_ID } from "@/lib/registry";
+import { teamColor } from "@/lib/colors";
+import { formatTimePT } from "@/lib/datetime";
 import { scoreView } from "@/lib/game";
 import { CloseIcon, FullscreenIcon, PlayIcon } from "@/components/icons";
 import StatsPanel from "@/components/StatsPanel";
@@ -18,12 +19,16 @@ interface Props {
   onPick: (id: string) => void;
 }
 
-export default function WatchPanel({ game, streams, onClose, allGames, onPick }: Props) {
+function WatchPanel({ game, streams, onClose, allGames, onPick }: Props) {
   const [activeStream, setActiveStream] = useState(0);
   const [failedStreams, setFailedStreams] = useState<Set<number>>(() => new Set());
   const [tab, setTab] = useState<"info" | "stats">("info");
   const [fullscreenFallback, setFullscreenFallback] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
+  // Latest failover state, so the message listener can subscribe once instead of
+  // re-subscribing on every activeStream/failedStreams change.
+  const failoverRef = useRef({ streams, activeStream, failedStreams });
+  failoverRef.current = { streams, activeStream, failedStreams };
 
   useEffect(() => {
     setActiveStream(0);
@@ -54,10 +59,11 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
   }, [fullscreenFallback]);
 
   useEffect(() => {
-    const current = streams[activeStream];
-    if (!current || current.health === "offline" || failedStreams.has(activeStream)) return;
-
     function onMessage(event: MessageEvent) {
+      const { streams, activeStream, failedStreams } = failoverRef.current;
+      const current = streams[activeStream];
+      if (!current || current.health === "offline" || failedStreams.has(activeStream)) return;
+
       const data = event.data;
       if (
         !data ||
@@ -68,14 +74,16 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
         return;
       }
 
-      const failed = new Set(failedStreams);
-      failed.add(activeStream);
-      setFailedStreams(failed);
+      setFailedStreams((prev) => {
+        const failed = new Set(prev);
+        failed.add(activeStream);
+        return failed;
+      });
 
       if (streams.length < 2) return;
       for (let offset = 1; offset < streams.length; offset += 1) {
         const next = (activeStream + offset) % streams.length;
-        if (failed.has(next) || streams[next]?.health === "offline") continue;
+        if (failedStreams.has(next) || streams[next]?.health === "offline") continue;
         setActiveStream(next);
         return;
       }
@@ -83,7 +91,7 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
 
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [activeStream, failedStreams, streams]);
+  }, []);
 
   useEffect(() => {
     const current = streams[activeStream];
@@ -291,3 +299,5 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
     </aside>
   );
 }
+
+export default memo(WatchPanel);

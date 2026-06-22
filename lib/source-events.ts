@@ -1,11 +1,12 @@
-import type { Game, League, Team } from "./types";
+import type { Game, League } from "./types";
 import { LEAGUE_BY_ID, type StreamCategory } from "./registry";
 import { makeGameId } from "./game-id";
 import type { PpvEvent } from "./streams/ppv";
 import { fetchPpvListing, hasPpvListingStream, ppvCategoryKey } from "./streams/ppv";
 import type { StreamProviderOptions } from "./streams/types";
+import { dateInPT, formatTimePT, normalizeDate, dayNumber } from "./datetime";
+import { teamFromName } from "./team";
 
-const PT_TZ = "America/Los_Angeles";
 const DEFAULT_EVENT_LENGTH_MS = 3 * 60 * 60 * 1000;
 const ALWAYS_LIVE_EVENT_LENGTH_MS = 24 * 60 * 60 * 1000;
 
@@ -17,49 +18,6 @@ const PPV_CATEGORY_LEAGUES: Partial<Record<StreamCategory, League>> = {
   cricket: "cricket",
   fight: "wrestling",
 };
-
-function todayInPT(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: PT_TZ }).format(new Date());
-}
-
-function normalizeDate(dateStr?: string): string | null {
-  if (!dateStr) return todayInPT();
-  if (/^\d{8}$/.test(dateStr)) return `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
-  return null;
-}
-
-function dateInPT(ms: number): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: PT_TZ }).format(new Date(ms));
-}
-
-function formatTimePT(ms: number): string {
-  return new Intl.DateTimeFormat("en-US", {
-    timeZone: PT_TZ,
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  }).format(new Date(ms)) + " PT";
-}
-
-function abbreviationFor(name: string): string {
-  const words = name
-    .replace(/[^a-z0-9\s]/gi, " ")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
-  if (words.length === 0) return "EVT";
-  if (words.length === 1) return words[0].slice(0, 4).toUpperCase();
-  return words.slice(0, 4).map((word) => word[0]).join("").toUpperCase();
-}
-
-function teamFromName(name: string): Team {
-  return {
-    name,
-    abbreviation: abbreviationFor(name),
-    logo: "",
-  };
-}
 
 function splitMatchup(name: string): readonly [string, string] | null {
   const parts = name
@@ -78,7 +36,7 @@ function ppvLeague(event: PpvEvent, categoryName: string): League | null {
   return PPV_CATEGORY_LEAGUES[key as StreamCategory] ?? null;
 }
 
-function ppvStartMs(event: PpvEvent, targetDate: string): number | null {
+function ppvStartMs(event: PpvEvent): number | null {
   if (event.always_live) return Date.now();
   if (typeof event.starts_at !== "number" || !Number.isFinite(event.starts_at)) return null;
   return event.starts_at * 1000;
@@ -88,11 +46,6 @@ function ppvEndMs(event: PpvEvent, startMs: number): number {
   if (event.always_live) return startMs + ALWAYS_LIVE_EVENT_LENGTH_MS;
   if (typeof event.ends_at === "number" && Number.isFinite(event.ends_at)) return event.ends_at * 1000;
   return startMs + DEFAULT_EVENT_LENGTH_MS;
-}
-
-function dayNumber(date: string): number {
-  const [year, month, day] = date.split("-").map(Number);
-  return Date.UTC(year, month - 1, day) / 86_400_000;
 }
 
 function eventTouchesDate(startMs: number, endMs: number, targetDate: string): boolean {
@@ -132,7 +85,6 @@ function ppvGame(event: PpvEvent, league: League, startMs: number, endMs: number
   return {
     id: makeGameId(league, `ppv:${sourceId.replace(/~/g, "-")}`),
     league,
-    espnId: `ppv:${sourceId}`,
     eventName: name,
     shortName: event.tag,
     homeTeam: teams.homeTeam,
@@ -153,7 +105,7 @@ async function getPpvSourceGames(targetDate: string, options?: StreamProviderOpt
       const league = ppvLeague(event, categoryName);
       if (!league) continue;
       if (!hasPpvListingStream(event)) continue;
-      const startMs = ppvStartMs(event, targetDate);
+      const startMs = ppvStartMs(event);
       if (!startMs) continue;
       const endMs = ppvEndMs(event, startMs);
       if (!ppvTouchesDate(event, startMs, endMs, targetDate)) continue;
@@ -174,20 +126,14 @@ export async function getSourceGames(dateStr?: string, options?: StreamProviderO
   const targetDate = normalizeDate(dateStr);
   if (!targetDate) return [];
 
-  const groups = await Promise.all([getPpvSourceGames(targetDate, options)]);
+  // Dedup events that show up under multiple PPV categories (same matchup name).
   const games: Game[] = [];
-  const seen = new Set<string>();
-  const seenSourceNames = new Set<string>();
-
-  for (const group of groups) {
-    for (const game of group) {
-      if (!game || seen.has(game.id)) continue;
-      const key = sourceGameKey(game);
-      if (seenSourceNames.has(key)) continue;
-      seen.add(game.id);
-      seenSourceNames.add(key);
-      games.push(game);
-    }
+  const seenNames = new Set<string>();
+  for (const game of await getPpvSourceGames(targetDate, options)) {
+    const key = sourceGameKey(game);
+    if (seenNames.has(key)) continue;
+    seenNames.add(key);
+    games.push(game);
   }
 
   return games;

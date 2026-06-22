@@ -1,7 +1,7 @@
 import type { Stream } from "../types";
 import { STREAM_DETAIL_TIMEOUT_MS, STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
 import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
-import { categoryFor, gameInText } from "./match";
+import { buildGameMatcher, categoryFor } from "./match";
 
 // ppv.land's public backend. The ppv.land front-end is mid-relaunch ("Coming Soon"),
 // but api.ppv.to is live: a listing groups events under named categories, and each
@@ -78,11 +78,12 @@ export function ppvCategoryKey(value: string): string {
 
 function findEvent(listing: PpvCategory[], game: StreamLookup): PpvEvent | undefined {
   const want = categoryFor(game);
+  const matcher = buildGameMatcher(game);
   for (const cat of listing) {
     const category = ppvCategoryKey(cat.category ?? "");
     if (category !== want && !(want === "motor-sports" && category === "24-7-streams")) continue;
     for (const ev of cat.streams ?? []) {
-      if (gameInText(ev.name ?? "", game)) return ev;
+      if (matcher.test(ev.name ?? "")) return ev;
     }
   }
   return undefined;
@@ -160,6 +161,10 @@ export const ppv: Provider = {
       out.push({ label: "", url: s.data, quality: "HD", language: "EN" });
     }
     return out;
+  },
+
+  async prefetch(options) {
+    await fetchPpvListing(options);
   },
 
   async getCounts(games, options) {

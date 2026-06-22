@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
-import type { Game, GameWithStreams } from "@/lib/types";
-import { PT_TZ } from "@/lib/espn";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import type { Game, GameWithStreams, Stream } from "@/lib/types";
+import { PT_TZ, dateInPT } from "@/lib/datetime";
 import type { SportScope, StatusFilter } from "@/lib/scope";
 import { applyScope, statusCounts } from "@/lib/scope";
 import { useGameStreams } from "@/lib/hooks";
@@ -46,6 +46,10 @@ function makeDateLabels(): [string, string, string] {
 
 interface GamesResponse { games: GameWithStreams[] }
 
+// Stable identity for "no streams" so WatchPanel's memoization isn't broken by a
+// fresh [] literal on every render.
+const NO_STREAMS: Stream[] = [];
+
 function hasStreamBadge(game: GameWithStreams): boolean {
   return (game.streamCount ?? 0) > 0;
 }
@@ -75,9 +79,10 @@ export default function App({ initialGames }: Props) {
     return () => clearInterval(id);
   }, []);
 
-  // Recompute labels with `now` so the "Today" pivot follows the clock past midnight
+  // Labels only change when the PT calendar day rolls over, so key the memo on the PT
+  // day rather than `now` — keeps it (and thus memo(TopBar)) stable between midnights.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const dateLabels = useMemo(makeDateLabels, [now]);
+  const dateLabels = useMemo(makeDateLabels, [dateInPT(now)]);
 
   useEffect(() => {
     if (dateIdx === 1) {
@@ -109,16 +114,19 @@ export default function App({ initialGames }: Props) {
 
   const rawGames = fetchedGames ?? initialGames;
 
-  // Promote scheduled-but-started games from "pre" to "in" via wall clock
-  const games = useMemo(() =>
-    rawGames.map((g) => ({
-      ...g,
-      status: (g.status === "pre" && new Date(g.startTime).getTime() <= now
-        ? "in"
-        : g.status) as Game["status"],
-    })),
-    [rawGames, now]
-  );
+  // Promote scheduled-but-started games from "pre" to "in" via wall clock.
+  // Reuse the same array reference when no game actually crossed its start time,
+  // so the 30s clock tick doesn't invalidate every downstream memo / re-render
+  // the whole tree.
+  const games = useMemo(() => {
+    let changed = false;
+    const promoted = rawGames.map((g) => {
+      if (g.status !== "pre" || new Date(g.startTime).getTime() > now) return g;
+      changed = true;
+      return { ...g, status: "in" as Game["status"] };
+    });
+    return changed ? promoted : rawGames;
+  }, [rawGames, now]);
 
   // Auto-select first live game once on mount, but only on desktop where the
   // watch panel sits beside the feed. On mobile it covers the screen, so leave
@@ -163,14 +171,15 @@ export default function App({ initialGames }: Props) {
     [games, activeSport, activeLeague]
   );
 
-  const counts = useMemo(
-    () => statusCounts(applyScope(games, activeSport, activeLeague)),
-    [games, activeSport, activeLeague]
-  );
+  const counts = useMemo(() => statusCounts(filteredGames), [filteredGames]);
 
-  const activeGame = games.find((g) => g.id === activeGameId) ?? null;
+  const activeGame = useMemo(
+    () => games.find((g) => g.id === activeGameId) ?? null,
+    [games, activeGameId]
+  );
+  const closeWatch = useCallback(() => setActiveGameId(null), []);
   const streamState = useGameStreams(activeGame);
-  const activeStreams = streamState.gameId === activeGame?.id ? streamState.streams : [];
+  const activeStreams = streamState.gameId === activeGame?.id ? streamState.streams : NO_STREAMS;
   const statusTabs: { id: StatusFilter; label: string; count: number; live: boolean }[] = [
     { id: "all", label: "All", count: counts.total, live: false },
     { id: "live", label: "Live", count: counts.live, live: true },
@@ -230,7 +239,7 @@ export default function App({ initialGames }: Props) {
           <WatchPanel
             game={activeGame}
             streams={activeStreams}
-            onClose={() => setActiveGameId(null)}
+            onClose={closeWatch}
             allGames={games}
             onPick={setActiveGameId}
           />

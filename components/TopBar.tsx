@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, memo } from "react";
 import { SearchIcon } from "@/components/icons";
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
   lastUpdated?: Date | null;
 }
 
-export default function TopBar({
+function TopBar({
   search, setSearch,
   dateIdx, setDateIdx,
   dateLabels,
@@ -83,3 +83,5 @@ export default function TopBar({
     </header>
   );
 }
+
+export default memo(TopBar);

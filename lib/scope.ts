@@ -1,6 +1,6 @@
 import type { Game } from "./types";
-import type { Sport } from "./metadata";
-import { LEAGUE_BY_ID } from "./metadata";
+import type { Sport } from "./registry";
+import { LEAGUE_BY_ID } from "./registry";
 
 export type SportScope = "all" | Sport;
 export type StatusFilter = "all" | "live" | "upcoming" | "final";

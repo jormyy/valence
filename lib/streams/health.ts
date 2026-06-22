@@ -2,6 +2,7 @@ import type { Stream, StreamHealth } from "../types";
 import { browserHeaders } from "../embed-request";
 import { fetchWithTimeout } from "../upstream";
 import { isAllowedStreamUrl } from "./providers";
+import { mapLimit } from "../concurrency";
 import type { StreamProviderOptions } from "./types";
 
 const STREAM_HEALTH_TIMEOUT_MS = 2_500;
@@ -233,28 +234,6 @@ export async function probeStreamHealth(
   return (await waitForPendingHealth(entry, options.signal)).health;
 }
 
-async function mapConcurrent<T, R>(
-  items: readonly T[],
-  concurrency: number,
-  fn: (item: T, index: number) => Promise<R>,
-  signal?: AbortSignal,
-): Promise<R[]> {
-  const out = new Array<R>(items.length);
-  let cursor = 0;
-
-  async function worker() {
-    while (cursor < items.length && !signal?.aborted) {
-      const index = cursor;
-      cursor += 1;
-      out[index] = await fn(items[index], index);
-    }
-  }
-
-  const workerCount = Math.min(concurrency, items.length);
-  await Promise.all(Array.from({ length: workerCount }, worker));
-  return out.filter((value): value is R => value !== undefined);
-}
-
 function healthRank(health: StreamHealth | undefined): number {
   if (health === "online") return 0;
   if (health === undefined) return 1;
@@ -289,7 +268,7 @@ export async function rankStreamsByHealth(
   const checkHealth = options.checkHealth ?? (
     (stream: Stream) => probeStreamHealth(stream.url, options)
   );
-  const checked = await mapConcurrent(
+  const checked = await mapLimit(
     streamsToCheck,
     STREAM_HEALTH_CONCURRENCY,
     async (stream, index) => ({
@@ -299,14 +278,18 @@ export async function rankStreamsByHealth(
     options.signal,
   );
 
+  // Precompute sort keys once (cloudPlaybackRank parses a URL) instead of in the
+  // O(n log n) comparator.
   return [
     ...checked,
     ...unchecked.map((stream, index) => ({ stream, index: checkLimit + index })),
   ]
-    .sort((a, b) =>
-      healthRank(a.stream.health) - healthRank(b.stream.health)
-      || cloudPlaybackRank(a.stream) - cloudPlaybackRank(b.stream)
-      || a.index - b.index
-    )
+    .map(({ stream, index }) => ({
+      stream,
+      index,
+      health: healthRank(stream.health),
+      cloud: cloudPlaybackRank(stream),
+    }))
+    .sort((a, b) => a.health - b.health || a.cloud - b.cloud || a.index - b.index)
     .map(({ stream }) => stream);
 }

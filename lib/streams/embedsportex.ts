@@ -1,7 +1,7 @@
 import type { Stream } from "../types";
 import { STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
 import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
-import { categoryFor, gameInText } from "./match";
+import { buildGameMatcher, categoryFor } from "./match";
 
 // EmbedSportex serves one JSON keyed by sport; each match carries its embeds inline
 // (an `iframes` array), so no per-match detail call is needed. The project has
@@ -62,7 +62,8 @@ function findMatch(data: EsxResponse, game: StreamLookup): EsxMatch | undefined 
   const category = categoryFor(game);
   const arr = data[CATEGORY_KEYS[category] ?? category];
   if (!Array.isArray(arr)) return undefined;
-  return arr.find((m) => gameInText(m.tag ?? "", game));
+  const matcher = buildGameMatcher(game);
+  return arr.find((m) => matcher.test(m.tag ?? ""));
 }
 
 function countGames(data: EsxResponse, games: readonly StreamLookup[]): StreamCountMap {
@@ -135,6 +136,10 @@ export const embedsportex: Provider = {
       out.push({ label: "", url: f.url, quality: quality(f.server), language: "EN" });
     }
     return out;
+  },
+
+  async prefetch(options) {
+    await fetchEmbedSportexListing(options);
   },
 
   async getCounts(games, options) {

@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, memo } from "react";
 import type { GameWithStreams, League } from "@/lib/types";
-import type { Sport } from "@/lib/metadata";
-import { SPORTS, LEAGUES, LEAGUE_BY_ID } from "@/lib/metadata";
+import type { Sport } from "@/lib/registry";
+import { SPORTS, LEAGUES, LEAGUE_BY_ID } from "@/lib/registry";
 import type { SportScope, StatusFilter } from "@/lib/scope";
 import { statusCounts } from "@/lib/scope";
 import { SportIcon, GridIcon, BellIcon } from "@/components/icons";
@@ -18,7 +18,7 @@ interface Props {
   setStatusFilter: (v: StatusFilter) => void;
 }
 
-export default function Sidebar({
+function Sidebar({
   games,
   activeSport,
   setActiveSport,
@@ -30,7 +30,7 @@ export default function Sidebar({
   const [expanded, setExpanded] = useState(new Set(SPORTS.map((s) => s.id)));
   const isAllScope = activeSport === "all" && activeLeague === null;
 
-  const { sportCounts, leagueCounts, totalLive, totalUp } = useMemo(() => {
+  const { sportCounts, leagueCounts, leaguesBySport, totalLive, totalUp } = useMemo(() => {
     const sportGroups = new Map<string, GameWithStreams[]>();
     const leagueGroups = new Map<string, GameWithStreams[]>();
     for (const g of games) {
@@ -45,9 +45,18 @@ export default function Sidebar({
     }
     const sportCounts = new Map([...sportGroups].map(([k, gs]) => [k, statusCounts(gs)]));
     const leagueCounts = new Map([...leagueGroups].map(([k, gs]) => [k, statusCounts(gs)]));
+    // Group leagues-with-games by sport once, in registry order, so the render
+    // doesn't re-filter the full LEAGUES table per expanded sport.
+    const leaguesBySport = new Map<string, (typeof LEAGUES)[number][]>();
+    for (const lg of LEAGUES) {
+      if (!leagueGroups.has(lg.id)) continue;
+      const bucket = leaguesBySport.get(lg.sport);
+      if (bucket) bucket.push(lg);
+      else leaguesBySport.set(lg.sport, [lg]);
+    }
     let totalLive = 0, totalUp = 0;
     for (const c of sportCounts.values()) { totalLive += c.live; totalUp += c.upcoming; }
-    return { sportCounts, leagueCounts, totalLive, totalUp };
+    return { sportCounts, leagueCounts, leaguesBySport, totalLive, totalUp };
   }, [games]);
 
   function toggleSport(id: Sport) {
@@ -98,9 +107,7 @@ export default function Sidebar({
           if (!c || c.total === 0) return null;
           const isOpen = expanded.has(sport.id);
           const sportActive = activeSport === sport.id && !activeLeague;
-          const sportLeagues = LEAGUES.filter(
-            (l) => l.sport === sport.id && (leagueCounts.get(l.id)?.total ?? 0) > 0
-          );
+          const sportLeagues = leaguesBySport.get(sport.id) ?? [];
 
           return (
             <div className="sport-group" key={sport.id}>
@@ -157,3 +164,5 @@ export default function Sidebar({
     </aside>
   );
 }
+
+export default memo(Sidebar);

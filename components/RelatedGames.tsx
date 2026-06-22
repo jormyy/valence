@@ -1,7 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
 import type { GameWithStreams } from "@/lib/types";
-import { LEAGUE_BY_ID } from "@/lib/metadata";
+import { LEAGUE_BY_ID } from "@/lib/registry";
 
 interface Props {
   current: GameWithStreams;
@@ -10,14 +11,16 @@ interface Props {
 }
 
 export default function RelatedGames({ current, allGames, onPick }: Props) {
-  const currentSport = LEAGUE_BY_ID[current.league]?.sport;
-  const related = allGames
-    .filter((g) =>
-      g.id !== current.id &&
-      g.status === "in" &&
-      (g.league === current.league || LEAGUE_BY_ID[g.league]?.sport === currentSport)
-    )
-    .slice(0, 5);
+  const related = useMemo(() => {
+    const currentSport = LEAGUE_BY_ID[current.league]?.sport;
+    return allGames
+      .filter((g) =>
+        g.id !== current.id &&
+        g.status === "in" &&
+        (g.league === current.league || LEAGUE_BY_ID[g.league]?.sport === currentSport)
+      )
+      .slice(0, 5);
+  }, [allGames, current.id, current.league]);
 
   if (related.length === 0) return null;
 

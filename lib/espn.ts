@@ -1,46 +1,22 @@
 import type {
   Game, League, Team,
   EspnCompetitor, EspnCompetition, EspnEvent,
-  EspnScoreboard, EspnTennisScoreboard, EspnSummary, EspnStatus,
+  EspnSummary, EspnStatus,
 } from "./types";
 import type { EspnParser } from "./registry";
 import { LEAGUES, LEAGUE_BY_ID, hasEspnSchedule } from "./registry";
 import { SCOREBOARD_TIMEOUT_MS, fetchWithTimeout } from "./upstream";
 import { makeGameId, parseGameId } from "./game-id";
 import { getSourceGames } from "./source-events";
+import { mapLimit } from "./concurrency";
+import { dateInPT, formatTimePT, normalizeDate } from "./datetime";
+import { teamFromName } from "./team";
 
 interface FetchOptions {
   readonly signal?: AbortSignal;
 }
 
-export const PT_TZ = "America/Los_Angeles";
-
 export const STATUS_ORDER: Record<Game["status"], number> = { in: 0, pre: 1, post: 2 };
-
-export function formatTimePT(isoDate: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    timeZone: PT_TZ,
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  }).format(new Date(isoDate)) + " PT";
-}
-
-export function todayInPT(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: PT_TZ }).format(new Date());
-}
-
-// "20260521" → "2026-05-21"
-function formatDateStr(dateStr: string): string {
-  return `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
-}
-
-export function normalizeEspnDate(dateStr?: string): string | null {
-  if (!dateStr) return todayInPT();
-  if (/^\d{8}$/.test(dateStr)) return formatDateStr(dateStr);
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
-  return null;
-}
 
 export function normalizeEspnDateParam(dateStr: string | null | undefined): string | undefined {
   if (!dateStr) return undefined;
@@ -49,18 +25,10 @@ export function normalizeEspnDateParam(dateStr: string | null | undefined): stri
   return undefined;
 }
 
-export function isTodayEspnDate(dateStr?: string): boolean {
-  return normalizeEspnDate(dateStr) === todayInPT();
-}
-
-function gameDateInPT(isoDate: string): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: PT_TZ }).format(new Date(isoDate));
-}
-
 function safeGameDateInPT(isoDate: unknown): string | null {
   if (typeof isoDate !== "string") return null;
   try {
-    return gameDateInPT(isoDate);
+    return dateInPT(isoDate);
   } catch {
     return null;
   }
@@ -75,27 +43,7 @@ function parseTeam(c: EspnCompetitor): Team {
   return {
     name: t.displayName,
     abbreviation: t.abbreviation,
-    logo: t.logo,
     score: c.score,
-  };
-}
-
-function abbreviationFor(name: string): string {
-  const words = name
-    .replace(/[^a-z0-9\s]/gi, " ")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
-  if (words.length === 0) return "EVT";
-  if (words.length === 1) return words[0].slice(0, 4).toUpperCase();
-  return words.slice(0, 4).map((word) => word[0]).join("").toUpperCase();
-}
-
-function teamFromName(name: string): Team {
-  return {
-    name,
-    abbreviation: abbreviationFor(name),
-    logo: "",
   };
 }
 
@@ -110,7 +58,6 @@ function parseTennisPlayer(c: EspnCompetitor): Team {
   return {
     name,
     abbreviation: abbr,
-    logo: a.headshot?.href ?? "",
     score: c.score,
   };
 }
@@ -191,7 +138,6 @@ function parseGame(event: EspnEvent, league: League): Game {
   return {
     id: makeGameId(league, event.id),
     league,
-    espnId: event.id,
     eventName: event.name,
     shortName: event.shortName,
     homeTeam: teams.homeTeam,
@@ -199,8 +145,6 @@ function parseGame(event: EspnEvent, league: League): Game {
     startTime: event.date,
     status: gameStatus,
     statusDisplay,
-    period: status.period?.toString(),
-    clock: status.displayClock,
   };
 }
 
@@ -251,12 +195,11 @@ export async function getGames(league: League, dateStr?: string, options?: Fetch
   const leagueInfo = LEAGUE_BY_ID[league];
   if (!hasEspnSchedule(leagueInfo)) return [];
 
-  const targetDate = normalizeEspnDate(dateStr);
+  const targetDate = normalizeDate(dateStr);
   if (!targetDate) return [];
 
   const config = leagueInfo.espn;
-  const dateParam = normalizeEspnDateParam(dateStr ?? targetDate);
-  const query = dateParam ? `?dates=${dateParam}` : "";
+  const query = `?dates=${targetDate.replaceAll("-", "")}`;
   let res: Response;
   try {
     res = await fetchWithTimeout(
@@ -289,25 +232,19 @@ export async function getGames(league: League, dateStr?: string, options?: Fetch
 
 // Cap concurrent ESPN scoreboard fetches — the registry now spans hundreds of
 // leagues, and firing them all at once risks rate limiting and slow first loads.
+// NOTE: this fans out one request per scheduled league (~hundreds). It's amortized
+// by the 60s fetch-cache, but the real reduction (skipping out-of-season leagues, or
+// using ESPN's multi-league grouping endpoints) needs per-league season metadata the
+// registry doesn't carry yet — gating blindly would silently drop in-season games.
 const SCOREBOARD_CONCURRENCY = 16;
 
-async function mapLimit<T, R>(items: readonly T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
-  const results = new Array<R>(items.length);
-  let next = 0;
-  async function worker() {
-    while (true) {
-      const i = next++;
-      if (i >= items.length) return;
-      results[i] = await fn(items[i]);
-    }
-  }
-  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
-  return results;
-}
+// Only leagues with an ESPN schedule produce scoreboard fetches; channel-only leagues
+// return nothing, so keep them out of the fan-out entirely.
+const ESPN_LEAGUES = LEAGUES.filter((league) => "espn" in league);
 
 export async function getAllGames(dateStr?: string, options?: FetchOptions): Promise<Game[]> {
   const [espnResults, sourceGames] = await Promise.all([
-    mapLimit(LEAGUES, SCOREBOARD_CONCURRENCY, (l) => getGames(l.id, dateStr, options)),
+    mapLimit(ESPN_LEAGUES, SCOREBOARD_CONCURRENCY, (l) => getGames(l.id, dateStr, options)),
     getSourceGames(dateStr, options),
   ]);
   return [...espnResults.flat(), ...sourceGames].sort((a, b) => {

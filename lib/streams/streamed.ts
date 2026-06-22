@@ -1,7 +1,7 @@
 import type { Stream } from "../types";
 import { STREAM_DETAIL_TIMEOUT_MS, STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
 import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
-import { categoryFor, gameInText } from "./match";
+import { buildGameMatcher, categoryFor } from "./match";
 
 // streamed.pk — the original backend. A single "all-today" listing carries source
 // references; each (source, id) pair is resolved to embed URLs via a per-source call.
@@ -65,10 +65,7 @@ async function fetchMirror(path: string, options?: StreamProviderOptions): Promi
 
 async function fetchTodayEvents(options?: StreamProviderOptions): Promise<StreamedEvent[]> {
   const res = await fetchMirror("/matches/all-today", options);
-  if (!res) {
-    console.error("[streams:streamed] all mirrors failed");
-    return [];
-  }
+  if (!res) return [];
   try {
     return await res.json();
   } catch {
@@ -78,7 +75,8 @@ async function fetchTodayEvents(options?: StreamProviderOptions): Promise<Stream
 
 function matchEvent(events: StreamedEvent[], game: StreamLookup): StreamedEvent | undefined {
   const category = categoryFor(game);
-  return events.find((e) => e.category === category && gameInText(e.id, game));
+  const matcher = buildGameMatcher(game);
+  return events.find((e) => e.category === category && matcher.test(e.id));
 }
 
 async function fetchSourceStreams(source: string, id: string, options?: StreamProviderOptions): Promise<StreamedStream[]> {
@@ -146,8 +144,24 @@ export const streamed: Provider = {
     return out;
   },
 
+  async prefetch(options) {
+    await fetchTodayEvents(options);
+  },
+
   async getCounts(games, options) {
     const events = await fetchTodayEvents(options);
-    return new Map(games.map((game) => [game.id, matchEvent(events, game)?.sources.length ?? 0])) satisfies StreamCountMap;
+    // Bucket the all-today listing by category once, so each game scans only its
+    // own category instead of the whole listing.
+    const byCategory = new Map<string, StreamedEvent[]>();
+    for (const event of events) {
+      const bucket = byCategory.get(event.category);
+      if (bucket) bucket.push(event);
+      else byCategory.set(event.category, [event]);
+    }
+    return new Map(games.map((game) => {
+      const matcher = buildGameMatcher(game);
+      const event = byCategory.get(categoryFor(game))?.find((e) => matcher.test(e.id));
+      return [game.id, event?.sources.length ?? 0];
+    })) satisfies StreamCountMap;
   },
 };

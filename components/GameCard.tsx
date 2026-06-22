@@ -1,9 +1,9 @@
 "use client";
 
 import type { GameWithStreams } from "@/lib/types";
-import { formatTimePT } from "@/lib/espn";
+import { formatTimePT } from "@/lib/datetime";
 import { scoreView } from "@/lib/game";
-import { teamColor } from "@/lib/metadata";
+import { teamColor } from "@/lib/colors";
 import { StreamIcon } from "@/components/icons";
 
 interface Props {

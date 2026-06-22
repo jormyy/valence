@@ -1,14 +1,4 @@
-export {
-  LEAGUES,
-  LEAGUE_BY_ID,
-  SPORTS,
-  isLeague,
-  streamCategoryFor,
-  type LeagueInfo,
-  type Sport,
-  type SportInfo,
-} from "./registry";
-
+// Deterministic team/badge color from an abbreviation — a pure view helper.
 export function teamColor(abbr: string): string {
   let h = 0;
   for (let i = 0; i < abbr.length; i++) h = (h * 31 + abbr.charCodeAt(i)) >>> 0;

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getStreams } from "@/lib/streams";
-import { isLeague } from "@/lib/metadata";
+import { isLeague } from "@/lib/registry";
 import type { StreamLookup } from "@/lib/streams/types";
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -1,7 +1,8 @@
 "use client";
 
+import { memo } from "react";
 import type { GameWithStreams } from "@/lib/types";
-import { LEAGUE_BY_ID } from "@/lib/metadata";
+import { LEAGUE_BY_ID } from "@/lib/registry";
 import { scoreView } from "@/lib/game";
 
 interface Props {
@@ -10,7 +11,7 @@ interface Props {
   onPick: (id: string) => void;
 }
 
-export default function LiveTicker({ games, activeGameId, onPick }: Props) {
+function LiveTicker({ games, activeGameId, onPick }: Props) {
   const live = games.filter((g) => g.status === "in");
   if (live.length === 0) return null;
 
@@ -46,3 +47,5 @@ export default function LiveTicker({ games, activeGameId, onPick }: Props) {
     </div>
   );
 }
+
+export default memo(LiveTicker);

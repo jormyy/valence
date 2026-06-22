@@ -1,11 +1,14 @@
 import { getAllGames } from "@/lib/espn";
-import { attachStreamCounts } from "@/lib/streams";
+import { attachStreamCounts, prefetchStreamCounts } from "@/lib/streams";
 import App from "@/components/App";
 
 export const revalidate = 60;
 
 export default async function Home() {
+  // Warm provider listings concurrently with the ESPN scoreboard fan-out.
+  const warming = prefetchStreamCounts();
   const games = await getAllGames();
+  await warming;
   const gamesWithStreams = await attachStreamCounts(games);
   return <App initialGames={gamesWithStreams} />;
 }

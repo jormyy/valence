@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 import type { GameWithStreams, League } from "@/lib/types";
-import { LEAGUES, LEAGUE_BY_ID } from "@/lib/metadata";
+import { LEAGUES, LEAGUE_BY_ID } from "@/lib/registry";
 import { STATUS_ORDER } from "@/lib/espn";
 import type { StatusFilter } from "@/lib/scope";
 import { applyStatusFilter } from "@/lib/scope";
@@ -22,7 +22,7 @@ const LEAGUE_ORDER: Record<string, number> = LEAGUES.reduce((acc, l, i) => {
   return acc;
 }, {} as Record<string, number>);
 
-export default function GameFeed({ games, activeGameId, onPick, statusFilter, search }: Props) {
+function GameFeed({ games, activeGameId, onPick, statusFilter, search }: Props) {
   const visible = useMemo(() => {
     const q = search.toLowerCase().trim();
     return applyStatusFilter(games, statusFilter).filter((g) => {
@@ -100,3 +100,5 @@ export default function GameFeed({ games, activeGameId, onPick, statusFilter, se
     </div>
   );
 }
+
+export default memo(GameFeed);

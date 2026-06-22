@@ -309,8 +309,7 @@ function fetchMediaWithCurlTransport(
   });
 }
 
-async function fetchMedia(target: URL, request: Request): Promise<Response> {
-  const embedOrigin = mediaRefererOrigin(request);
+async function fetchMedia(target: URL, request: Request, embedOrigin: string, goat?: string): Promise<Response> {
   const headers = new Headers({
     "user-agent": USER_AGENT,
     referer: `${embedOrigin}/`,
@@ -320,7 +319,6 @@ async function fetchMedia(target: URL, request: Request): Promise<Response> {
 
   const range = request.headers.get("range");
   if (range) headers.set("range", range);
-  const goat = mediaGoat(request);
   if (goat) headers.set("goat", goat);
 
   try {
@@ -387,7 +385,7 @@ async function proxyMedia(request: Request, includeBody: boolean) {
   const refererOrigin = mediaRefererOrigin(request);
   const goat = mediaGoat(request);
   try {
-    upstream = await fetchMedia(target, request);
+    upstream = await fetchMedia(target, request, refererOrigin, goat);
   } catch {
     return corsResponse(request, "upstream fetch failed", { status: 502 });
   }

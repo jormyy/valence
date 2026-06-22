@@ -1,7 +1,7 @@
 import type { Stream } from "../types";
 import { STREAM_DETAIL_TIMEOUT_MS, STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
 import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
-import { categoryFor, gameInText } from "./match";
+import { buildGameMatcher, categoryFor } from "./match";
 
 // sportsrc.org is a streamed.pk-shaped mirror: a per-category match list, then a
 // per-match `detail` call that returns the same {embedUrl, hd, language} sources
@@ -40,7 +40,8 @@ function matchText(m: SportsrcMatch): string {
 }
 
 function findMatches(matches: SportsrcMatch[], game: StreamLookup): SportsrcMatch[] {
-  return matches.filter((m) => gameInText(matchText(m), game));
+  const matcher = buildGameMatcher(game);
+  return matches.filter((m) => matcher.test(matchText(m)));
 }
 
 async function fetchMatchesByCategory(
@@ -80,8 +81,12 @@ export const sportsrc: Provider = {
     const category = categoryFor(game);
     const matches = findMatches(await fetchMatches(category, options), game);
 
-    for (const match of matches) {
-      const sources = await fetchDetail(category, match.id, options);
+    // Fetch candidate details in parallel, then return the first non-empty in match
+    // order — avoids serializing N detail timeouts when a game fuzzy-matches several.
+    const groups = await Promise.all(
+      matches.map((match) => fetchDetail(category, match.id, options)),
+    );
+    for (const sources of groups) {
       const out: Stream[] = [];
       for (const s of sources) {
         if (!s.embedUrl) continue;
