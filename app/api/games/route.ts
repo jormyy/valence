@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
-import { getAllGames, normalizeEspnDateParam } from "@/lib/espn";
+import { getAllGamesSnapshot, normalizeEspnDateParam } from "@/lib/espn";
 import { attachStreamCounts, prefetchStreamCounts } from "@/lib/streams";
 import { leagueDisplayForGames } from "@/lib/registry";
 import type { GameWithStreams } from "@/lib/types";
 
-function payload(games: GameWithStreams[]) {
+function payload(games: GameWithStreams[], partial = false) {
   return {
     games,
     leagueDisplay: leagueDisplayForGames(games),
+    partial,
   };
 }
 
@@ -31,15 +32,16 @@ function progressiveGames(date: string | undefined, signal: AbortSignal): Respon
 
       try {
         const warming = prefetchStreamCounts(date, { signal: workSignal });
-        const games = await getAllGames(date, { signal: workSignal });
+        const snapshot = await getAllGamesSnapshot(date, { signal: workSignal });
+        const games = snapshot.games;
         const scheduleMs = performance.now() - startedAt;
-        send({ type: "schedule", ...payload(games), scheduleMs });
+        send({ type: "schedule", ...payload(games, !snapshot.complete), scheduleMs });
 
         await warming;
         const gamesWithStreams = await attachStreamCounts(games, date, { signal: workSignal });
         send({
           type: "complete",
-          ...payload(gamesWithStreams),
+          ...payload(gamesWithStreams, !snapshot.complete),
           scheduleMs,
           streamCountMs: performance.now() - startedAt - scheduleMs,
         });
@@ -78,10 +80,11 @@ export async function GET(request: Request) {
   try {
     // Warm provider listings concurrently with the ESPN scoreboard fan-out.
     const warming = prefetchStreamCounts(date, { signal: request.signal });
-    const games = await getAllGames(date, { signal: request.signal });
+    const snapshot = await getAllGamesSnapshot(date, { signal: request.signal });
+    const games = snapshot.games;
     await warming;
     const gamesWithStreams = await attachStreamCounts(games, date, { signal: request.signal });
-    return NextResponse.json(payload(gamesWithStreams));
+    return NextResponse.json(payload(gamesWithStreams, !snapshot.complete));
   } catch (error) {
     if (request.signal.aborted || (error instanceof Error && error.name === "AbortError")) {
       return new Response(null, { status: 499 });

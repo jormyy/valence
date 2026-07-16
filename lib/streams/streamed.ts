@@ -3,6 +3,7 @@ import { STREAM_DETAIL_TIMEOUT_MS, STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } fr
 import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
 import { buildGameMatcher, categoryFor } from "./match";
 import { AsyncTtlCache } from "../async-ttl-cache";
+import { fetchWithValidatedRedirects } from "../validated-redirect";
 
 // streamed.pk — the original backend. A single "all-today" listing carries source
 // references; each (source, id) pair is resolved to embed URLs via a per-source call.
@@ -45,13 +46,13 @@ async function fetchMirror(path: string, options?: StreamProviderOptions): Promi
   try {
     const winner = await Promise.any(
       MIRRORS.map(async (base, index) => {
-        const res = await fetchWithTimeout(`${base}${path}`, {
+        const res = await fetchWithValidatedRedirects(`${base}${path}`, (url) => url.href.startsWith(`${base}/`), {
           signal: options?.signal
             ? AbortSignal.any([options.signal, controllers[index].signal])
             : controllers[index].signal,
           cache: "no-store",
           timeoutMs: isDetail ? STREAM_DETAIL_TIMEOUT_MS : STREAM_LIST_TIMEOUT_MS,
-        });
+        }, fetchWithTimeout);
         if (!res.ok) throw new Error(`streamed mirror ${base} returned ${res.status}`);
         return { index, res };
       }),

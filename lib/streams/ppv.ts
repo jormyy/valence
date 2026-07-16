@@ -3,6 +3,7 @@ import { STREAM_DETAIL_TIMEOUT_MS, STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } fr
 import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
 import { buildGameMatcher, categoryFor } from "./match";
 import { AsyncTtlCache } from "../async-ttl-cache";
+import { fetchWithValidatedRedirects } from "../validated-redirect";
 
 // ppv.land's public backend. The ppv.land front-end is mid-relaunch ("Coming Soon"),
 // but api.ppv.to is live: a listing groups events under named categories, and each
@@ -44,11 +45,11 @@ interface PpvSource {
 export function fetchPpvListing(options?: StreamProviderOptions): Promise<PpvCategory[]> {
   return listingCache.get("listing", async (signal) => {
     try {
-      const res = await fetchWithTimeout(`${BASE}/streams`, {
+      const res = await fetchWithValidatedRedirects(`${BASE}/streams`, (url) => url.href.startsWith(`${BASE}/`), {
         signal,
         cache: "no-store",
         timeoutMs: STREAM_LIST_TIMEOUT_MS,
-      });
+      }, fetchWithTimeout);
       if (!res.ok) return [];
       const json = await res.json();
       return Array.isArray(json?.streams) ? json.streams : [];
@@ -97,11 +98,11 @@ function findEvent(listing: PpvCategory[], game: StreamLookup): PpvEvent | undef
 async function fetchSources(id: number, options?: StreamProviderOptions): Promise<PpvSource[]> {
   return sourceCache.get(id, async (signal) => {
     try {
-      const res = await fetchWithTimeout(`${BASE}/streams/${id}`, {
+      const res = await fetchWithValidatedRedirects(`${BASE}/streams/${id}`, (url) => url.href.startsWith(`${BASE}/`), {
         signal,
         cache: "no-store",
         timeoutMs: STREAM_DETAIL_TIMEOUT_MS,
-      });
+      }, fetchWithTimeout);
       if (!res.ok) return [];
       const json = await res.json();
       return Array.isArray(json?.data?.sources) ? json.data.sources : [];

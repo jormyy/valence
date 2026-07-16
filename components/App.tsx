@@ -50,6 +50,7 @@ function makeDateLabels(): [string, string, string] {
 interface GamesResponse {
   games: GameWithStreams[];
   leagueDisplay: LeagueDisplay[];
+  partial?: boolean;
 }
 
 interface ActiveSelection {
@@ -80,13 +81,14 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [activeSelection, setActiveSelection] = useState<ActiveSelection>(() => {
     const game = initialDesktopGame(initialGames);
-    return { id: game?.id ?? null, automatic: Boolean(game) };
+    return { id: game?.id ?? null, automatic: true };
   });
   const [now, setNow] = useState(() => Date.now());
   const [fetchedGames, setFetchedGames] = useState<GameWithStreams[] | null>(null);
   const [fetchedLeagueDisplay, setFetchedLeagueDisplay] = useState<LeagueDisplay[] | null>(null);
-  const [dateLoading, setDateLoading] = useState(false);
+  const [dateLoading, setDateLoading] = useState(initialGames.length === 0);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [schedulePartial, setSchedulePartial] = useState(false);
   const [autoStreamsEnabled, setAutoStreamsEnabled] = useState(false);
   const activeGameId = activeSelection.id;
   const displayedActiveGameId = activeSelection.automatic && !autoStreamsEnabled
@@ -94,10 +96,25 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
     : activeGameId;
 
   useEffect(() => {
-    const compactLandscape = window.innerWidth <= 950
-      && window.innerHeight <= 500
-      && window.innerWidth > window.innerHeight;
-    if (window.innerWidth >= 900 && !compactLandscape) setAutoStreamsEnabled(true);
+    const desktopQuery = window.matchMedia("(min-width: 900px)");
+    const compactLandscapeQuery = window.matchMedia(
+      "(max-width: 950px) and (max-height: 500px) and (orientation: landscape)",
+    );
+    function syncAutoStreams() {
+      setAutoStreamsEnabled(desktopQuery.matches && !compactLandscapeQuery.matches);
+    }
+    const viewportObserver = new ResizeObserver(syncAutoStreams);
+    syncAutoStreams();
+    viewportObserver.observe(document.documentElement);
+    desktopQuery.addEventListener("change", syncAutoStreams);
+    compactLandscapeQuery.addEventListener("change", syncAutoStreams);
+    window.addEventListener("resize", syncAutoStreams, { passive: true });
+    return () => {
+      viewportObserver.disconnect();
+      desktopQuery.removeEventListener("change", syncAutoStreams);
+      compactLandscapeQuery.removeEventListener("change", syncAutoStreams);
+      window.removeEventListener("resize", syncAutoStreams);
+    };
   }, []);
 
   useEffect(() => {
@@ -114,52 +131,73 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
     if (dateIdx === 1) {
       setFetchedGames(null);
       setFetchedLeagueDisplay(null);
-      setDateLoading(false);
+      setDateLoading(initialGames.length === 0);
+      setSchedulePartial(false);
+      setActiveSelection({ id: null, automatic: true });
       return;
     }
     const controller = new AbortController();
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
     setFetchedGames(null);
     setFetchedLeagueDisplay(null);
     setDateLoading(true);
+    setSchedulePartial(false);
     setActiveSelection({ id: null, automatic: false });
     setStatusFilter("all");
-    fetch(`/api/games?date=${dateStrForIdx(dateIdx)}`, {
-      headers: { accept: "application/x-ndjson, application/json" },
-      signal: controller.signal,
-    })
-      .then(async (response) => {
+    async function load(attempt: number) {
+      let receivedGames = false;
+      let partial = false;
+      try {
+        const response = await fetch(`/api/games?date=${dateStrForIdx(dateIdx)}`, {
+          headers: { accept: "application/x-ndjson, application/json" },
+          signal: controller.signal,
+        });
         if (!response.ok) throw new Error(`game lookup failed: ${response.status}`);
         if (!response.headers.get("content-type")?.includes("application/x-ndjson") || !response.body) {
           const data = await response.json() as GamesResponse;
           if (!controller.signal.aborted) {
+            receivedGames = true;
+            partial = data.partial === true;
             setFetchedGames(data.games ?? []);
             setFetchedLeagueDisplay(data.leagueDisplay ?? []);
             setDateLoading(false);
+            setSchedulePartial(partial);
           }
-          return;
+        } else {
+          let failed = false;
+          await readNdjson<GamesResponse & { type?: string }>(response.body, (update) => {
+            if ((update.type === "schedule" || update.type === "complete") && Array.isArray(update.games)) {
+              receivedGames = true;
+              partial = update.partial === true;
+              setFetchedGames(update.games);
+              setFetchedLeagueDisplay(update.leagueDisplay ?? []);
+              setDateLoading(false);
+              setSchedulePartial(partial);
+            }
+            if (update.type === "error") failed = true;
+          }, controller.signal);
+          if (failed && !receivedGames) throw new Error("game lookup failed");
         }
-
-        let receivedGames = false;
-        let failed = false;
-        await readNdjson<GamesResponse & { type?: string }>(response.body, (update) => {
-          if ((update.type === "schedule" || update.type === "complete") && Array.isArray(update.games)) {
-            receivedGames = true;
-            setFetchedGames(update.games);
-            setFetchedLeagueDisplay(update.leagueDisplay ?? []);
-            setDateLoading(false);
-          }
-          if (update.type === "error") failed = true;
-        }, controller.signal);
-        if (failed && !receivedGames) throw new Error("game lookup failed");
-      })
-      .catch((e) => {
+      } catch (error) {
         if (controller.signal.aborted) return;
-        console.error("Failed to fetch games for date:", dateIdx, e);
-        setFetchedGames([]);
-        setFetchedLeagueDisplay([]);
-        setDateLoading(false);
-      });
-    return () => controller.abort();
+        console.error("Failed to fetch games for date:", dateIdx, error);
+        if (!receivedGames) {
+          setFetchedGames([]);
+          setFetchedLeagueDisplay([]);
+          setDateLoading(false);
+          setSchedulePartial(false);
+        }
+      }
+
+      if (partial && attempt < 2 && !controller.signal.aborted) {
+        retryTimer = setTimeout(() => void load(attempt + 1), 2_000 * (2 ** attempt));
+      }
+    }
+    void load(0);
+    return () => {
+      controller.abort();
+      if (retryTimer) clearTimeout(retryTimer);
+    };
   }, [dateIdx]);
 
   const rawGames = fetchedGames ?? initialGames;
@@ -186,37 +224,76 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
     return changed ? promoted : rawGames;
   }, [rawGames, now]);
 
-  const hasLive = useMemo(() => games.some((g) => g.status === "in"), [games]);
-
   useEffect(() => {
     if (dateIdx !== 1) return;
     let inFlight: AbortController | null = null;
-    function poll() {
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    async function poll(attempt = 0) {
+      if (retryTimer) {
+        clearTimeout(retryTimer);
+        retryTimer = null;
+      }
       inFlight?.abort();
       const controller = new AbortController();
       inFlight = controller;
-      fetch("/api/games", { signal: controller.signal })
-        .then((r) => r.json())
-        .then((data: GamesResponse) => {
-          if (!controller.signal.aborted && Array.isArray(data.games) && data.games.length > 0) {
-            setFetchedGames(data.games);
-            setFetchedLeagueDisplay(data.leagueDisplay ?? []);
-            setLastUpdated(new Date());
-          }
-        })
-        .catch((e) => {
-          if (!controller.signal.aborted) console.error("Live poll failed:", e);
+      let partial = false;
+      let failedRequest = false;
+      const accept = (data: GamesResponse, selectAutomatic: boolean) => {
+        if (controller.signal.aborted || !Array.isArray(data.games)) return;
+        partial = data.partial === true;
+        setFetchedGames(data.games);
+        setFetchedLeagueDisplay(data.leagueDisplay ?? []);
+        setDateLoading(false);
+        setSchedulePartial(partial);
+        setLastUpdated(new Date());
+        setActiveSelection((selection) => {
+          if (!selection.automatic) return selection;
+          const retained = data.games.find((game) => game.id === selection.id);
+          if (retained) return selection;
+          if (!selectAutomatic) return { id: null, automatic: true };
+          return { id: initialDesktopGame(data.games)?.id ?? null, automatic: true };
         });
+      };
+
+      try {
+        const response = await fetch("/api/games", {
+          headers: { accept: "application/x-ndjson, application/json" },
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error(`game lookup failed: ${response.status}`);
+        if (!response.headers.get("content-type")?.includes("application/x-ndjson") || !response.body) {
+          accept(await response.json() as GamesResponse, true);
+        } else {
+          let receivedGames = false;
+          let failed = false;
+          await readNdjson<GamesResponse & { type?: string }>(response.body, (update) => {
+            if ((update.type === "schedule" || update.type === "complete") && Array.isArray(update.games)) {
+              receivedGames = true;
+              accept(update, update.type === "complete");
+            }
+            if (update.type === "error") failed = true;
+          }, controller.signal);
+          if (failed && !receivedGames) throw new Error("game lookup failed");
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          failedRequest = true;
+          console.error("Live poll failed:", error);
+          setDateLoading(false);
+        }
+      }
+      if ((partial || failedRequest) && attempt < 2 && !controller.signal.aborted) {
+        retryTimer = setTimeout(() => void poll(attempt + 1), 2_000 * (2 ** attempt));
+      }
     }
-    // The HTML carries an immediate build-time snapshot. Refresh once on hydration,
-    // then retain the existing 30s live-score polling cadence when a game is active.
-    poll();
-    const id = hasLive ? setInterval(poll, 30_000) : null;
+    void poll();
+    const id = setInterval(() => void poll(), 30_000);
     return () => {
       inFlight?.abort();
-      if (id) clearInterval(id);
+      if (retryTimer) clearTimeout(retryTimer);
+      clearInterval(id);
     };
-  }, [dateIdx, hasLive]);
+  }, [dateIdx]);
 
   const filteredGames = useMemo(
     () => applyScope(games, activeSport, activeLeague, leagueById),
@@ -236,6 +313,7 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
     setActiveSelection({ id: null, automatic: false });
   }, []);
   const streamGame = activeSelection.automatic && !autoStreamsEnabled ? null : activeGame;
+  const watchVisible = streamGame !== null;
   const streamState = useGameStreams(streamGame);
   const activeStreams = streamState.gameId === activeGame?.id ? streamState.streams : NO_STREAMS;
   const activeStreamsLoading = activeGame !== null
@@ -258,8 +336,9 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
         liveCount={counts.live}
         dateLoading={dateLoading}
         lastUpdated={lastUpdated}
+        schedulePartial={schedulePartial}
       />
-      <div className={`main ${activeGame ? "with-watch" : ""} ${activeSelection.automatic ? "auto-watch" : ""}`}>
+      <div className={`main ${watchVisible ? "with-watch" : ""} ${activeSelection.automatic ? "auto-watch" : ""}`}>
         <Sidebar
           games={games}
           activeSport={activeSport}
@@ -298,9 +377,10 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
             search={search}
             leagueDisplay={leagueDisplay}
             leagueById={leagueById}
+            loading={dateLoading || (schedulePartial && games.length === 0)}
           />
         </div>
-        {activeGame && (
+        {watchVisible && activeGame && (
           <WatchPanel
             game={activeGame}
             streams={activeStreams}

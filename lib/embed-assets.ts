@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { originFromEmbedReferer } from "./streams/providers";
 import { PROXY_FETCH_TIMEOUT_MS, fetchWithTimeout } from "./upstream";
+import { fetchWithValidatedRedirects } from "./validated-redirect";
 
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
@@ -42,11 +43,14 @@ export async function proxyEmbedAsset({
   upstreamOrigin,
 }: ProxyEmbedAssetOptions): Promise<NextResponse> {
   const origin = upstreamOrigin ?? originFromEmbedReferer(request, fallbackOrigin);
-  const target = `${origin}${pathname}`;
+  const target = new URL(pathname, origin);
 
   let upstream: Response;
   try {
-    upstream = await fetchWithTimeout(target, {
+    upstream = await fetchWithValidatedRedirects(
+      target,
+      (url) => url.origin === target.origin,
+      {
       signal: request.signal,
       headers: {
         "user-agent": USER_AGENT,
@@ -55,7 +59,9 @@ export async function proxyEmbedAsset({
       },
       cache: "no-store",
       timeoutMs: PROXY_FETCH_TIMEOUT_MS,
-    });
+      },
+      fetchWithTimeout,
+    );
   } catch {
     return new NextResponse("upstream fetch failed", { status: 502 });
   }

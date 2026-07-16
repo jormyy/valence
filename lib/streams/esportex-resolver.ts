@@ -1,6 +1,7 @@
 import { browserHeaders } from "../embed-request";
 import { PROXY_FETCH_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
 import { isAllowedEmbedUrl, isAllowedMediaUrl } from "./providers";
+import { fetchWithValidatedRedirects } from "../validated-redirect";
 
 const SPORTEX_PLAYER_HOST = "streams.esportex.site";
 const SPORTEX_DATA_URL = "https://data.esportex.site/api/data";
@@ -181,13 +182,17 @@ async function resolveEsportexData(
   const dataHeaders = new Headers(browserHeaders(dataUrl, SPORTEX_ORIGIN));
   dataHeaders.set("accept", "application/octet-stream,*/*;q=0.8");
 
-  const dataResponse = await fetcher(dataUrl, {
-    signal,
-    headers: dataHeaders,
-    redirect: "follow",
-    cache: "no-store",
-    timeoutMs: PROXY_FETCH_TIMEOUT_MS,
-  });
+  const dataResponse = await fetchWithValidatedRedirects(
+    dataUrl,
+    (url) => url.protocol === "https:" && url.hostname === dataUrl.hostname,
+    {
+      signal,
+      headers: dataHeaders,
+      cache: "no-store",
+      timeoutMs: PROXY_FETCH_TIMEOUT_MS,
+    },
+    fetcher,
+  );
   if (!dataResponse.ok) return null;
 
   const data = parseXoredEsportexData(await dataResponse.arrayBuffer());
@@ -233,13 +238,17 @@ async function resolveHlsFromData(
   }
   if (!isEmbedhdSource(embedhdUrl)) return null;
 
-  const embedhdResponse = await fetcher(embedhdUrl, {
-    signal,
-    headers: browserHeaders(embedhdUrl, SPORTEX_ORIGIN),
-    redirect: "follow",
-    cache: "no-store",
-    timeoutMs: PROXY_FETCH_TIMEOUT_MS,
-  });
+  const embedhdResponse = await fetchWithValidatedRedirects(
+    embedhdUrl,
+    (url) => url.protocol === "https:" && url.hostname === EMBEDHD_HOST,
+    {
+      signal,
+      headers: browserHeaders(embedhdUrl, SPORTEX_ORIGIN),
+      cache: "no-store",
+      timeoutMs: PROXY_FETCH_TIMEOUT_MS,
+    },
+    fetcher,
+  );
   const embedhdHtml = await textFromFetch(embedhdResponse);
   if (!embedhdHtml) return null;
 
@@ -250,13 +259,17 @@ async function resolveHlsFromData(
   exposestratUrl.searchParams.set("player", "desktop");
   exposestratUrl.searchParams.set("live", fid);
 
-  const exposestratResponse = await fetcher(exposestratUrl, {
-    signal,
-    headers: browserHeaders(exposestratUrl, EMBEDHD_ORIGIN),
-    redirect: "follow",
-    cache: "no-store",
-    timeoutMs: PROXY_FETCH_TIMEOUT_MS,
-  });
+  const exposestratResponse = await fetchWithValidatedRedirects(
+    exposestratUrl,
+    (url) => url.protocol === "https:" && url.hostname === EXPOSESTRAT_HOST,
+    {
+      signal,
+      headers: browserHeaders(exposestratUrl, EMBEDHD_ORIGIN),
+      cache: "no-store",
+      timeoutMs: PROXY_FETCH_TIMEOUT_MS,
+    },
+    fetcher,
+  );
   const exposestratHtml = await textFromFetch(exposestratResponse);
   if (!exposestratHtml) return null;
 

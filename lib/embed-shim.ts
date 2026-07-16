@@ -44,7 +44,12 @@ export function rewriteGeneratedModuleUrl(input: string, appOrigin: string): str
   return `${appOrigin}/api/wasm/${input.slice(pathIndex + "/js/wasm/".length)}`;
 }
 
-export function shim(appOrigin: string, target: URL, parentTarget?: string): string {
+export function shim(
+  appOrigin: string,
+  target: URL,
+  parentTarget?: string,
+  messageOrigin = appOrigin,
+): string {
   return `<script>(function(){
   "use strict";
   var EMBED_HOSTS=${JSON.stringify(EMBED_HOSTS.map((rule) => rule.hostname))};
@@ -52,9 +57,10 @@ export function shim(appOrigin: string, target: URL, parentTarget?: string): str
   var PLAYER_SCRIPT_HOSTS=${JSON.stringify([...PLAYER_SCRIPT_HOSTS])};
   var BLOCKED_HOST=${BLOCKED_HOST.toString()};
   var BLOCKED_URL=${BLOCKED_URL.toString()};
-  var PROXY=${JSON.stringify(`${appOrigin}/api/embed?r=${encodeURIComponent(target.origin)}&p=${encodeURIComponent(parentTarget ?? target.href)}&u=`)};
+  var PROXY=${JSON.stringify(`${appOrigin}/api/embed?r=${encodeURIComponent(target.origin)}&p=${encodeURIComponent(parentTarget ?? target.href)}${messageOrigin === appOrigin ? "" : `&a=${encodeURIComponent(messageOrigin)}`}&u=`)};
   var MEDIA_PROXY=${JSON.stringify(`${appOrigin}/api/media?r=${encodeURIComponent(target.origin)}&u=`)};
   var APP_ORIGIN=${JSON.stringify(appOrigin)};
+  var MESSAGE_ORIGIN=${JSON.stringify(messageOrigin)};
   var EMBED_ORIGIN=${JSON.stringify(target.origin)};
   var EMBED_TARGET=${JSON.stringify(target.href)};
   var PLAYER_TARGET=${JSON.stringify(parentTarget ?? target.href)};
@@ -321,8 +327,8 @@ export function shim(appOrigin: string, target: URL, parentTarget?: string): str
         target:PLAYER_TARGET,
         embedTarget:EMBED_TARGET
       };
-      window.parent.postMessage(message, APP_ORIGIN);
-      if(window.top && window.top!==window.parent) window.top.postMessage(message, APP_ORIGIN);
+      window.parent.postMessage(message, MESSAGE_ORIGIN);
+      if(window.top && window.top!==window.parent) window.top.postMessage(message, MESSAGE_ORIGIN);
     }catch(e){}
   }
   function observeMediaFetch(promise,original,next){

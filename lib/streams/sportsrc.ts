@@ -3,6 +3,7 @@ import { STREAM_DETAIL_TIMEOUT_MS, STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } fr
 import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
 import { buildGameMatcher, categoryFor } from "./match";
 import { AsyncTtlCache } from "../async-ttl-cache";
+import { fetchWithValidatedRedirects } from "../validated-redirect";
 
 // sportsrc.org is a streamed.pk-shaped mirror: a per-category match list, then a
 // per-match `detail` call that returns the same {embedUrl, hd, language} sources
@@ -26,11 +27,11 @@ interface SportsrcSource {
 async function fetchMatches(category: string, options?: StreamProviderOptions): Promise<SportsrcMatch[]> {
   return matchCache.get(category, async (signal) => {
     try {
-      const res = await fetchWithTimeout(`${BASE}/?data=matches&category=${category}`, {
+      const res = await fetchWithValidatedRedirects(`${BASE}/?data=matches&category=${category}`, (url) => url.origin === BASE, {
         signal,
         cache: "no-store",
         timeoutMs: STREAM_LIST_TIMEOUT_MS,
-      });
+      }, fetchWithTimeout);
       if (!res.ok) return [];
       const json = await res.json();
       return Array.isArray(json?.data) ? json.data : [];
@@ -64,9 +65,11 @@ async function fetchDetail(category: string, id: string, options?: StreamProvide
   const key = `${category}:${id}`;
   return detailCache.get(key, async (signal) => {
     try {
-      const res = await fetchWithTimeout(
+      const res = await fetchWithValidatedRedirects(
         `${BASE}/?data=detail&category=${category}&id=${encodeURIComponent(id)}`,
+        (url) => url.origin === BASE,
         { signal, cache: "no-store", timeoutMs: STREAM_DETAIL_TIMEOUT_MS },
+        fetchWithTimeout,
       );
       if (!res.ok) return [];
       const json = await res.json();

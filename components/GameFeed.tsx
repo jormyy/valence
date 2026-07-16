@@ -17,6 +17,7 @@ interface Props {
   search: string;
   leagueDisplay: LeagueDisplay[];
   leagueById: LeagueDisplayMap;
+  loading: boolean;
 }
 
 function GameFeed({
@@ -27,6 +28,7 @@ function GameFeed({
   search,
   leagueDisplay,
   leagueById,
+  loading,
 }: Props) {
   const leagueOrder = useMemo(
     () => new Map(leagueDisplay.map((league, index) => [league.id, index])),
@@ -75,6 +77,16 @@ function GameFeed({
   }, [visible, leagueById, leagueOrder]);
 
   if (visible.length === 0) {
+    if (loading) {
+      return (
+        <div className="game-area schedule-loading" role="status" aria-live="polite">
+          <div className="schedule-loading-title">Loading current schedule…</div>
+          <div className="schedule-skeleton" aria-hidden>
+            {Array.from({ length: 6 }, (_, index) => <span key={index} />)}
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="empty">
         <div className="empty-title">No games match your filters</div>

@@ -13,10 +13,18 @@ import { dateInPT, formatTimePT, normalizeDate } from "./datetime";
 import { teamFromName } from "./team";
 import { STATUS_ORDER } from "./game-status";
 import { AsyncTtlCache } from "./async-ttl-cache";
+import { fetchWithValidatedRedirects } from "./validated-redirect";
 
 interface FetchOptions {
   readonly signal?: AbortSignal;
 }
+
+export interface GamesSnapshot {
+  readonly games: Game[];
+  readonly complete: boolean;
+}
+
+type LeagueGamesSnapshot = GamesSnapshot;
 
 export function normalizeEspnDateParam(dateStr: string | null | undefined): string | undefined {
   if (!dateStr) return undefined;
@@ -191,43 +199,53 @@ function parseTeamEvents(data: unknown, league: League, targetDate: string): Gam
   return games;
 }
 
-export async function getGames(league: League, dateStr?: string, options?: FetchOptions): Promise<Game[]> {
+async function loadGamesForLeague(
+  league: League,
+  dateStr?: string,
+  options?: FetchOptions,
+): Promise<LeagueGamesSnapshot> {
   const leagueInfo = LEAGUE_BY_ID[league];
-  if (!hasEspnSchedule(leagueInfo)) return [];
+  if (!hasEspnSchedule(leagueInfo)) return { games: [], complete: true };
 
   const targetDate = normalizeDate(dateStr);
-  if (!targetDate) return [];
+  if (!targetDate) return { games: [], complete: true };
 
   const config = leagueInfo.espn;
   const query = `?dates=${targetDate.replaceAll("-", "")}`;
   let res: Response;
   try {
-    res = await fetchWithTimeout(
+    res = await fetchWithValidatedRedirects(
       `https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.path}/scoreboard${query}`,
-      { signal: options?.signal, cache: "no-store", timeoutMs: SCOREBOARD_TIMEOUT_MS }
+      (url) => url.protocol === "https:" && url.hostname === "site.api.espn.com",
+      { signal: options?.signal, cache: "no-store", timeoutMs: SCOREBOARD_TIMEOUT_MS },
+      fetchWithTimeout,
     );
   } catch {
-    return [];
+    return { games: [], complete: false };
   }
-  if (!res.ok) return [];
+  if (!res.ok) return { games: [], complete: false };
 
   let data: unknown;
   try {
     data = await res.json();
   } catch {
-    return [];
+    return { games: [], complete: false };
   }
   const parser: EspnParser = config.parser;
 
   switch (parser) {
     case "team":
-      return parseTeamEvents(data, league, targetDate);
+      return { games: parseTeamEvents(data, league, targetDate), complete: true };
     case "tennis":
-      return flattenTennisEvents(data, league, targetDate);
+      return { games: flattenTennisEvents(data, league, targetDate), complete: true };
     case "event":
-      return parseTeamEvents(data, league, targetDate);
+      return { games: parseTeamEvents(data, league, targetDate), complete: true };
   }
   return unreachableParser(parser);
+}
+
+export async function getGames(league: League, dateStr?: string, options?: FetchOptions): Promise<Game[]> {
+  return (await loadGamesForLeague(league, dateStr, options)).games;
 }
 
 // Cap concurrent ESPN scoreboard fetches — the registry now spans hundreds of
@@ -238,33 +256,64 @@ export async function getGames(league: League, dateStr?: string, options?: Fetch
 const SCOREBOARD_CONCURRENCY = 16;
 const GAMES_CACHE_MS = 60_000;
 const GAMES_CACHE_DATES = 3;
+const LEAGUE_CACHE_ENTRIES = 1_200;
 
 // Only leagues with an ESPN schedule produce scoreboard fetches; channel-only leagues
 // return nothing, so keep them out of the fan-out entirely.
 const ESPN_LEAGUES = LEAGUES.filter((league) => "espn" in league);
-const gamesCache = new AsyncTtlCache<string, Game[]>(GAMES_CACHE_MS, GAMES_CACHE_DATES);
+const leagueGamesCache = new AsyncTtlCache<string, LeagueGamesSnapshot>(
+  GAMES_CACHE_MS,
+  LEAGUE_CACHE_ENTRIES,
+  (snapshot) => snapshot.complete,
+);
+const gamesCache = new AsyncTtlCache<string, GamesSnapshot>(
+  GAMES_CACHE_MS,
+  GAMES_CACHE_DATES,
+  (snapshot) => snapshot.complete,
+);
 const summaryCache = new AsyncTtlCache<string, EspnSummary | null>(30_000, 64);
 
-async function loadAllGames(dateStr: string, signal: AbortSignal): Promise<Game[]> {
+async function loadAllGames(dateStr: string, signal: AbortSignal): Promise<GamesSnapshot> {
   const [espnResults, sourceGames] = await Promise.all([
-    mapLimit(ESPN_LEAGUES, SCOREBOARD_CONCURRENCY, (l) => getGames(l.id, dateStr, { signal }), signal),
+    mapLimit(
+      ESPN_LEAGUES,
+      SCOREBOARD_CONCURRENCY,
+      (league) => leagueGamesCache.get(
+        `${dateStr}:${league.id}`,
+        (leagueSignal) => loadGamesForLeague(league.id, dateStr, { signal: leagueSignal }),
+        signal,
+      ),
+      signal,
+    ),
     getSourceGames(dateStr, { signal }),
   ]);
-  return [...espnResults.flat(), ...sourceGames].sort((a, b) => {
+  const games = [...espnResults.flatMap((result) => result.games), ...sourceGames].sort((a, b) => {
     const diff = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
     if (diff !== 0) return diff;
     return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
   });
+  return {
+    games,
+    complete: espnResults.every((result) => result.complete),
+  };
 }
 
-export async function getAllGames(dateStr?: string, options?: FetchOptions): Promise<Game[]> {
+export async function getAllGamesSnapshot(
+  dateStr?: string,
+  options?: FetchOptions,
+): Promise<GamesSnapshot> {
   const targetDate = normalizeDate(dateStr);
-  if (!targetDate) return [];
+  if (!targetDate) return { games: [], complete: true };
   return gamesCache.get(
     targetDate,
     (signal) => loadAllGames(targetDate, signal),
     options?.signal,
   );
+}
+
+export async function getAllGames(dateStr?: string, options?: FetchOptions): Promise<Game[]> {
+  const snapshot = await getAllGamesSnapshot(dateStr, options);
+  return snapshot.games;
 }
 
 export async function getEspnSummary(gameId: string, options?: FetchOptions): Promise<EspnSummary | null> {
@@ -278,9 +327,11 @@ export async function getEspnSummary(gameId: string, options?: FetchOptions): Pr
   return summaryCache.get(gameId, async (signal) => {
     let res: Response;
     try {
-      res = await fetchWithTimeout(
+      res = await fetchWithValidatedRedirects(
         `https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.path}/summary?event=${espnId}`,
-        { signal, cache: "no-store", timeoutMs: SCOREBOARD_TIMEOUT_MS }
+        (url) => url.protocol === "https:" && url.hostname === "site.api.espn.com",
+        { signal, cache: "no-store", timeoutMs: SCOREBOARD_TIMEOUT_MS },
+        fetchWithTimeout,
       );
     } catch {
       return null;

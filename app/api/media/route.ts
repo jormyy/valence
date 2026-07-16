@@ -7,6 +7,7 @@ import { isAllowedEmbedUrl, isAllowedMediaUrl, originFromEmbedReferer } from "@/
 import { PROXY_FETCH_TIMEOUT_MS, fetchWithTimeout } from "@/lib/upstream";
 import { publicRequestOrigin } from "@/lib/request-origin";
 import { closeOnUpstreamFailure, shouldBufferMedia } from "@/lib/media-body";
+import { fetchWithValidatedRedirects } from "@/lib/validated-redirect";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -17,6 +18,8 @@ const USER_AGENT =
 const NODE_TRANSPORT_REDIRECT_LIMIT = 4;
 const CURL_MAX_BUFFER_BYTES = 32 * 1024 * 1024;
 const CURL_STATUS_MARKER = "\n__VALENCE_CURL_STATUS__:";
+const CURL_REDIRECT_MARKER = "\n__VALENCE_CURL_REDIRECT__:";
+const UPSTREAM_URL_HEADER = "x-valence-upstream-url";
 
 function corsHeaders(request: Request): Headers {
   return new Headers({
@@ -120,8 +123,9 @@ function contentTypeFor(target: URL): string {
 
 function playlistBaseUrl(upstream: Response, fallback: URL): URL {
   try {
-    if (upstream.url) {
-      const url = new URL(upstream.url);
+    const raw = upstream.url || upstream.headers.get(UPSTREAM_URL_HEADER);
+    if (raw) {
+      const url = new URL(raw);
       if (isAllowedMediaUrl(url)) return url;
     }
   } catch {
@@ -211,8 +215,12 @@ function fetchMediaWithNodeTransport(
 
     request.on("response", (upstream) => {
       const location = upstream.headers.location;
-      if (isRedirect(upstream.statusCode) && location && redirectCount < NODE_TRANSPORT_REDIRECT_LIMIT) {
+      if (isRedirect(upstream.statusCode) && location) {
         upstream.resume();
+        if (redirectCount >= NODE_TRANSPORT_REDIRECT_LIMIT) {
+          fail(new Error("node media redirect limit exceeded"));
+          return;
+        }
         let next: URL;
         try {
           next = new URL(Array.isArray(location) ? location[0] : location, target);
@@ -236,7 +244,11 @@ function fetchMediaWithNodeTransport(
       resolve(new Response(Readable.toWeb(upstream) as BodyInit, {
         status: upstream.statusCode ?? 502,
         statusText: upstream.statusMessage,
-        headers: copyNodeResponseHeaders(upstream.headers),
+        headers: (() => {
+          const responseHeaders = copyNodeResponseHeaders(upstream.headers);
+          responseHeaders.set(UPSTREAM_URL_HEADER, target.href);
+          return responseHeaders;
+        })(),
       }));
     });
 
@@ -248,18 +260,19 @@ function fetchMediaWithCurlTransport(
   target: URL,
   headers: Headers,
   signal: AbortSignal,
+  redirectCount = 0,
 ): Promise<Response> {
+  if (signal.aborted) return Promise.reject(new Error("curl media aborted"));
   return new Promise((resolve, reject) => {
     const args = [
       "-sS",
-      "-L",
       "--http1.1",
       "--max-time",
       String(Math.ceil(PROXY_FETCH_TIMEOUT_MS / 1000)),
       "-A",
       headers.get("user-agent") ?? USER_AGENT,
       "-w",
-      `${CURL_STATUS_MARKER}%{http_code}`,
+      `${CURL_STATUS_MARKER}%{http_code}${CURL_REDIRECT_MARKER}%{redirect_url}`,
     ];
 
     for (const key of ["referer", "origin", "accept", "range", "goat"]) {
@@ -286,10 +299,37 @@ function fetchMediaWithCurlTransport(
       }
 
       const body = stdout.subarray(0, markerIndex);
-      const statusText = stdout.subarray(markerIndex + marker.length).toString("utf8").trim();
+      const metadata = stdout.subarray(markerIndex + marker.length).toString("utf8");
+      const redirectIndex = metadata.indexOf(CURL_REDIRECT_MARKER);
+      if (redirectIndex < 0) {
+        reject(new Error("curl media redirect metadata missing"));
+        return;
+      }
+      const statusText = metadata.slice(0, redirectIndex).trim();
       const status = Number.parseInt(statusText, 10);
       if (!Number.isFinite(status)) {
         reject(new Error("curl media status invalid"));
+        return;
+      }
+
+      const location = metadata.slice(redirectIndex + CURL_REDIRECT_MARKER.length).trim();
+      if (isRedirect(status) && location) {
+        if (redirectCount >= NODE_TRANSPORT_REDIRECT_LIMIT) {
+          reject(new Error("curl media redirect limit exceeded"));
+          return;
+        }
+        let next: URL;
+        try {
+          next = new URL(location, target);
+        } catch {
+          reject(new Error("bad curl media redirect"));
+          return;
+        }
+        if (!isAllowedMediaUrl(next)) {
+          reject(new Error("curl media redirect host not allowed"));
+          return;
+        }
+        resolve(fetchMediaWithCurlTransport(next, headers, signal, redirectCount + 1));
         return;
       }
 
@@ -298,6 +338,7 @@ function fetchMediaWithCurlTransport(
         headers: {
           "content-type": contentTypeFor(target),
           "content-length": String(body.length),
+          [UPSTREAM_URL_HEADER]: target.href,
         },
       }));
     });
@@ -307,6 +348,7 @@ function fetchMediaWithCurlTransport(
       reject(new Error("curl media aborted"));
     };
     signal.addEventListener("abort", abort, { once: true });
+    if (signal.aborted) abort();
   });
 }
 
@@ -323,19 +365,20 @@ async function fetchMedia(target: URL, request: Request, embedOrigin: string, go
   if (goat) headers.set("goat", goat);
 
   try {
-    const upstream = await fetchWithTimeout(target, {
+    const upstream = await fetchWithValidatedRedirects(target, isAllowedMediaUrl, {
       signal: request.signal,
       headers,
-      redirect: "follow",
       cache: "no-store",
       timeoutMs: PROXY_FETCH_TIMEOUT_MS,
-    });
-    if (upstream.ok || !shouldUseNodeTransport(target, upstream)) return upstream;
+    }, fetchWithTimeout);
+    const finalTarget = playlistBaseUrl(upstream, target);
+    if (upstream.ok || !shouldUseNodeTransport(finalTarget, upstream)) return upstream;
     await upstream.body?.cancel().catch(() => undefined);
-    if (shouldUseCurlTransport(target, upstream)) {
-      return fetchMediaWithCurlTransport(target, headers, request.signal);
+    if (shouldUseCurlTransport(finalTarget, upstream)) {
+      return fetchMediaWithCurlTransport(finalTarget, headers, request.signal);
     }
   } catch {
+    if (request.signal.aborted) throw new Error("media request aborted");
     if (shouldUseCurlTransport(target)) {
       return fetchMediaWithCurlTransport(target, headers, request.signal);
     }
@@ -345,6 +388,7 @@ async function fetchMedia(target: URL, request: Request, embedOrigin: string, go
   const upstream = await fetchMediaWithNodeTransport(target, headers, request.signal);
   if (!upstream.ok && shouldUseCurlTransport(target, upstream)) {
     await upstream.body?.cancel().catch(() => undefined);
+    if (request.signal.aborted) throw new Error("media request aborted");
     return fetchMediaWithCurlTransport(target, headers, request.signal);
   }
   return upstream;
@@ -388,6 +432,9 @@ async function proxyMedia(request: Request, includeBody: boolean) {
   try {
     upstream = await fetchMedia(target, request, refererOrigin, goat);
   } catch {
+    if (request.signal.aborted) {
+      return corsResponse(request, null, { status: 499 });
+    }
     return corsResponse(request, "upstream fetch failed", { status: 502 });
   }
 

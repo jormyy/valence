@@ -1,4 +1,4 @@
-type FetchInit = RequestInit & {
+export type FetchInit = RequestInit & {
   readonly next?: { readonly revalidate?: number };
   readonly timeoutMs?: number;
 };

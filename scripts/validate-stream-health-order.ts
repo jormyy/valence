@@ -188,6 +188,22 @@ async function main() {
       "http://127.0.0.1:3000",
       new URL("https://embedindia.st/embed/nba/date/game"),
     ),
+    /installMemoryStorage\("localStorage"\)/,
+    "opaque provider frames need isolated memory storage",
+  );
+  const isolatedShim = shim(
+    "http://player.localhost:3000",
+    new URL("https://embedindia.st/embed/nba/date/game"),
+    undefined,
+    "http://127.0.0.1:3000",
+  );
+  assert.match(isolatedShim, /var MESSAGE_ORIGIN="http:\/\/127\.0\.0\.1:3000"/);
+  assert.match(isolatedShim, /&a=http%3A%2F%2F127\.0\.0\.1%3A3000&u=/);
+  assert.match(
+    shim(
+      "http://127.0.0.1:3000",
+      new URL("https://embedindia.st/embed/nba/date/game"),
+    ),
     /if\(key==="embed"\) return Promise\.resolve\(\)/,
   );
   assert.match(

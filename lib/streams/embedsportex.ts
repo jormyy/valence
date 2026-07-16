@@ -3,6 +3,7 @@ import { STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
 import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
 import { buildGameMatcher, categoryFor } from "./match";
 import { AsyncTtlCache } from "../async-ttl-cache";
+import { fetchWithValidatedRedirects } from "../validated-redirect";
 
 // EmbedSportex serves one JSON keyed by sport; each match carries its embeds inline
 // (an `iframes` array), so no per-match detail call is needed. The project has
@@ -46,11 +47,12 @@ export type EsxResponse = Record<string, EsxMatch[]>;
 async function loadEmbedSportexListing(signal: AbortSignal): Promise<EsxResponse> {
   for (const url of URLS) {
     try {
-      const res = await fetchWithTimeout(url, {
+      const expected = new URL(url);
+      const res = await fetchWithValidatedRedirects(expected, (next) => next.origin === expected.origin, {
         signal,
         cache: "no-store",
         timeoutMs: STREAM_LIST_TIMEOUT_MS,
-      });
+      }, fetchWithTimeout);
       if (!res.ok) continue;
       return await res.json();
     } catch {

@@ -4,6 +4,7 @@ import { fetchWithTimeout } from "../upstream";
 import { isAllowedStreamUrl } from "./providers";
 import { mapLimit } from "../concurrency";
 import type { StreamProviderOptions } from "./types";
+import { fetchWithValidatedRedirects } from "../validated-redirect";
 
 const STREAM_HEALTH_TIMEOUT_MS = 2_500;
 const STREAM_HEALTH_CONCURRENCY = 8;
@@ -148,13 +149,17 @@ async function fetchStreamHealth(
     release = await acquireHealthSlot(options.signal);
     if (options.signal?.aborted) throw abortError();
     const fetcher = options.fetcher ?? fetchWithTimeout;
-    const res = await fetcher(target.href, {
-      cache: "no-store",
-      headers: browserHeaders(target),
-      redirect: "follow",
-      signal: options.signal,
-      timeoutMs: STREAM_HEALTH_TIMEOUT_MS,
-    });
+    const res = await fetchWithValidatedRedirects(
+      target,
+      options.allowEmbedUrl ?? isAllowedStreamUrl,
+      {
+        cache: "no-store",
+        headers: browserHeaders(target),
+        signal: options.signal,
+        timeoutMs: STREAM_HEALTH_TIMEOUT_MS,
+      },
+      fetcher,
+    );
     void res.body?.cancel().catch(() => undefined);
     if (options.signal?.aborted) return { health: "offline", cacheable: false };
     return { health: res.ok ? "online" : "offline", cacheable: true };

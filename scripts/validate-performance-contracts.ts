@@ -4,6 +4,7 @@ import { closeOnUpstreamFailure, shouldBufferMedia } from "../lib/media-body";
 import { readNdjson } from "../lib/ndjson";
 import { nextViableStream } from "../lib/stream-failover";
 import type { Stream } from "../lib/types";
+import { fetchWithValidatedRedirects } from "../lib/validated-redirect";
 
 function delay(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -66,6 +67,60 @@ async function validateCache() {
   await delay(0);
   assert.equal(onlyAborted, true, "final waiter should cancel shared upstream work");
   assert.equal(await cache.get("cancelled", async () => 10), 10, "abort must not poison the cache");
+
+  let snapshotLoads = 0;
+  const snapshots = new AsyncTtlCache<string, { complete: boolean; generation: number }>(
+    1_000,
+    2,
+    (snapshot) => snapshot.complete,
+  );
+  const loadSnapshot = async () => {
+    snapshotLoads += 1;
+    return { complete: snapshotLoads >= 2, generation: snapshotLoads };
+  };
+  assert.equal((await snapshots.get("today", loadSnapshot)).generation, 1);
+  assert.equal(
+    (await snapshots.get("today", loadSnapshot)).generation,
+    2,
+    "partial upstream snapshots must be retried instead of cached",
+  );
+  assert.equal((await snapshots.get("today", loadSnapshot)).generation, 2);
+}
+
+async function validateRedirects() {
+  const visited: string[] = [];
+  const allowed = (url: URL) => url.protocol === "https:" && url.hostname === "allowed.test";
+  const fetcher = async (input: string | URL | Request) => {
+    const url = new URL(String(input));
+    visited.push(url.href);
+    if (url.pathname === "/start") {
+      return new Response(null, { status: 302, headers: { location: "/final" } });
+    }
+    return new Response("ok", { status: 200 });
+  };
+  assert.equal(
+    await (await fetchWithValidatedRedirects(
+      "https://allowed.test/start",
+      allowed,
+      {},
+      fetcher,
+    )).text(),
+    "ok",
+  );
+  assert.deepEqual(visited, ["https://allowed.test/start", "https://allowed.test/final"]);
+
+  await assert.rejects(
+    fetchWithValidatedRedirects(
+      "https://allowed.test/start",
+      allowed,
+      {},
+      async () => new Response(null, {
+        status: 302,
+        headers: { location: "http://127.0.0.1/internal" },
+      }),
+    ),
+    /redirect host not allowed/,
+  );
 }
 
 async function validateMediaBodies() {
@@ -122,15 +177,27 @@ function validateFailover() {
     { label: "two", url: "https://two.test", quality: "HD", health: "offline" },
     { label: "three", url: "https://three.test", quality: "HD", health: "online" },
   ];
-  assert.equal(nextViableStream(streams, 0, new Set([0])), 2, "failover should skip a DOWN source");
-  assert.equal(nextViableStream(streams, 2, new Set([2])), 0, "failover should wrap deterministically");
-  assert.equal(nextViableStream(streams, 0, new Set([0, 2])), -1, "failover must stop when none remain");
+  assert.equal(nextViableStream(streams, 0, new Set([streams[0].url])), 2, "failover should skip a DOWN source");
+  assert.equal(nextViableStream(streams, 2, new Set([streams[2].url])), 0, "failover should wrap deterministically");
+  assert.equal(
+    nextViableStream(streams, 0, new Set([streams[0].url, streams[2].url])),
+    -1,
+    "failover must stop when none remain",
+  );
+
+  const reordered = [streams[2], streams[0], streams[1]];
+  assert.equal(
+    reordered.findIndex((stream) => stream.url === streams[0].url),
+    1,
+    "active source identity must survive health-based reordering",
+  );
 }
 
 async function main() {
   await validateCache();
   await validateMediaBodies();
   await validateNdjson();
+  await validateRedirects();
   validateFailover();
   console.log("performance contracts: ok");
 }

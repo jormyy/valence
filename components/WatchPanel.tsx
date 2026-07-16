@@ -31,22 +31,41 @@ function WatchPanel({
   allGames,
   onPick,
 }: Props) {
-  const [activeStream, setActiveStream] = useState(0);
-  const [failedStreams, setFailedStreams] = useState<Set<number>>(() => new Set());
+  const [activeUrl, setActiveUrl] = useState<string | null>(null);
+  const [failedStreams, setFailedStreams] = useState<Set<string>>(() => new Set());
   const [tab, setTab] = useState<"info" | "stats">("info");
   const [fullscreenFallback, setFullscreenFallback] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
+  const selectedIndex = activeUrl
+    ? streams.findIndex((stream) => stream.url === activeUrl)
+    : -1;
+  const selected = streams[selectedIndex];
+  const selectedIsViable = selected
+    && selected.health !== "offline"
+    && !failedStreams.has(selected.url);
+  const replacementIndex = selectedIsViable
+    ? selectedIndex
+    : nextViableStream(streams, selectedIndex, failedStreams);
+  const activeStream = replacementIndex !== -1
+    ? replacementIndex
+    : selectedIndex !== -1 ? selectedIndex : 0;
+  const effectiveActiveUrl = streams[activeStream]?.url ?? null;
+
   // Latest failover state, so the message listener can subscribe once instead of
-  // re-subscribing on every activeStream/failedStreams change.
-  const failoverRef = useRef({ streams, activeStream, failedStreams });
-  failoverRef.current = { streams, activeStream, failedStreams };
+  // re-subscribing on every stream-health update.
+  const failoverRef = useRef({ streams, activeUrl: effectiveActiveUrl, failedStreams });
+  failoverRef.current = { streams, activeUrl: effectiveActiveUrl, failedStreams };
 
   useEffect(() => {
-    setActiveStream(0);
+    setActiveUrl(null);
     setFailedStreams(new Set());
     setTab("info");
     setFullscreenFallback(false);
   }, [game.id]);
+
+  useEffect(() => {
+    if (activeUrl !== effectiveActiveUrl) setActiveUrl(effectiveActiveUrl);
+  }, [activeUrl, effectiveActiveUrl]);
 
   useEffect(() => {
     function syncNativeFullscreen() {
@@ -71,9 +90,12 @@ function WatchPanel({
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
-      const { streams, activeStream, failedStreams } = failoverRef.current;
+      const { streams, activeUrl, failedStreams } = failoverRef.current;
+      const activeStream = activeUrl
+        ? streams.findIndex((stream) => stream.url === activeUrl)
+        : -1;
       const current = streams[activeStream];
-      if (!current || current.health === "offline" || failedStreams.has(activeStream)) return;
+      if (!current || current.health === "offline" || failedStreams.has(current.url)) return;
 
       const data = event.data;
       if (
@@ -85,27 +107,17 @@ function WatchPanel({
         return;
       }
 
-      setFailedStreams((prev) => {
-        const failed = new Set(prev);
-        failed.add(activeStream);
-        return failed;
-      });
+      const failed = new Set(failedStreams);
+      failed.add(current.url);
+      setFailedStreams(failed);
 
-      const next = nextViableStream(streams, activeStream, failedStreams);
-      if (next !== -1) setActiveStream(next);
+      const next = nextViableStream(streams, activeStream, failed);
+      if (next !== -1) setActiveUrl(streams[next].url);
     }
 
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
   }, []);
-
-  useEffect(() => {
-    const current = streams[activeStream];
-    if (current && current.health !== "offline" && !failedStreams.has(activeStream)) return;
-
-    const next = nextViableStream(streams, activeStream, failedStreams);
-    if (next !== -1 && next !== activeStream) setActiveStream(next);
-  }, [activeStream, failedStreams, streams]);
 
   async function handleFullscreen() {
     const doc = document as Document & {
@@ -145,16 +157,18 @@ function WatchPanel({
   const lg = leagueById[game.league];
   const s = game.status;
   const sv = scoreView(game);
-  const streamHealthAt = (index: number) => failedStreams.has(index) ? "offline" : streams[index]?.health;
+  const streamHealthAt = (stream: Stream | undefined) => stream && failedStreams.has(stream.url)
+    ? "offline"
+    : stream?.health;
   const currentCandidate = streams[activeStream];
-  const currentHealth = currentCandidate ? streamHealthAt(activeStream) : undefined;
+  const currentHealth = streamHealthAt(currentCandidate);
   const current = currentCandidate && currentHealth !== "offline" ? currentCandidate : undefined;
-  const onlineStreams = streams.filter((_stream, index) => streamHealthAt(index) === "online").length;
-  const checkedStreams = streams.filter((_stream, index) => {
-    const health = streamHealthAt(index);
+  const onlineStreams = streams.filter((stream) => streamHealthAt(stream) === "online").length;
+  const checkedStreams = streams.filter((stream) => {
+    const health = streamHealthAt(stream);
     return health === "online" || health === "offline";
   }).length;
-  const playableStreams = streams.filter((_stream, index) => streamHealthAt(index) !== "offline").length;
+  const playableStreams = streams.filter((stream) => streamHealthAt(stream) !== "offline").length;
   const streamsText = checkedStreams > 0
     ? checkedStreams === streams.length
       ? `${onlineStreams}/${streams.length} working`
@@ -224,8 +238,8 @@ function WatchPanel({
           </span>
         )}
         {streams.map((st, i) => {
-          const health = streamHealthAt(i);
-          const title = failedStreams.has(i)
+          const health = streamHealthAt(st);
+          const title = failedStreams.has(st.url)
             ? "Stream failed during playback"
             : health === "online"
               ? "Stream checked OK"
@@ -234,17 +248,17 @@ function WatchPanel({
                 : undefined;
           return (
             <button
-              key={i}
+              key={st.url}
               className={`stream-tab ${i === activeStream ? "active" : ""} ${health ? `health-${health}` : ""}`}
               data-stream-index={i}
               onClick={() => {
                 setFailedStreams((failed) => {
-                  if (!failed.has(i)) return failed;
+                  if (!failed.has(st.url)) return failed;
                   const next = new Set(failed);
-                  next.delete(i);
+                  next.delete(st.url);
                   return next;
                 });
-                setActiveStream(i);
+                setActiveUrl(st.url);
               }}
               title={title}
             >

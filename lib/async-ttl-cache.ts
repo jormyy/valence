@@ -30,6 +30,7 @@ export class AsyncTtlCache<K, T> {
   constructor(
     private readonly ttlMs: number,
     private readonly maxEntries: number,
+    private readonly cacheable: (value: T) => boolean = () => true,
   ) {}
 
   async get(key: K, load: Loader<T>, signal?: AbortSignal): Promise<T> {
@@ -52,7 +53,7 @@ export class AsyncTtlCache<K, T> {
     let entry: PendingEntry<T>;
     const promise = load(controller.signal)
       .then((value) => {
-        if (!controller.signal.aborted) this.remember(key, value);
+        if (!controller.signal.aborted && this.cacheable(value)) this.remember(key, value);
         return value;
       })
       .finally(() => {
@@ -81,6 +82,12 @@ export class AsyncTtlCache<K, T> {
 
   private wait(entry: PendingEntry<T>, signal?: AbortSignal): Promise<T> {
     if (signal?.aborted) return Promise.reject(abortError());
+    // A fan-out can attach many cache waiters to one request signal. Listen on a
+    // derived signal where supported so Node does not treat valid concurrency as
+    // an EventTarget listener leak while preserving immediate abort propagation.
+    const waiterSignal = signal && typeof AbortSignal.any === "function"
+      ? AbortSignal.any([signal])
+      : signal;
     entry.waiters += 1;
 
     return new Promise((resolve, reject) => {
@@ -96,9 +103,9 @@ export class AsyncTtlCache<K, T> {
         reject(abortError());
       };
 
-      signal?.addEventListener("abort", abort, { once: true });
+      waiterSignal?.addEventListener("abort", abort, { once: true });
       entry.promise.then(resolve, reject).finally(() => {
-        signal?.removeEventListener("abort", abort);
+        waiterSignal?.removeEventListener("abort", abort);
         release();
       });
     });

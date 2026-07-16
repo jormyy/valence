@@ -1,9 +1,32 @@
 import { strict as assert } from "node:assert";
-import { readFile, stat } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 import { gzipSync } from "node:zlib";
 import vm from "node:vm";
 
 const manifestPath = ".next/server/app/page_client-reference-manifest.js";
+const manifestStat = await stat(manifestPath);
+
+async function sourceFiles(path) {
+  const entries = await readdir(path, { withFileTypes: true });
+  const nested = await Promise.all(entries.map(async (entry) => {
+    const child = `${path}/${entry.name}`;
+    if (entry.isDirectory()) return sourceFiles(child);
+    return /\.(?:css|js|mjs|ts|tsx)$/.test(entry.name) ? [child] : [];
+  }));
+  return nested.flat();
+}
+
+const inputs = [
+  ...(await Promise.all(["app", "components", "lib", "public"].map(sourceFiles))).flat(),
+  "package.json",
+  "package-lock.json",
+];
+const newerInputs = [];
+for (const input of inputs) {
+  if ((await stat(input)).mtimeMs > manifestStat.mtimeMs) newerInputs.push(input);
+}
+assert.deepEqual(newerInputs, [], `build is stale; rebuild after changing: ${newerInputs.join(", ")}`);
+
 const sandbox = { globalThis: {} };
 vm.runInNewContext(await readFile(manifestPath, "utf8"), sandbox);
 const manifest = sandbox.globalThis.__RSC_MANIFEST?.["/page"];
@@ -50,4 +73,5 @@ console.log(JSON.stringify({
   chunks,
   budgets,
   forbiddenServerTokens: "absent",
+  buildInputs: "fresh",
 }, null, 2));

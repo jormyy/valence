@@ -12,6 +12,7 @@ interface Props {
   liveCount: number;
   dateLoading?: boolean;
   lastUpdated?: Date | null;
+  schedulePartial?: boolean;
 }
 
 function TopBar({
@@ -21,6 +22,7 @@ function TopBar({
   liveCount,
   dateLoading,
   lastUpdated,
+  schedulePartial,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -73,6 +75,9 @@ function TopBar({
       </div>
 
       <div className="top-meta">
+        {schedulePartial && (
+          <span className="partial-label" role="status">Partial schedule · retrying</span>
+        )}
         {updatedStr && (
           <span className="updated-label">↻ {updatedStr}</span>
         )}
