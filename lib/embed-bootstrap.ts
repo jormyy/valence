@@ -48,53 +48,6 @@ function commonPlayerBootstrap(): string {
   }`;
 }
 
-function providerTokenBootstrap(): string {
-  return `
-  function providerToken(){
-    try{
-      var scripts=document.scripts || [];
-      for(var i=0;i<scripts.length;i++){
-        var match=String(scripts[i].textContent||"").match(/window\\['ZpQw9XkLmN8c3vR3'\\]\\s*=\\s*'([^']+)'/);
-        if(match) return match[1];
-      }
-    }catch(e){}
-    return "";
-  }
-  async function tryCandidate(candidate){
-    Promise.resolve(window.setStream(candidate)).catch(function(error){
-      window.__valenceResolverError=String(error||"");
-    });
-    for(var i=0;i<32 && !setupResolvedPlayer();i++){
-      await sleep(250);
-    }
-    if(playerConfigured()){
-      window.__valencePlayerConfigured=true;
-      return true;
-    }
-    return false;
-  }
-  async function start(){
-    if(window.__valencePlayerStarted) return;
-    if(!hasPlayer() || typeof window.setStream!=="function") return schedule();
-    window.__valencePlayerStarted=true;
-    try{
-      var candidates=[];
-      candidates.push(SOURCE+"/"+SLUG+"/"+CHANNEL);
-      candidates.push("/embed/"+SOURCE+"/"+SLUG+"/"+CHANNEL);
-      var token=providerToken();
-      if(token) candidates.push(token);
-      for(var i=0;i<candidates.length;i++){
-        if(await tryCandidate(candidates[i])) return;
-      }
-      throw new Error(window.__valenceResolverError || "no playable media resolved");
-    }catch(e){
-      window.__valenceResolverError=String(e||"");
-      window.__valencePlayerStarted=false;
-      if(attempts<80) schedule();
-    }
-  }`;
-}
-
 function wasmLockBootstrap(): string {
   return `
   async function start(){
@@ -135,17 +88,21 @@ function wasmGasmBootstrap(): string {
       if(typeof window.setStream!=="function"){
         throw new Error("stream resolver unavailable");
       }
-      var resolver=window.setStream(SOURCE+"/"+SLUG+"/"+CHANNEL).catch(function(error){
+      var providerResolverActive=window.__valenceResolverActive===true;
+      var resolver=providerResolverActive ? null : window.setStream(SOURCE+"/"+SLUG+"/"+CHANNEL).catch(function(error){
         window.__valenceResolverError=String(error||"");
       });
       for(var i=0;i<80 && !setupResolvedPlayer();i++){
         await sleep(250);
       }
-      if(!playerConfigured()) await resolver;
+      if(!playerConfigured() && resolver) await resolver;
       for(var j=0;j<20 && !setupResolvedPlayer();j++){
         await sleep(250);
       }
-      if(!playerConfigured()) throw new Error("no playable media resolved");
+      if(!playerConfigured()){
+        if(providerResolverActive) window.__valenceResolverActive=false;
+        throw new Error("no playable media resolved");
+      }
     }catch(e){
       window.__valenceResolverError=String(e||"");
       window.__valencePlayerStarted=false;
@@ -156,8 +113,6 @@ function wasmGasmBootstrap(): string {
 
 function strategyBootstrap(strategy: BootstrapStrategy): string {
   switch (strategy) {
-    case "provider-token":
-      return providerTokenBootstrap();
     case "wasm-lock":
       return wasmLockBootstrap();
     case "wasm-gasm":

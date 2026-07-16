@@ -1,13 +1,17 @@
 import type { Stream } from "../types";
 import { STREAM_DETAIL_TIMEOUT_MS, STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
 import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
-import { categoryFor, gameInText } from "./match";
+import { buildGameMatcher, categoryFor } from "./match";
+import { AsyncTtlCache } from "../async-ttl-cache";
+import { fetchWithValidatedRedirects } from "../validated-redirect";
 
 // ppv.land's public backend. The ppv.land front-end is mid-relaunch ("Coming Soon"),
 // but api.ppv.to is live: a listing groups events under named categories, and each
 // event's iframe comes from a per-id detail call (sources[].type === "iframe").
 // Its category names match the shared sport buckets (basketball/baseball/tennis).
 const BASE = "https://api.ppv.to/api";
+const listingCache = new AsyncTtlCache<string, PpvCategory[]>(60_000, 1);
+const sourceCache = new AsyncTtlCache<number, PpvSource[]>(60_000, 64);
 
 export interface PpvEvent {
   id: number;
@@ -38,19 +42,21 @@ interface PpvSource {
   data?: string;
 }
 
-export async function fetchPpvListing(options?: StreamProviderOptions): Promise<PpvCategory[]> {
-  try {
-    const res = await fetchWithTimeout(`${BASE}/streams`, {
-      signal: options?.signal,
-      next: { revalidate: 60 },
-      timeoutMs: STREAM_LIST_TIMEOUT_MS,
-    });
-    if (!res.ok) return [];
-    const json = await res.json();
-    return Array.isArray(json?.streams) ? json.streams : [];
-  } catch {
-    return [];
-  }
+export function fetchPpvListing(options?: StreamProviderOptions): Promise<PpvCategory[]> {
+  return listingCache.get("listing", async (signal) => {
+    try {
+      const res = await fetchWithValidatedRedirects(`${BASE}/streams`, (url) => url.href.startsWith(`${BASE}/`), {
+        signal,
+        cache: "no-store",
+        timeoutMs: STREAM_LIST_TIMEOUT_MS,
+      }, fetchWithTimeout);
+      if (!res.ok) return [];
+      const json = await res.json();
+      return Array.isArray(json?.streams) ? json.streams : [];
+    } catch {
+      return [];
+    }
+  }, options?.signal);
 }
 
 export function ppvCategoryKey(value: string): string {
@@ -78,29 +84,32 @@ export function ppvCategoryKey(value: string): string {
 
 function findEvent(listing: PpvCategory[], game: StreamLookup): PpvEvent | undefined {
   const want = categoryFor(game);
+  const matcher = buildGameMatcher(game);
   for (const cat of listing) {
     const category = ppvCategoryKey(cat.category ?? "");
     if (category !== want && !(want === "motor-sports" && category === "24-7-streams")) continue;
     for (const ev of cat.streams ?? []) {
-      if (gameInText(ev.name ?? "", game)) return ev;
+      if (matcher.test(ev.name ?? "")) return ev;
     }
   }
   return undefined;
 }
 
 async function fetchSources(id: number, options?: StreamProviderOptions): Promise<PpvSource[]> {
-  try {
-    const res = await fetchWithTimeout(`${BASE}/streams/${id}`, {
-      signal: options?.signal,
-      next: { revalidate: 60 },
-      timeoutMs: STREAM_DETAIL_TIMEOUT_MS,
-    });
-    if (!res.ok) return [];
-    const json = await res.json();
-    return Array.isArray(json?.data?.sources) ? json.data.sources : [];
-  } catch {
-    return [];
-  }
+  return sourceCache.get(id, async (signal) => {
+    try {
+      const res = await fetchWithValidatedRedirects(`${BASE}/streams/${id}`, (url) => url.href.startsWith(`${BASE}/`), {
+        signal,
+        cache: "no-store",
+        timeoutMs: STREAM_DETAIL_TIMEOUT_MS,
+      }, fetchWithTimeout);
+      if (!res.ok) return [];
+      const json = await res.json();
+      return Array.isArray(json?.data?.sources) ? json.data.sources : [];
+    } catch {
+      return [];
+    }
+  }, options?.signal);
 }
 
 function isAllowedIframe(raw: string | undefined): raw is string {
@@ -160,6 +169,10 @@ export const ppv: Provider = {
       out.push({ label: "", url: s.data, quality: "HD", language: "EN" });
     }
     return out;
+  },
+
+  async prefetch(options) {
+    await fetchPpvListing(options);
   },
 
   async getCounts(games, options) {

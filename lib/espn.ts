@@ -1,45 +1,35 @@
 import type {
   Game, League, Team,
   EspnCompetitor, EspnCompetition, EspnEvent,
-  EspnScoreboard, EspnTennisScoreboard, EspnSummary, EspnStatus,
+  EspnSummary, EspnStatus,
 } from "./types";
 import type { EspnParser } from "./registry";
 import { LEAGUES, LEAGUE_BY_ID, hasEspnSchedule } from "./registry";
 import { SCOREBOARD_TIMEOUT_MS, fetchWithTimeout } from "./upstream";
 import { makeGameId, parseGameId } from "./game-id";
 import { getSourceGames } from "./source-events";
+import { mapLimit } from "./concurrency";
+import { dateInPT, formatTimePT, normalizeDate } from "./datetime";
+import { teamFromName } from "./team";
+import { STATUS_ORDER } from "./game-status";
+import { AsyncTtlCache } from "./async-ttl-cache";
+import { fetchWithValidatedRedirects } from "./validated-redirect";
 
 interface FetchOptions {
   readonly signal?: AbortSignal;
+  readonly onProgress?: (snapshot: GamesSnapshot) => void;
 }
 
-export const PT_TZ = "America/Los_Angeles";
-
-export const STATUS_ORDER: Record<Game["status"], number> = { in: 0, pre: 1, post: 2 };
-
-export function formatTimePT(isoDate: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    timeZone: PT_TZ,
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  }).format(new Date(isoDate)) + " PT";
+export interface GamesSnapshot {
+  readonly games: Game[];
+  readonly complete: boolean;
+  readonly loadedAt: number;
 }
 
-export function todayInPT(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: PT_TZ }).format(new Date());
-}
+type LeagueGamesSnapshot = GamesSnapshot;
 
-// "20260521" → "2026-05-21"
-function formatDateStr(dateStr: string): string {
-  return `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
-}
-
-export function normalizeEspnDate(dateStr?: string): string | null {
-  if (!dateStr) return todayInPT();
-  if (/^\d{8}$/.test(dateStr)) return formatDateStr(dateStr);
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
-  return null;
+function leagueSnapshot(games: Game[], complete: boolean): LeagueGamesSnapshot {
+  return { games, complete, loadedAt: Date.now() };
 }
 
 export function normalizeEspnDateParam(dateStr: string | null | undefined): string | undefined {
@@ -49,18 +39,10 @@ export function normalizeEspnDateParam(dateStr: string | null | undefined): stri
   return undefined;
 }
 
-export function isTodayEspnDate(dateStr?: string): boolean {
-  return normalizeEspnDate(dateStr) === todayInPT();
-}
-
-function gameDateInPT(isoDate: string): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: PT_TZ }).format(new Date(isoDate));
-}
-
 function safeGameDateInPT(isoDate: unknown): string | null {
   if (typeof isoDate !== "string") return null;
   try {
-    return gameDateInPT(isoDate);
+    return dateInPT(isoDate);
   } catch {
     return null;
   }
@@ -75,27 +57,7 @@ function parseTeam(c: EspnCompetitor): Team {
   return {
     name: t.displayName,
     abbreviation: t.abbreviation,
-    logo: t.logo,
     score: c.score,
-  };
-}
-
-function abbreviationFor(name: string): string {
-  const words = name
-    .replace(/[^a-z0-9\s]/gi, " ")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
-  if (words.length === 0) return "EVT";
-  if (words.length === 1) return words[0].slice(0, 4).toUpperCase();
-  return words.slice(0, 4).map((word) => word[0]).join("").toUpperCase();
-}
-
-function teamFromName(name: string): Team {
-  return {
-    name,
-    abbreviation: abbreviationFor(name),
-    logo: "",
   };
 }
 
@@ -110,7 +72,6 @@ function parseTennisPlayer(c: EspnCompetitor): Team {
   return {
     name,
     abbreviation: abbr,
-    logo: a.headshot?.href ?? "",
     score: c.score,
   };
 }
@@ -191,7 +152,6 @@ function parseGame(event: EspnEvent, league: League): Game {
   return {
     id: makeGameId(league, event.id),
     league,
-    espnId: event.id,
     eventName: event.name,
     shortName: event.shortName,
     homeTeam: teams.homeTeam,
@@ -199,8 +159,6 @@ function parseGame(event: EspnEvent, league: League): Game {
     startTime: event.date,
     status: gameStatus,
     statusDisplay,
-    period: status.period?.toString(),
-    clock: status.displayClock,
   };
 }
 
@@ -247,74 +205,205 @@ function parseTeamEvents(data: unknown, league: League, targetDate: string): Gam
   return games;
 }
 
-export async function getGames(league: League, dateStr?: string, options?: FetchOptions): Promise<Game[]> {
+async function loadGamesForLeague(
+  league: League,
+  dateStr?: string,
+  options?: FetchOptions,
+): Promise<LeagueGamesSnapshot> {
   const leagueInfo = LEAGUE_BY_ID[league];
-  if (!hasEspnSchedule(leagueInfo)) return [];
+  if (!hasEspnSchedule(leagueInfo)) return leagueSnapshot([], true);
 
-  const targetDate = normalizeEspnDate(dateStr);
-  if (!targetDate) return [];
+  const targetDate = normalizeDate(dateStr);
+  if (!targetDate) return leagueSnapshot([], true);
 
   const config = leagueInfo.espn;
-  const dateParam = normalizeEspnDateParam(dateStr ?? targetDate);
-  const query = dateParam ? `?dates=${dateParam}` : "";
+  const query = `?dates=${targetDate.replaceAll("-", "")}`;
   let res: Response;
   try {
-    res = await fetchWithTimeout(
+    res = await fetchWithValidatedRedirects(
       `https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.path}/scoreboard${query}`,
-      { signal: options?.signal, next: { revalidate: 60 }, timeoutMs: SCOREBOARD_TIMEOUT_MS }
+      (url) => url.protocol === "https:" && url.hostname === "site.api.espn.com",
+      { signal: options?.signal, cache: "no-store", timeoutMs: SCOREBOARD_TIMEOUT_MS },
+      fetchWithTimeout,
     );
   } catch {
-    return [];
+    return leagueSnapshot([], false);
   }
-  if (!res.ok) return [];
+  if (!res.ok) return leagueSnapshot([], false);
 
   let data: unknown;
   try {
     data = await res.json();
   } catch {
-    return [];
+    return leagueSnapshot([], false);
   }
   const parser: EspnParser = config.parser;
 
   switch (parser) {
     case "team":
-      return parseTeamEvents(data, league, targetDate);
+      return leagueSnapshot(parseTeamEvents(data, league, targetDate), true);
     case "tennis":
-      return flattenTennisEvents(data, league, targetDate);
+      return leagueSnapshot(flattenTennisEvents(data, league, targetDate), true);
     case "event":
-      return parseTeamEvents(data, league, targetDate);
+      return leagueSnapshot(parseTeamEvents(data, league, targetDate), true);
   }
   return unreachableParser(parser);
 }
 
-// Cap concurrent ESPN scoreboard fetches — the registry now spans hundreds of
-// leagues, and firing them all at once risks rate limiting and slow first loads.
-const SCOREBOARD_CONCURRENCY = 16;
-
-async function mapLimit<T, R>(items: readonly T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
-  const results = new Array<R>(items.length);
-  let next = 0;
-  async function worker() {
-    while (true) {
-      const i = next++;
-      if (i >= items.length) return;
-      results[i] = await fn(items[i]);
-    }
-  }
-  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
-  return results;
+export async function getGames(league: League, dateStr?: string, options?: FetchOptions): Promise<Game[]> {
+  return (await loadGamesForLeague(league, dateStr, options)).games;
 }
 
-export async function getAllGames(dateStr?: string, options?: FetchOptions): Promise<Game[]> {
-  const [espnResults, sourceGames] = await Promise.all([
-    mapLimit(LEAGUES, SCOREBOARD_CONCURRENCY, (l) => getGames(l.id, dateStr, options)),
-    getSourceGames(dateStr, options),
-  ]);
-  return [...espnResults.flat(), ...sourceGames].sort((a, b) => {
+// Cap concurrent ESPN scoreboard fetches — the registry now spans hundreds of
+// leagues, and firing them all at once risks rate limiting and slow first loads.
+// NOTE: this fans out one request per scheduled league (~hundreds). It's amortized
+// by the bounded 60s aggregate cache below; gating leagues blindly would silently
+// drop in-season games because the registry does not carry season metadata.
+const SCOREBOARD_CONCURRENCY = 16;
+const PROGRESS_BATCH_GAMES = 32;
+const GAMES_CACHE_MS = 60_000;
+const GAMES_CACHE_DATES = 3;
+const LEAGUE_CACHE_ENTRIES = 1_200;
+
+// Only leagues with an ESPN schedule produce scoreboard fetches; channel-only leagues
+// return nothing, so keep them out of the fan-out entirely.
+const ESPN_LEAGUES = LEAGUES.filter((league) => "espn" in league);
+const leagueGamesCache = new AsyncTtlCache<string, LeagueGamesSnapshot>(
+  GAMES_CACHE_MS,
+  LEAGUE_CACHE_ENTRIES,
+  (snapshot) => snapshot.complete,
+  (snapshot, now) => GAMES_CACHE_MS - (now - snapshot.loadedAt),
+);
+const gamesCache = new AsyncTtlCache<string, GamesSnapshot>(
+  GAMES_CACHE_MS,
+  GAMES_CACHE_DATES,
+  (snapshot) => snapshot.complete,
+  (snapshot, now) => GAMES_CACHE_MS - (now - snapshot.loadedAt),
+);
+const summaryCache = new AsyncTtlCache<string, EspnSummary | null>(30_000, 64);
+
+interface ProgressChannel {
+  readonly listeners: Map<symbol, (snapshot: GamesSnapshot) => void>;
+  users: number;
+  latest?: GamesSnapshot;
+}
+
+const progressChannels = new Map<string, ProgressChannel>();
+
+function publishProgress(channel: ProgressChannel, snapshot: GamesSnapshot) {
+  channel.latest = snapshot;
+  for (const listener of channel.listeners.values()) {
+    try {
+      listener(snapshot);
+    } catch {
+      // One disconnected response must not stop shared schedule work or other callers.
+    }
+  }
+}
+
+function sortGames(games: Game[]): Game[] {
+  return games.sort((a, b) => {
     const diff = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
     if (diff !== 0) return diff;
     return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
   });
+}
+
+async function loadAllGames(
+  dateStr: string,
+  signal: AbortSignal,
+  onProgress?: (snapshot: GamesSnapshot) => void,
+): Promise<GamesSnapshot> {
+  const espnResults = new Array<LeagueGamesSnapshot | undefined>(ESPN_LEAGUES.length);
+  const settled = new Array<boolean>(ESPN_LEAGUES.length).fill(false);
+  const progressiveGames: Game[] = [];
+  let settledPrefix = -1;
+  let emittedGames = 0;
+
+  const [loadedResults, sourceGames] = await Promise.all([
+    mapLimit(
+      ESPN_LEAGUES,
+      SCOREBOARD_CONCURRENCY,
+      async (league, index) => {
+        const result = await leagueGamesCache.get(
+          `${dateStr}:${league.id}`,
+          (leagueSignal) => loadGamesForLeague(league.id, dateStr, { signal: leagueSignal }),
+          signal,
+        );
+        espnResults[index] = result;
+        settled[index] = true;
+        while (settled[settledPrefix + 1]) {
+          settledPrefix += 1;
+          progressiveGames.push(...(espnResults[settledPrefix]?.games ?? []));
+          if (
+            onProgress
+            && progressiveGames.length > emittedGames
+            && (
+              emittedGames === 0
+              || progressiveGames.length - emittedGames >= PROGRESS_BATCH_GAMES
+            )
+          ) {
+            emittedGames = progressiveGames.length;
+            const loadedAt = Math.min(
+              ...espnResults.slice(0, settledPrefix + 1).map((result) => result?.loadedAt ?? Date.now()),
+            );
+            onProgress({ games: sortGames([...progressiveGames]), complete: false, loadedAt });
+          }
+        }
+        return result;
+      },
+      signal,
+    ),
+    getSourceGames(dateStr, { signal }),
+  ]);
+  const games = sortGames([...loadedResults.flatMap((result) => result.games), ...sourceGames]);
+  return {
+    games,
+    complete: loadedResults.every((result) => result.complete),
+    loadedAt: Math.min(...loadedResults.map((result) => result.loadedAt)),
+  };
+}
+
+export async function getAllGamesSnapshot(
+  dateStr?: string,
+  options?: FetchOptions,
+): Promise<GamesSnapshot> {
+  const targetDate = normalizeDate(dateStr);
+  if (!targetDate) return { games: [], complete: true, loadedAt: Date.now() };
+  let channel = progressChannels.get(targetDate);
+  if (!channel) {
+    channel = { listeners: new Map(), users: 0 };
+    progressChannels.set(targetDate, channel);
+  }
+  channel.users += 1;
+  const listenerId = Symbol(targetDate);
+  if (options?.onProgress) {
+    channel.listeners.set(listenerId, options.onProgress);
+    if (channel.latest) options.onProgress(channel.latest);
+  }
+
+  try {
+    return await gamesCache.get(
+      targetDate,
+      (signal) => loadAllGames(
+        targetDate,
+        signal,
+        (snapshot) => publishProgress(channel, snapshot),
+      ),
+      options?.signal,
+    );
+  } finally {
+    channel.listeners.delete(listenerId);
+    channel.users -= 1;
+    if (channel.users === 0 && progressChannels.get(targetDate) === channel) {
+      progressChannels.delete(targetDate);
+    }
+  }
+}
+
+export async function getAllGames(dateStr?: string, options?: FetchOptions): Promise<Game[]> {
+  const snapshot = await getAllGamesSnapshot(dateStr, options);
+  return snapshot.games;
 }
 
 export async function getEspnSummary(gameId: string, options?: FetchOptions): Promise<EspnSummary | null> {
@@ -325,19 +414,23 @@ export async function getEspnSummary(gameId: string, options?: FetchOptions): Pr
   if (!hasEspnSchedule(leagueInfo)) return null;
   const config = leagueInfo.espn;
 
-  let res: Response;
-  try {
-    res = await fetchWithTimeout(
-      `https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.path}/summary?event=${espnId}`,
-      { signal: options?.signal, next: { revalidate: 30 }, timeoutMs: SCOREBOARD_TIMEOUT_MS }
-    );
-  } catch {
-    return null;
-  }
-  if (!res.ok) return null;
-  try {
-    return await res.json();
-  } catch {
-    return null;
-  }
+  return summaryCache.get(gameId, async (signal) => {
+    let res: Response;
+    try {
+      res = await fetchWithValidatedRedirects(
+        `https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.path}/summary?event=${espnId}`,
+        (url) => url.protocol === "https:" && url.hostname === "site.api.espn.com",
+        { signal, cache: "no-store", timeoutMs: SCOREBOARD_TIMEOUT_MS },
+        fetchWithTimeout,
+      );
+    } catch {
+      return null;
+    }
+    if (!res.ok) return null;
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  }, options?.signal);
 }

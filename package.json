@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "validate:streams": "tsx scripts/validate-stream-health-order.ts"
+    "validate:streams": "tsx scripts/validate-stream-health-order.ts",
+    "validate:performance": "tsx scripts/validate-performance-contracts.ts",
+    "validate:budgets": "node scripts/validate-build-budgets.mjs"
   },
   "dependencies": {
     "next": "^16.2.1",

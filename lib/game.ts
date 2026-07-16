@@ -2,8 +2,6 @@ import type { Game } from "./types";
 
 export interface ScoreView {
   show: boolean;
-  away: number;
-  home: number;
   awayWin: boolean;
   homeWin: boolean;
 }
@@ -16,8 +14,6 @@ export function scoreView(game: Game): ScoreView {
   const home = parseInt(game.homeTeam.score ?? "0");
   return {
     show,
-    away,
-    home,
     awayWin: show && away > home,
     homeWin: show && home > away,
   };

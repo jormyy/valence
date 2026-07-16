@@ -1,5 +1,5 @@
 import type { Game, GameWithStreams, Stream } from "../types";
-import { normalizeEspnDate, todayInPT } from "../espn";
+import { normalizeDate, todayInPT, dayNumber } from "../datetime";
 import type { StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
 import { PROVIDERS } from "./providers";
 import { rankStreamsByHealth } from "./health";
@@ -13,7 +13,17 @@ async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   }
 }
 
-export async function getStreams(game: StreamLookup, options?: StreamProviderOptions): Promise<Stream[]> {
+function labelStreams(streams: readonly Stream[]): Stream[] {
+  return streams.map((stream, index) => ({
+    ...stream,
+    label: `${stream.quality} ${index + 1}`,
+  }));
+}
+
+export async function discoverStreams(
+  game: StreamLookup,
+  options?: StreamProviderOptions,
+): Promise<Stream[]> {
   const groups = await Promise.all(
     PROVIDERS.map((p) => safe(() => p.getStreams(game, options), [])),
   );
@@ -22,19 +32,28 @@ export async function getStreams(game: StreamLookup, options?: StreamProviderOpt
   // globally so every sport/provider gets reachable sources before dead mirrors.
   const out: Stream[] = [];
   const seen = new Set<string>();
-  for (const group of groups) {
+  for (let providerIndex = 0; providerIndex < groups.length; providerIndex += 1) {
+    const group = groups[providerIndex];
+    const provider = PROVIDERS[providerIndex];
     for (const s of group) {
       if (!s.url || seen.has(s.url)) continue;
       seen.add(s.url);
-      out.push(s);
+      out.push({ ...s, provider: provider.name });
     }
   }
 
-  const ranked = await rankStreamsByHealth(out, options);
-  return ranked.map((stream, index) => ({
-    ...stream,
-    label: `${stream.quality} ${index + 1}`,
-  }));
+  return labelStreams(out);
+}
+
+export async function rankDiscoveredStreams(
+  streams: readonly Stream[],
+  options?: StreamProviderOptions,
+): Promise<Stream[]> {
+  return labelStreams(await rankStreamsByHealth([...streams], options));
+}
+
+export async function getStreams(game: StreamLookup, options?: StreamProviderOptions): Promise<Stream[]> {
+  return rankDiscoveredStreams(await discoverStreams(game, options), options);
 }
 
 // Summed availability across providers — a rough "how many sources" badge for the feed.
@@ -43,6 +62,11 @@ function zeroCounts(games: readonly StreamLookup[]): StreamCountMap {
   return new Map(games.map((g) => [g.id, 0]));
 }
 
+// Shared read-only fallback for a failed provider — the merge below starts from a
+// zero baseline and defaults missing ids to 0, so a failed provider contributes
+// nothing. Avoids allocating a full zeroCounts map per provider on every call.
+const EMPTY_COUNTS: StreamCountMap = new Map();
+
 export async function getStreamCounts(
   games: readonly StreamLookup[],
   options?: StreamProviderOptions,
@@ -50,28 +74,32 @@ export async function getStreamCounts(
   if (games.length === 0) return zeroCounts(games);
 
   const providerCounts = await Promise.all(
-    PROVIDERS.map((p) => safe(() => p.getCounts(games, options), zeroCounts(games))),
+    PROVIDERS.map((p) => safe(() => p.getCounts(games, options), EMPTY_COUNTS)),
   );
   const totals = zeroCounts(games);
   for (const counts of providerCounts) {
-    for (const game of games) {
-      totals.set(game.id, (totals.get(game.id) ?? 0) + (counts.get(game.id) ?? 0));
+    for (const [id, n] of counts) {
+      totals.set(id, (totals.get(id) ?? 0) + n);
     }
   }
   return totals;
 }
 
-function dayNumber(date: string): number {
-  const [year, month, day] = date.split("-").map(Number);
-  return Date.UTC(year, month - 1, day) / 86_400_000;
-}
-
 // The UI only exposes yesterday/today/tomorrow. The providers often list nearby
 // upcoming events too, but not arbitrary historical schedules.
 function shouldFetchStreamCounts(dateStr?: string): boolean {
-  const normalized = normalizeEspnDate(dateStr);
+  const normalized = normalizeDate(dateStr);
   if (!normalized) return false;
   return Math.abs(dayNumber(normalized) - dayNumber(todayInPT())) <= 1;
+}
+
+// Kick off providers' game-independent listing fetches so they overlap with the ESPN
+// scoreboard fan-out instead of running after it. Gated by the same window as
+// attachStreamCounts so we never warm a cache the counts pass won't use. Purely
+// additive: the counts themselves are still computed in attachStreamCounts.
+export function prefetchStreamCounts(dateStr?: string, options?: StreamProviderOptions): Promise<unknown> {
+  if (!shouldFetchStreamCounts(dateStr)) return Promise.resolve();
+  return Promise.all(PROVIDERS.map((p) => p.prefetch?.(options)?.catch(() => undefined)));
 }
 
 export async function attachStreamCounts(

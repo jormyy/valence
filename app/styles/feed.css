@@ -101,6 +101,17 @@
 .game-area::-webkit-scrollbar { width: 8px; }
 .game-area::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 4px; }
 
+.schedule-loading { padding: 28px; }
+.schedule-loading-title { color: var(--fg-2); margin-bottom: 16px; font-weight: 600; }
+.schedule-skeleton { display: grid; gap: 10px; max-width: 760px; }
+.schedule-skeleton span {
+  display: block;
+  height: 54px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, var(--bg-1), var(--bg-2), var(--bg-1));
+}
+
 .league-section { margin-bottom: 18px; }
 .league-header {
   display: flex; align-items: center; gap: 10px;

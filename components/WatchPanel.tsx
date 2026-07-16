@@ -1,36 +1,71 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import type { GameWithStreams, Stream } from "@/lib/types";
-import { LEAGUE_BY_ID, teamColor } from "@/lib/metadata";
-import { formatTimePT } from "@/lib/espn";
+import type { LeagueDisplayMap } from "@/lib/registry";
+import { teamColor } from "@/lib/colors";
+import { formatTimePT } from "@/lib/datetime";
 import { scoreView } from "@/lib/game";
 import { CloseIcon, FullscreenIcon, PlayIcon } from "@/components/icons";
 import StatsPanel from "@/components/StatsPanel";
 import RelatedGames from "@/components/RelatedGames";
 import ShieldedPlayer from "@/components/ShieldedPlayer";
+import { nextViableStream } from "@/lib/stream-failover";
 
 interface Props {
   game: GameWithStreams;
   streams: Stream[];
+  streamsLoading: boolean;
+  leagueById: LeagueDisplayMap;
   onClose: () => void;
   allGames: GameWithStreams[];
   onPick: (id: string) => void;
 }
 
-export default function WatchPanel({ game, streams, onClose, allGames, onPick }: Props) {
-  const [activeStream, setActiveStream] = useState(0);
-  const [failedStreams, setFailedStreams] = useState<Set<number>>(() => new Set());
+function WatchPanel({
+  game,
+  streams,
+  streamsLoading,
+  leagueById,
+  onClose,
+  allGames,
+  onPick,
+}: Props) {
+  const [activeUrl, setActiveUrl] = useState<string | null>(null);
+  const [failedStreams, setFailedStreams] = useState<Set<string>>(() => new Set());
   const [tab, setTab] = useState<"info" | "stats">("info");
   const [fullscreenFallback, setFullscreenFallback] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
+  const selectedIndex = activeUrl
+    ? streams.findIndex((stream) => stream.url === activeUrl)
+    : -1;
+  const selected = streams[selectedIndex];
+  const selectedIsViable = selected
+    && selected.health !== "offline"
+    && !failedStreams.has(selected.url);
+  const replacementIndex = selectedIsViable
+    ? selectedIndex
+    : nextViableStream(streams, selectedIndex, failedStreams);
+  const activeStream = replacementIndex !== -1
+    ? replacementIndex
+    : selectedIndex !== -1 ? selectedIndex : 0;
+  const effectiveActiveUrl = streams[activeStream]?.url ?? null;
+
+  // Latest failover state, so the message listener can subscribe once instead of
+  // re-subscribing on every stream-health update.
+  const failoverRef = useRef({ streams, activeUrl: effectiveActiveUrl, failedStreams });
+  failoverRef.current = { streams, activeUrl: effectiveActiveUrl, failedStreams };
 
   useEffect(() => {
-    setActiveStream(0);
+    setActiveUrl(null);
     setFailedStreams(new Set());
     setTab("info");
     setFullscreenFallback(false);
   }, [game.id]);
+
+  useEffect(() => {
+    if (activeUrl !== effectiveActiveUrl) setActiveUrl(effectiveActiveUrl);
+  }, [activeUrl, effectiveActiveUrl]);
 
   useEffect(() => {
     function syncNativeFullscreen() {
@@ -54,10 +89,14 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
   }, [fullscreenFallback]);
 
   useEffect(() => {
-    const current = streams[activeStream];
-    if (!current || current.health === "offline" || failedStreams.has(activeStream)) return;
-
     function onMessage(event: MessageEvent) {
+      const { streams, activeUrl, failedStreams } = failoverRef.current;
+      const activeStream = activeUrl
+        ? streams.findIndex((stream) => stream.url === activeUrl)
+        : -1;
+      const current = streams[activeStream];
+      if (!current || current.health === "offline" || failedStreams.has(current.url)) return;
+
       const data = event.data;
       if (
         !data ||
@@ -69,31 +108,16 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
       }
 
       const failed = new Set(failedStreams);
-      failed.add(activeStream);
+      failed.add(current.url);
       setFailedStreams(failed);
 
-      if (streams.length < 2) return;
-      for (let offset = 1; offset < streams.length; offset += 1) {
-        const next = (activeStream + offset) % streams.length;
-        if (failed.has(next) || streams[next]?.health === "offline") continue;
-        setActiveStream(next);
-        return;
-      }
+      const next = nextViableStream(streams, activeStream, failed);
+      if (next !== -1) setActiveUrl(streams[next].url);
     }
 
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [activeStream, failedStreams, streams]);
-
-  useEffect(() => {
-    const current = streams[activeStream];
-    if (current && current.health !== "offline" && !failedStreams.has(activeStream)) return;
-
-    const next = streams.findIndex((_stream, index) =>
-      streams[index]?.health !== "offline" && !failedStreams.has(index)
-    );
-    if (next !== -1 && next !== activeStream) setActiveStream(next);
-  }, [activeStream, failedStreams, streams]);
+  }, []);
 
   async function handleFullscreen() {
     const doc = document as Document & {
@@ -130,19 +154,21 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
     setFullscreenFallback(true);
   }
 
-  const lg = LEAGUE_BY_ID[game.league];
+  const lg = leagueById[game.league];
   const s = game.status;
   const sv = scoreView(game);
-  const streamHealthAt = (index: number) => failedStreams.has(index) ? "offline" : streams[index]?.health;
+  const streamHealthAt = (stream: Stream | undefined) => stream && failedStreams.has(stream.url)
+    ? "offline"
+    : stream?.health;
   const currentCandidate = streams[activeStream];
-  const currentHealth = currentCandidate ? streamHealthAt(activeStream) : undefined;
+  const currentHealth = streamHealthAt(currentCandidate);
   const current = currentCandidate && currentHealth !== "offline" ? currentCandidate : undefined;
-  const onlineStreams = streams.filter((_stream, index) => streamHealthAt(index) === "online").length;
-  const checkedStreams = streams.filter((_stream, index) => {
-    const health = streamHealthAt(index);
+  const onlineStreams = streams.filter((stream) => streamHealthAt(stream) === "online").length;
+  const checkedStreams = streams.filter((stream) => {
+    const health = streamHealthAt(stream);
     return health === "online" || health === "offline";
   }).length;
-  const playableStreams = streams.filter((_stream, index) => streamHealthAt(index) !== "offline").length;
+  const playableStreams = streams.filter((stream) => streamHealthAt(stream) !== "offline").length;
   const streamsText = checkedStreams > 0
     ? checkedStreams === streams.length
       ? `${onlineStreams}/${streams.length} working`
@@ -152,7 +178,7 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
   return (
     <aside className="watch">
       <div className="watch-header">
-        <span className="league-tag">{lg.short}</span>
+        <span className="league-tag">{lg?.short ?? game.league}</span>
         <span className="watch-matchup">
           {game.awayTeam.abbreviation} <span className="dim">@</span> {game.homeTeam.abbreviation}
         </span>
@@ -168,21 +194,18 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
       </div>
 
       <div ref={playerRef} className={`player ${fullscreenFallback ? "fullscreen-fallback" : ""}`}>
-        {current ? (
-          <ShieldedPlayer url={current.url} />
-        ) : (
-          <div className="player-empty">
-            {playableStreams > 0 && <div className="player-play"><PlayIcon /></div>}
-            <div className="player-placeholder">
-              <span className="big">{game.awayTeam.name} <span className="dim">vs</span> {game.homeTeam.name}</span>
-              {streams.length > 0
-                ? playableStreams > 0 ? "stream embed" : "all streams down"
-                : s === "post"
-                  ? "game finished — no stream"
-                  : "no stream available yet"}
-            </div>
+        <div className="player-empty" aria-hidden={current ? true : undefined}>
+          {playableStreams > 0 && <div className="player-play"><PlayIcon /></div>}
+          <div className="player-placeholder">
+            <span className="big">{game.awayTeam.name} <span className="dim">vs</span> {game.homeTeam.name}</span>
+            {streams.length > 0
+              ? playableStreams > 0 ? "stream embed" : "all streams down"
+              : s === "post"
+                ? "game finished — no stream"
+                : "no stream available yet"}
           </div>
-        )}
+        </div>
+        {current && <ShieldedPlayer url={current.url} />}
         <div className="player-controls">
           {s === "in" && <span className="live-marker"><span className="live-dot" /> LIVE</span>}
           {s === "pre" && <span>STARTS {formatTimePT(game.startTime)}</span>}
@@ -205,44 +228,48 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
         </div>
       </div>
 
-      {streams.length > 1 && (
-        <div className="stream-tabs">
-          {streams.map((st, i) => {
-            const health = streamHealthAt(i);
-            const title = failedStreams.has(i)
-              ? "Stream failed during playback"
-              : health === "online"
-                ? "Stream checked OK"
-                : health === "offline"
-                  ? "Stream check failed"
-                  : undefined;
-            return (
-              <button
-                key={i}
-                className={`stream-tab ${i === activeStream ? "active" : ""} ${health ? `health-${health}` : ""}`}
-                onClick={() => {
-                  setFailedStreams((failed) => {
-                    if (!failed.has(i)) return failed;
-                    const next = new Set(failed);
-                    next.delete(i);
-                    return next;
-                  });
-                  setActiveStream(i);
-                }}
-                title={title}
-              >
-                {st.label} <span className="q">{st.quality}</span>
-                {st.language && <span className="q">· {st.language}</span>}
-                {health && (
-                  <span className="stream-health">
-                    {health === "online" ? "OK" : "DOWN"}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      <div className="stream-tabs">
+        {streams.length === 0 && (
+          <span className="stream-status">
+            {streamsLoading ? "Checking sources…" : "No sources"}
+          </span>
+        )}
+        {streams.map((st, i) => {
+          const health = streamHealthAt(st);
+          const title = failedStreams.has(st.url)
+            ? "Stream failed during playback"
+            : health === "online"
+              ? "Stream checked OK"
+              : health === "offline"
+                ? "Stream check failed"
+                : undefined;
+          return (
+            <button
+              key={st.url}
+              className={`stream-tab ${i === activeStream ? "active" : ""} ${health ? `health-${health}` : ""}`}
+              data-stream-index={i}
+              onClick={() => {
+                setFailedStreams((failed) => {
+                  if (!failed.has(st.url)) return failed;
+                  const next = new Set(failed);
+                  next.delete(st.url);
+                  return next;
+                });
+                setActiveUrl(st.url);
+              }}
+              title={title}
+            >
+              {st.label} <span className="q">{st.quality}</span>
+              {st.language && <span className="q">· {st.language}</span>}
+              {health && (
+                <span className="stream-health">
+                  {health === "online" ? "OK" : "DOWN"}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
       <div className="scorebox">
         <div className="matchup-grid">
@@ -279,11 +306,11 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
       <div className="watch-info">
         {tab === "info" && (
           <>
-            <div className="info-row"><span className="lbl">League</span><span className="val">{lg.label}</span></div>
+            <div className="info-row"><span className="lbl">League</span><span className="val">{lg?.label ?? game.league}</span></div>
             <div className="info-row"><span className="lbl">Start</span><span className="val">{formatTimePT(game.startTime)}</span></div>
             <div className="info-row"><span className="lbl">Status</span><span className="val">{game.statusDisplay}</span></div>
             <div className="info-row"><span className="lbl">Streams</span><span className="val">{streamsText}</span></div>
-            <RelatedGames current={game} allGames={allGames} onPick={onPick} />
+            <RelatedGames current={game} allGames={allGames} onPick={onPick} leagueById={leagueById} />
           </>
         )}
         {tab === "stats" && <StatsPanel gameId={game.id} status={s} />}
@@ -291,3 +318,5 @@ export default function WatchPanel({ game, streams, onClose, allGames, onPick }:
     </aside>
   );
 }
+
+export default memo(WatchPanel);

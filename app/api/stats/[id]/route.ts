@@ -7,7 +7,15 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const summary = await getEspnSummary(id, { signal: request.signal });
+  let summary: Awaited<ReturnType<typeof getEspnSummary>>;
+  try {
+    summary = await getEspnSummary(id, { signal: request.signal });
+  } catch (error) {
+    if (request.signal.aborted || (error instanceof Error && error.name === "AbortError")) {
+      return new Response(null, { status: 499 });
+    }
+    throw error;
+  }
 
   if (!summary) return NextResponse.json({ leaders: [] });
 

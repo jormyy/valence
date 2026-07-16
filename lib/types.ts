@@ -5,14 +5,12 @@ export type { League } from "./registry";
 export interface Team {
   name: string;
   abbreviation: string;
-  logo: string;
   score?: string;
 }
 
 export interface Game {
   id: string;
   league: League;
-  espnId: string;
   eventName?: string;
   shortName?: string;
   homeTeam: Team;
@@ -20,8 +18,6 @@ export interface Game {
   startTime: string;
   status: "pre" | "in" | "post";
   statusDisplay: string;
-  period?: string;
-  clock?: string;
 }
 
 export interface GameWithStreams extends Game {
@@ -36,6 +32,7 @@ export interface Stream {
   quality: "HD" | "SD" | "4K";
   language?: string;
   health?: StreamHealth;
+  provider?: string;
 }
 
 export interface StatLeader {
@@ -94,22 +91,6 @@ export interface EspnEvent {
   date: string;
   status: EspnStatus;
   competitions: EspnCompetition[];
-}
-
-export interface EspnTennisGrouping {
-  competitions?: EspnCompetition[];
-}
-
-export interface EspnTennisTournament {
-  groupings?: EspnTennisGrouping[];
-}
-
-export interface EspnScoreboard {
-  events?: EspnEvent[];
-}
-
-export interface EspnTennisScoreboard {
-  events?: EspnTennisTournament[];
 }
 
 export interface EspnLeader {

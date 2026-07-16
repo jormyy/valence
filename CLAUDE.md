@@ -10,6 +10,21 @@ npm run build  # production build
 npm run start  # serve production build
 ```
 
+### Player origin
+
+Provider documents must run on a dedicated origin so their retained-origin iframe
+can use storage/native HLS without sharing the app's DOM or storage. Local development
+uses `player.localhost` automatically. Production must provision a second hostname to
+the same deployment and configure the pair explicitly:
+
+```bash
+VALENCE_APP_ORIGIN=https://valence.example
+VALENCE_PLAYER_ORIGIN=https://player.valence.example
+```
+
+Both values are required and must be different origins. Playback fails closed with a
+503 if either is missing or the request does not match `VALENCE_APP_ORIGIN`.
+
 ## Architecture
 
 **Valence** is a sports stream aggregator for NBA, NCAAB, MLB, ATP, and WTA. It shows live and upcoming games and lets users watch embedded streams.
@@ -32,6 +47,9 @@ npm run start  # serve production build
 - `GET /api/games?date=YYYYMMDD` — returns all games with stream counts
 - `POST /api/streams` — returns streams for a selected game lookup payload
 - `GET /api/stats/{gameId}` — returns stat leaders for a specific game
+- `GET /api/player-frame?u={streamUrl}` — redirects players to the isolated origin
+- `GET|POST /api/embed?u={streamUrl}` — rewrites allowlisted provider documents
+- `GET /api/media?u={mediaUrl}` — proxies allowlisted playlists and media
 
 ### Key files
 

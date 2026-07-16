@@ -1,16 +1,18 @@
 "use client";
 
+import { memo } from "react";
 import type { GameWithStreams } from "@/lib/types";
-import { LEAGUE_BY_ID } from "@/lib/metadata";
+import type { LeagueDisplayMap } from "@/lib/registry";
 import { scoreView } from "@/lib/game";
 
 interface Props {
   games: GameWithStreams[];
   activeGameId: string | null;
   onPick: (id: string) => void;
+  leagueById: LeagueDisplayMap;
 }
 
-export default function LiveTicker({ games, activeGameId, onPick }: Props) {
+function LiveTicker({ games, activeGameId, onPick, leagueById }: Props) {
   const live = games.filter((g) => g.status === "in");
   if (live.length === 0) return null;
 
@@ -21,7 +23,7 @@ export default function LiveTicker({ games, activeGameId, onPick }: Props) {
         Live
       </div>
       {live.map((g) => {
-        const lg = LEAGUE_BY_ID[g.league];
+        const lg = leagueById[g.league];
         const sv = scoreView(g);
 
         return (
@@ -31,7 +33,7 @@ export default function LiveTicker({ games, activeGameId, onPick }: Props) {
             className={`ticker-chip ${activeGameId === g.id ? "active" : ""}`}
             onClick={() => onPick(g.id)}
           >
-            <span className="league">{lg.short}</span>
+            <span className="league">{lg?.short ?? g.league}</span>
             <span className="matchup">
               <span className={sv.awayWin ? "team-w" : "team-l"}>{g.awayTeam.abbreviation}</span>{" "}
               <span className="score">{g.awayTeam.score}</span>
@@ -46,3 +48,5 @@ export default function LiveTicker({ games, activeGameId, onPick }: Props) {
     </div>
   );
 }
+
+export default memo(LiveTicker);

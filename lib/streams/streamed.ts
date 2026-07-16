@@ -1,7 +1,9 @@
 import type { Stream } from "../types";
 import { STREAM_DETAIL_TIMEOUT_MS, STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
 import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
-import { categoryFor, gameInText } from "./match";
+import { buildGameMatcher, categoryFor } from "./match";
+import { AsyncTtlCache } from "../async-ttl-cache";
+import { fetchWithValidatedRedirects } from "../validated-redirect";
 
 // streamed.pk — the original backend. A single "all-today" listing carries source
 // references; each (source, id) pair is resolved to embed URLs via a per-source call.
@@ -11,6 +13,8 @@ import { categoryFor, gameInText } from "./match";
 const MIRRORS = ["https://streamed.pk/api", "https://streami.su/api", "https://streamed.st/api"];
 const MAX_DETAIL_SOURCES = 8;
 const DETAIL_CONCURRENCY = 3;
+const todayCache = new AsyncTtlCache<string, StreamedEvent[]>(60_000, 1);
+const detailCache = new AsyncTtlCache<string, StreamedStream[]>(60_000, 64);
 
 interface StreamedEvent {
   id: string;
@@ -42,13 +46,13 @@ async function fetchMirror(path: string, options?: StreamProviderOptions): Promi
   try {
     const winner = await Promise.any(
       MIRRORS.map(async (base, index) => {
-        const res = await fetchWithTimeout(`${base}${path}`, {
+        const res = await fetchWithValidatedRedirects(`${base}${path}`, (url) => url.href.startsWith(`${base}/`), {
           signal: options?.signal
             ? AbortSignal.any([options.signal, controllers[index].signal])
             : controllers[index].signal,
-          next: { revalidate: 60 },
+          cache: "no-store",
           timeoutMs: isDetail ? STREAM_DETAIL_TIMEOUT_MS : STREAM_LIST_TIMEOUT_MS,
-        });
+        }, fetchWithTimeout);
         if (!res.ok) throw new Error(`streamed mirror ${base} returned ${res.status}`);
         return { index, res };
       }),
@@ -64,34 +68,37 @@ async function fetchMirror(path: string, options?: StreamProviderOptions): Promi
 }
 
 async function fetchTodayEvents(options?: StreamProviderOptions): Promise<StreamedEvent[]> {
-  const res = await fetchMirror("/matches/all-today", options);
-  if (!res) {
-    console.error("[streams:streamed] all mirrors failed");
-    return [];
-  }
-  try {
-    return await res.json();
-  } catch {
-    return [];
-  }
+  return todayCache.get("today", async (signal) => {
+    const res = await fetchMirror("/matches/all-today", { signal });
+    if (!res) return [];
+    try {
+      return await res.json();
+    } catch {
+      return [];
+    }
+  }, options?.signal);
 }
 
 function matchEvent(events: StreamedEvent[], game: StreamLookup): StreamedEvent | undefined {
   const category = categoryFor(game);
-  return events.find((e) => e.category === category && gameInText(e.id, game));
+  const matcher = buildGameMatcher(game);
+  return events.find((e) => e.category === category && matcher.test(e.id));
 }
 
 async function fetchSourceStreams(source: string, id: string, options?: StreamProviderOptions): Promise<StreamedStream[]> {
-  const res = await fetchMirror(`/stream/${source}/${id}`, options);
-  if (!res) return [];
-  let data: unknown;
-  try {
-    data = await res.json();
-  } catch {
-    return [];
-  }
-  const streams = Array.isArray(data) ? data : [data];
-  return streams.filter(isStreamedStream);
+  const key = `${source}:${id}`;
+  return detailCache.get(key, async (signal) => {
+    const res = await fetchMirror(`/stream/${source}/${id}`, { signal });
+    if (!res) return [];
+    let data: unknown;
+    try {
+      data = await res.json();
+    } catch {
+      return [];
+    }
+    const streams = Array.isArray(data) ? data : [data];
+    return streams.filter(isStreamedStream);
+  }, options?.signal);
 }
 
 async function fetchSourceGroups(
@@ -120,6 +127,7 @@ export const streamed: Provider = {
       { hostname: "strmd.st", includeSubdomains: true },
       { hostname: "tiktokcdn.com", includeSubdomains: true, pathPrefix: "/obj/" },
     ],
+    playerScriptHosts: ["assets.embedindia.st"],
   },
 
   async getStreams(game, options) {
@@ -146,8 +154,24 @@ export const streamed: Provider = {
     return out;
   },
 
+  async prefetch(options) {
+    await fetchTodayEvents(options);
+  },
+
   async getCounts(games, options) {
     const events = await fetchTodayEvents(options);
-    return new Map(games.map((game) => [game.id, matchEvent(events, game)?.sources.length ?? 0])) satisfies StreamCountMap;
+    // Bucket the all-today listing by category once, so each game scans only its
+    // own category instead of the whole listing.
+    const byCategory = new Map<string, StreamedEvent[]>();
+    for (const event of events) {
+      const bucket = byCategory.get(event.category);
+      if (bucket) bucket.push(event);
+      else byCategory.set(event.category, [event]);
+    }
+    return new Map(games.map((game) => {
+      const matcher = buildGameMatcher(game);
+      const event = byCategory.get(categoryFor(game))?.find((e) => matcher.test(e.id));
+      return [game.id, event?.sources.length ?? 0];
+    })) satisfies StreamCountMap;
   },
 };

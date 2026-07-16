@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, memo } from "react";
 import { SearchIcon } from "@/components/icons";
 
 interface Props {
@@ -12,15 +12,17 @@ interface Props {
   liveCount: number;
   dateLoading?: boolean;
   lastUpdated?: Date | null;
+  schedulePartial?: boolean;
 }
 
-export default function TopBar({
+function TopBar({
   search, setSearch,
   dateIdx, setDateIdx,
   dateLabels,
   liveCount,
   dateLoading,
   lastUpdated,
+  schedulePartial,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -63,6 +65,7 @@ export default function TopBar({
           <button
             key={i}
             className={i === dateIdx ? "active" : ""}
+            data-date-index={i}
             onClick={() => setDateIdx(i)}
             disabled={dateLoading && i !== dateIdx}
           >
@@ -72,6 +75,9 @@ export default function TopBar({
       </div>
 
       <div className="top-meta">
+        {schedulePartial && (
+          <span className="partial-label" role="status">Partial schedule · retrying</span>
+        )}
         {updatedStr && (
           <span className="updated-label">↻ {updatedStr}</span>
         )}
@@ -83,3 +89,5 @@ export default function TopBar({
     </header>
   );
 }
+
+export default memo(TopBar);
