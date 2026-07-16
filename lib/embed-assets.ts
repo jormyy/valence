@@ -61,10 +61,18 @@ export async function proxyEmbedAsset({
   }
 
   if (!upstream.ok) {
+    await upstream.body?.cancel().catch(() => undefined);
     return new NextResponse("upstream asset failed", { status: upstream.status });
   }
 
-  return new NextResponse(await upstream.arrayBuffer(), {
+  let body: ArrayBuffer;
+  try {
+    body = await upstream.arrayBuffer();
+  } catch {
+    return new NextResponse("upstream body failed", { status: 502 });
+  }
+
+  return new NextResponse(body, {
     headers: {
       "content-type": upstream.headers.get("content-type") ?? contentType,
       "cache-control": "no-store",

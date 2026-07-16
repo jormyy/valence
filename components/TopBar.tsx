@@ -63,6 +63,7 @@ function TopBar({
           <button
             key={i}
             className={i === dateIdx ? "active" : ""}
+            data-date-index={i}
             onClick={() => setDateIdx(i)}
             disabled={dateLoading && i !== dateIdx}
           >

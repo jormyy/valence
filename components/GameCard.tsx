@@ -20,6 +20,7 @@ export default function GameCard({ game, active, onPick }: Props) {
     <button
       type="button"
       className={`game ${active ? "active" : ""} ${s === "post" ? "final" : ""}`}
+      data-game-id={game.id}
       onClick={() => onPick(game.id)}
       aria-pressed={active}
     >

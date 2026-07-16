@@ -2,11 +2,14 @@ import type { Stream } from "../types";
 import { STREAM_DETAIL_TIMEOUT_MS, STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
 import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
 import { buildGameMatcher, categoryFor } from "./match";
+import { AsyncTtlCache } from "../async-ttl-cache";
 
 // sportsrc.org is a streamed.pk-shaped mirror: a per-category match list, then a
 // per-match `detail` call that returns the same {embedUrl, hd, language} sources
 // (its embeds resolve through embed.streamapi.cc).
 const BASE = "https://api.sportsrc.org";
+const matchCache = new AsyncTtlCache<string, SportsrcMatch[]>(60_000, 16);
+const detailCache = new AsyncTtlCache<string, SportsrcSource[]>(60_000, 64);
 
 interface SportsrcMatch {
   id: string;
@@ -21,18 +24,20 @@ interface SportsrcSource {
 }
 
 async function fetchMatches(category: string, options?: StreamProviderOptions): Promise<SportsrcMatch[]> {
-  try {
-    const res = await fetchWithTimeout(`${BASE}/?data=matches&category=${category}`, {
-      signal: options?.signal,
-      next: { revalidate: 60 },
-      timeoutMs: STREAM_LIST_TIMEOUT_MS,
-    });
-    if (!res.ok) return [];
-    const json = await res.json();
-    return Array.isArray(json?.data) ? json.data : [];
-  } catch {
-    return [];
-  }
+  return matchCache.get(category, async (signal) => {
+    try {
+      const res = await fetchWithTimeout(`${BASE}/?data=matches&category=${category}`, {
+        signal,
+        cache: "no-store",
+        timeoutMs: STREAM_LIST_TIMEOUT_MS,
+      });
+      if (!res.ok) return [];
+      const json = await res.json();
+      return Array.isArray(json?.data) ? json.data : [];
+    } catch {
+      return [];
+    }
+  }, options?.signal);
 }
 
 function matchText(m: SportsrcMatch): string {
@@ -56,17 +61,20 @@ async function fetchMatchesByCategory(
 }
 
 async function fetchDetail(category: string, id: string, options?: StreamProviderOptions): Promise<SportsrcSource[]> {
-  try {
-    const res = await fetchWithTimeout(
-      `${BASE}/?data=detail&category=${category}&id=${encodeURIComponent(id)}`,
-      { signal: options?.signal, next: { revalidate: 60 }, timeoutMs: STREAM_DETAIL_TIMEOUT_MS },
-    );
-    if (!res.ok) return [];
-    const json = await res.json();
-    return Array.isArray(json?.data?.sources) ? json.data.sources : [];
-  } catch {
-    return [];
-  }
+  const key = `${category}:${id}`;
+  return detailCache.get(key, async (signal) => {
+    try {
+      const res = await fetchWithTimeout(
+        `${BASE}/?data=detail&category=${category}&id=${encodeURIComponent(id)}`,
+        { signal, cache: "no-store", timeoutMs: STREAM_DETAIL_TIMEOUT_MS },
+      );
+      if (!res.ok) return [];
+      const json = await res.json();
+      return Array.isArray(json?.data?.sources) ? json.data.sources : [];
+    } catch {
+      return [];
+    }
+  }, options?.signal);
 }
 
 export const sportsrc: Provider = {

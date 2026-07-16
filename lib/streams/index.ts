@@ -13,7 +13,17 @@ async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   }
 }
 
-export async function getStreams(game: StreamLookup, options?: StreamProviderOptions): Promise<Stream[]> {
+function labelStreams(streams: readonly Stream[]): Stream[] {
+  return streams.map((stream, index) => ({
+    ...stream,
+    label: `${stream.quality} ${index + 1}`,
+  }));
+}
+
+export async function discoverStreams(
+  game: StreamLookup,
+  options?: StreamProviderOptions,
+): Promise<Stream[]> {
   const groups = await Promise.all(
     PROVIDERS.map((p) => safe(() => p.getStreams(game, options), [])),
   );
@@ -22,19 +32,28 @@ export async function getStreams(game: StreamLookup, options?: StreamProviderOpt
   // globally so every sport/provider gets reachable sources before dead mirrors.
   const out: Stream[] = [];
   const seen = new Set<string>();
-  for (const group of groups) {
+  for (let providerIndex = 0; providerIndex < groups.length; providerIndex += 1) {
+    const group = groups[providerIndex];
+    const provider = PROVIDERS[providerIndex];
     for (const s of group) {
       if (!s.url || seen.has(s.url)) continue;
       seen.add(s.url);
-      out.push(s);
+      out.push({ ...s, provider: provider.name });
     }
   }
 
-  const ranked = await rankStreamsByHealth(out, options);
-  return ranked.map((stream, index) => ({
-    ...stream,
-    label: `${stream.quality} ${index + 1}`,
-  }));
+  return labelStreams(out);
+}
+
+export async function rankDiscoveredStreams(
+  streams: readonly Stream[],
+  options?: StreamProviderOptions,
+): Promise<Stream[]> {
+  return labelStreams(await rankStreamsByHealth([...streams], options));
+}
+
+export async function getStreams(game: StreamLookup, options?: StreamProviderOptions): Promise<Stream[]> {
+  return rankDiscoveredStreams(await discoverStreams(game, options), options);
 }
 
 // Summed availability across providers — a rough "how many sources" badge for the feed.

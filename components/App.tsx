@@ -168,7 +168,7 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
   const hasLive = useMemo(() => games.some((g) => g.status === "in"), [games]);
 
   useEffect(() => {
-    if (dateIdx !== 1 || !hasLive) return;
+    if (dateIdx !== 1) return;
     let inFlight: AbortController | null = null;
     function poll() {
       inFlight?.abort();
@@ -187,10 +187,14 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
           if (!controller.signal.aborted) console.error("Live poll failed:", e);
         });
     }
-    const id = setInterval(() => {
-      poll();
-    }, 30_000);
-    return () => { inFlight?.abort(); clearInterval(id); };
+    // The HTML carries an immediate build-time snapshot. Refresh once on hydration,
+    // then retain the existing 30s live-score polling cadence when a game is active.
+    poll();
+    const id = hasLive ? setInterval(poll, 30_000) : null;
+    return () => {
+      inFlight?.abort();
+      if (id) clearInterval(id);
+    };
   }, [dateIdx, hasLive]);
 
   const filteredGames = useMemo(

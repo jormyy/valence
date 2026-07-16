@@ -32,6 +32,7 @@ export interface Stream {
   quality: "HD" | "SD" | "4K";
   language?: string;
   health?: StreamHealth;
+  provider?: string;
 }
 
 export interface StatLeader {

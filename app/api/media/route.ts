@@ -6,6 +6,7 @@ import { Readable } from "node:stream";
 import { isAllowedEmbedUrl, isAllowedMediaUrl, originFromEmbedReferer } from "@/lib/streams/providers";
 import { PROXY_FETCH_TIMEOUT_MS, fetchWithTimeout } from "@/lib/upstream";
 import { publicRequestOrigin } from "@/lib/request-origin";
+import { closeOnUpstreamFailure, shouldBufferMedia } from "@/lib/media-body";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -391,6 +392,7 @@ async function proxyMedia(request: Request, includeBody: boolean) {
   }
 
   if (!upstream.ok) {
+    await upstream.body?.cancel().catch(() => undefined);
     return corsResponse(request, "upstream fetch failed", { status: upstream.status });
   }
 
@@ -426,7 +428,12 @@ async function proxyMedia(request: Request, includeBody: boolean) {
   }
 
   if (rewritesPlaylist) {
-    const text = await upstream.text();
+    let text: string;
+    try {
+      text = await upstream.text();
+    } catch {
+      return corsResponse(request, "upstream body failed", { status: 502 });
+    }
     const playlist = rewritePlaylist(text, playlistBaseUrl(upstream, target), appOrigin, refererOrigin, goat);
     responseHeaders.set("content-length", String(new TextEncoder().encode(playlist).length));
     return new NextResponse(playlist, {
@@ -435,7 +442,24 @@ async function proxyMedia(request: Request, includeBody: boolean) {
     });
   }
 
-  return new NextResponse(upstream.body, {
+  if (shouldBufferMedia(target, contentType)) {
+    let body: ArrayBuffer;
+    try {
+      body = await upstream.arrayBuffer();
+    } catch {
+      return corsResponse(request, "upstream body failed", { status: 502 });
+    }
+    responseHeaders.set("content-length", String(body.byteLength));
+    return new NextResponse(body, {
+      status: upstream.status,
+      headers: responseHeaders,
+    });
+  }
+
+  // A guarded stream may close early after an upstream body error. Do not retain an
+  // upstream content-length that would make that graceful close an invalid response.
+  responseHeaders.delete("content-length");
+  return new NextResponse(closeOnUpstreamFailure(upstream.body), {
     status: upstream.status,
     headers: responseHeaders,
   });

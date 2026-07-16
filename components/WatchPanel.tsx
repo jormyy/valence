@@ -242,6 +242,7 @@ function WatchPanel({
             <button
               key={i}
               className={`stream-tab ${i === activeStream ? "active" : ""} ${health ? `health-${health}` : ""}`}
+              data-stream-index={i}
               onClick={() => {
                 setFailedStreams((failed) => {
                   if (!failed.has(i)) return failed;

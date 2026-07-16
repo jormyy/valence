@@ -2,6 +2,7 @@ import type { Stream } from "../types";
 import { STREAM_DETAIL_TIMEOUT_MS, STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
 import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
 import { buildGameMatcher, categoryFor } from "./match";
+import { AsyncTtlCache } from "../async-ttl-cache";
 
 // streamed.pk — the original backend. A single "all-today" listing carries source
 // references; each (source, id) pair is resolved to embed URLs via a per-source call.
@@ -11,6 +12,8 @@ import { buildGameMatcher, categoryFor } from "./match";
 const MIRRORS = ["https://streamed.pk/api", "https://streami.su/api", "https://streamed.st/api"];
 const MAX_DETAIL_SOURCES = 8;
 const DETAIL_CONCURRENCY = 3;
+const todayCache = new AsyncTtlCache<string, StreamedEvent[]>(60_000, 1);
+const detailCache = new AsyncTtlCache<string, StreamedStream[]>(60_000, 64);
 
 interface StreamedEvent {
   id: string;
@@ -46,7 +49,7 @@ async function fetchMirror(path: string, options?: StreamProviderOptions): Promi
           signal: options?.signal
             ? AbortSignal.any([options.signal, controllers[index].signal])
             : controllers[index].signal,
-          next: { revalidate: 60 },
+          cache: "no-store",
           timeoutMs: isDetail ? STREAM_DETAIL_TIMEOUT_MS : STREAM_LIST_TIMEOUT_MS,
         });
         if (!res.ok) throw new Error(`streamed mirror ${base} returned ${res.status}`);
@@ -64,13 +67,15 @@ async function fetchMirror(path: string, options?: StreamProviderOptions): Promi
 }
 
 async function fetchTodayEvents(options?: StreamProviderOptions): Promise<StreamedEvent[]> {
-  const res = await fetchMirror("/matches/all-today", options);
-  if (!res) return [];
-  try {
-    return await res.json();
-  } catch {
-    return [];
-  }
+  return todayCache.get("today", async (signal) => {
+    const res = await fetchMirror("/matches/all-today", { signal });
+    if (!res) return [];
+    try {
+      return await res.json();
+    } catch {
+      return [];
+    }
+  }, options?.signal);
 }
 
 function matchEvent(events: StreamedEvent[], game: StreamLookup): StreamedEvent | undefined {
@@ -80,16 +85,19 @@ function matchEvent(events: StreamedEvent[], game: StreamLookup): StreamedEvent 
 }
 
 async function fetchSourceStreams(source: string, id: string, options?: StreamProviderOptions): Promise<StreamedStream[]> {
-  const res = await fetchMirror(`/stream/${source}/${id}`, options);
-  if (!res) return [];
-  let data: unknown;
-  try {
-    data = await res.json();
-  } catch {
-    return [];
-  }
-  const streams = Array.isArray(data) ? data : [data];
-  return streams.filter(isStreamedStream);
+  const key = `${source}:${id}`;
+  return detailCache.get(key, async (signal) => {
+    const res = await fetchMirror(`/stream/${source}/${id}`, { signal });
+    if (!res) return [];
+    let data: unknown;
+    try {
+      data = await res.json();
+    } catch {
+      return [];
+    }
+    const streams = Array.isArray(data) ? data : [data];
+    return streams.filter(isStreamedStream);
+  }, options?.signal);
 }
 
 async function fetchSourceGroups(

@@ -573,7 +573,12 @@ async function proxyEmbed(request: Request) {
 
   const contentType = upstream.headers.get("content-type") ?? "";
   if (contentType.includes("text/html")) {
-    const html = await upstream.text();
+    let html: string;
+    try {
+      html = await upstream.text();
+    } catch {
+      return corsResponse(request, "upstream body failed", { status: 502 });
+    }
     const nested = nestedStreamapiEmbed(html, target);
     if (nested) {
       return NextResponse.redirect(proxied(nested, appOrigin, target.origin, parentTarget), 302);
@@ -606,7 +611,13 @@ async function proxyEmbed(request: Request) {
     headers.set("access-control-expose-headers", exposedHeaders.join(", "));
   }
 
-  return new NextResponse(await upstream.arrayBuffer(), {
+  let body: ArrayBuffer;
+  try {
+    body = await upstream.arrayBuffer();
+  } catch {
+    return corsResponse(request, "upstream body failed", { status: 502 });
+  }
+  return new NextResponse(body, {
     status: upstream.status,
     headers,
   });

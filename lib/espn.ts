@@ -12,6 +12,7 @@ import { mapLimit } from "./concurrency";
 import { dateInPT, formatTimePT, normalizeDate } from "./datetime";
 import { teamFromName } from "./team";
 import { STATUS_ORDER } from "./game-status";
+import { AsyncTtlCache } from "./async-ttl-cache";
 
 interface FetchOptions {
   readonly signal?: AbortSignal;
@@ -203,7 +204,7 @@ export async function getGames(league: League, dateStr?: string, options?: Fetch
   try {
     res = await fetchWithTimeout(
       `https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.path}/scoreboard${query}`,
-      { signal: options?.signal, next: { revalidate: 60 }, timeoutMs: SCOREBOARD_TIMEOUT_MS }
+      { signal: options?.signal, cache: "no-store", timeoutMs: SCOREBOARD_TIMEOUT_MS }
     );
   } catch {
     return [];
@@ -232,25 +233,38 @@ export async function getGames(league: League, dateStr?: string, options?: Fetch
 // Cap concurrent ESPN scoreboard fetches — the registry now spans hundreds of
 // leagues, and firing them all at once risks rate limiting and slow first loads.
 // NOTE: this fans out one request per scheduled league (~hundreds). It's amortized
-// by the 60s fetch-cache, but the real reduction (skipping out-of-season leagues, or
-// using ESPN's multi-league grouping endpoints) needs per-league season metadata the
-// registry doesn't carry yet — gating blindly would silently drop in-season games.
+// by the bounded 60s aggregate cache below; gating leagues blindly would silently
+// drop in-season games because the registry does not carry season metadata.
 const SCOREBOARD_CONCURRENCY = 16;
+const GAMES_CACHE_MS = 60_000;
+const GAMES_CACHE_DATES = 3;
 
 // Only leagues with an ESPN schedule produce scoreboard fetches; channel-only leagues
 // return nothing, so keep them out of the fan-out entirely.
 const ESPN_LEAGUES = LEAGUES.filter((league) => "espn" in league);
+const gamesCache = new AsyncTtlCache<string, Game[]>(GAMES_CACHE_MS, GAMES_CACHE_DATES);
+const summaryCache = new AsyncTtlCache<string, EspnSummary | null>(30_000, 64);
 
-export async function getAllGames(dateStr?: string, options?: FetchOptions): Promise<Game[]> {
+async function loadAllGames(dateStr: string, signal: AbortSignal): Promise<Game[]> {
   const [espnResults, sourceGames] = await Promise.all([
-    mapLimit(ESPN_LEAGUES, SCOREBOARD_CONCURRENCY, (l) => getGames(l.id, dateStr, options)),
-    getSourceGames(dateStr, options),
+    mapLimit(ESPN_LEAGUES, SCOREBOARD_CONCURRENCY, (l) => getGames(l.id, dateStr, { signal }), signal),
+    getSourceGames(dateStr, { signal }),
   ]);
   return [...espnResults.flat(), ...sourceGames].sort((a, b) => {
     const diff = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
     if (diff !== 0) return diff;
     return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
   });
+}
+
+export async function getAllGames(dateStr?: string, options?: FetchOptions): Promise<Game[]> {
+  const targetDate = normalizeDate(dateStr);
+  if (!targetDate) return [];
+  return gamesCache.get(
+    targetDate,
+    (signal) => loadAllGames(targetDate, signal),
+    options?.signal,
+  );
 }
 
 export async function getEspnSummary(gameId: string, options?: FetchOptions): Promise<EspnSummary | null> {
@@ -261,19 +275,21 @@ export async function getEspnSummary(gameId: string, options?: FetchOptions): Pr
   if (!hasEspnSchedule(leagueInfo)) return null;
   const config = leagueInfo.espn;
 
-  let res: Response;
-  try {
-    res = await fetchWithTimeout(
-      `https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.path}/summary?event=${espnId}`,
-      { signal: options?.signal, next: { revalidate: 30 }, timeoutMs: SCOREBOARD_TIMEOUT_MS }
-    );
-  } catch {
-    return null;
-  }
-  if (!res.ok) return null;
-  try {
-    return await res.json();
-  } catch {
-    return null;
-  }
+  return summaryCache.get(gameId, async (signal) => {
+    let res: Response;
+    try {
+      res = await fetchWithTimeout(
+        `https://site.api.espn.com/apis/site/v2/sports/${config.sport}/${config.path}/summary?event=${espnId}`,
+        { signal, cache: "no-store", timeoutMs: SCOREBOARD_TIMEOUT_MS }
+      );
+    } catch {
+      return null;
+    }
+    if (!res.ok) return null;
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  }, options?.signal);
 }

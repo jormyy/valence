@@ -2,6 +2,7 @@ import type { Stream } from "../types";
 import { STREAM_LIST_TIMEOUT_MS, fetchWithTimeout } from "../upstream";
 import type { Provider, StreamCountMap, StreamLookup, StreamProviderOptions } from "./types";
 import { buildGameMatcher, categoryFor } from "./match";
+import { AsyncTtlCache } from "../async-ttl-cache";
 
 // EmbedSportex serves one JSON keyed by sport; each match carries its embeds inline
 // (an `iframes` array), so no per-match detail call is needed. The project has
@@ -24,6 +25,7 @@ const CATEGORY_KEYS: Record<string, string> = {
 // proxy to media URLs. Other ESX families return a 200 shell but often never
 // reach a playable stream.
 const SUPPORTED_PLAYER_PREFIXES = ["ehd/", "ppv/"];
+const listingCache = new AsyncTtlCache<string, EsxResponse>(60_000, 1);
 
 interface EsxIframe {
   server?: string;
@@ -41,12 +43,12 @@ export interface EsxMatch {
 
 export type EsxResponse = Record<string, EsxMatch[]>;
 
-export async function fetchEmbedSportexListing(options?: StreamProviderOptions): Promise<EsxResponse> {
+async function loadEmbedSportexListing(signal: AbortSignal): Promise<EsxResponse> {
   for (const url of URLS) {
     try {
       const res = await fetchWithTimeout(url, {
-        signal: options?.signal,
-        next: { revalidate: 60 },
+        signal,
+        cache: "no-store",
         timeoutMs: STREAM_LIST_TIMEOUT_MS,
       });
       if (!res.ok) continue;
@@ -56,6 +58,10 @@ export async function fetchEmbedSportexListing(options?: StreamProviderOptions):
     }
   }
   return {};
+}
+
+export function fetchEmbedSportexListing(options?: StreamProviderOptions): Promise<EsxResponse> {
+  return listingCache.get("listing", loadEmbedSportexListing, options?.signal);
 }
 
 function findMatch(data: EsxResponse, game: StreamLookup): EsxMatch | undefined {

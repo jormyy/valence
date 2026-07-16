@@ -48,14 +48,46 @@ export function useGameStreams(game: StreamLookup | null): StreamState {
     setState({ gameId: lookup.id, streams: [], loading: true });
     fetch("/api/streams", {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: {
+        accept: "application/x-ndjson, application/json",
+        "content-type": "application/json",
+      },
       body: JSON.stringify(lookup),
       signal: controller.signal,
     })
-      .then((r) => r.json())
-      .then((data: { streams?: Stream[] }) => {
-        if (!controller.signal.aborted) {
-          setState({ gameId: lookup.id, streams: data.streams ?? [], loading: false });
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`stream lookup failed: ${response.status}`);
+        if (!response.headers.get("content-type")?.includes("application/x-ndjson") || !response.body) {
+          const data = await response.json() as { streams?: Stream[] };
+          if (!controller.signal.aborted) {
+            setState({ gameId: lookup.id, streams: data.streams ?? [], loading: false });
+          }
+          return;
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let pending = "";
+        let completed = false;
+        while (!controller.signal.aborted) {
+          const chunk = await reader.read();
+          pending += decoder.decode(chunk.value, { stream: !chunk.done });
+          const lines = pending.split("\n");
+          pending = lines.pop() ?? "";
+          for (const line of lines) {
+            if (!line) continue;
+            const update = JSON.parse(line) as { type?: string; streams?: Stream[] };
+            if ((update.type === "discovery" || update.type === "complete") && Array.isArray(update.streams)) {
+              completed = update.type === "complete";
+              setState({ gameId: lookup.id, streams: update.streams, loading: false });
+            }
+          }
+          if (chunk.done) break;
+        }
+        if (!controller.signal.aborted && !completed) {
+          setState((current) => current.gameId === lookup.id
+            ? { ...current, loading: false }
+            : current);
         }
       })
       .catch((e) => {
