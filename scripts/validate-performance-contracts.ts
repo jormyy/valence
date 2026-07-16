@@ -2,6 +2,8 @@ import { strict as assert } from "node:assert";
 import { AsyncTtlCache } from "../lib/async-ttl-cache";
 import { closeOnUpstreamFailure, shouldBufferMedia } from "../lib/media-body";
 import { readNdjson } from "../lib/ndjson";
+import { nextViableStream } from "../lib/stream-failover";
+import type { Stream } from "../lib/types";
 
 function delay(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -114,10 +116,22 @@ async function validateNdjson() {
   assert.deepEqual(values, [{ id: 1 }, { id: 2 }, { id: 3 }]);
 }
 
+function validateFailover() {
+  const streams: Stream[] = [
+    { label: "one", url: "https://one.test", quality: "HD", health: "online" },
+    { label: "two", url: "https://two.test", quality: "HD", health: "offline" },
+    { label: "three", url: "https://three.test", quality: "HD", health: "online" },
+  ];
+  assert.equal(nextViableStream(streams, 0, new Set([0])), 2, "failover should skip a DOWN source");
+  assert.equal(nextViableStream(streams, 2, new Set([2])), 0, "failover should wrap deterministically");
+  assert.equal(nextViableStream(streams, 0, new Set([0, 2])), -1, "failover must stop when none remain");
+}
+
 async function main() {
   await validateCache();
   await validateMediaBodies();
   await validateNdjson();
+  validateFailover();
   console.log("performance contracts: ok");
 }
 

@@ -10,6 +10,7 @@ import { CloseIcon, FullscreenIcon, PlayIcon } from "@/components/icons";
 import StatsPanel from "@/components/StatsPanel";
 import RelatedGames from "@/components/RelatedGames";
 import ShieldedPlayer from "@/components/ShieldedPlayer";
+import { nextViableStream } from "@/lib/stream-failover";
 
 interface Props {
   game: GameWithStreams;
@@ -90,13 +91,8 @@ function WatchPanel({
         return failed;
       });
 
-      if (streams.length < 2) return;
-      for (let offset = 1; offset < streams.length; offset += 1) {
-        const next = (activeStream + offset) % streams.length;
-        if (failedStreams.has(next) || streams[next]?.health === "offline") continue;
-        setActiveStream(next);
-        return;
-      }
+      const next = nextViableStream(streams, activeStream, failedStreams);
+      if (next !== -1) setActiveStream(next);
     }
 
     window.addEventListener("message", onMessage);
@@ -107,9 +103,7 @@ function WatchPanel({
     const current = streams[activeStream];
     if (current && current.health !== "offline" && !failedStreams.has(activeStream)) return;
 
-    const next = streams.findIndex((_stream, index) =>
-      streams[index]?.health !== "offline" && !failedStreams.has(index)
-    );
+    const next = nextViableStream(streams, activeStream, failedStreams);
     if (next !== -1 && next !== activeStream) setActiveStream(next);
   }, [activeStream, failedStreams, streams]);
 
