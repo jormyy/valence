@@ -7,9 +7,23 @@ import {
   parseExposestratHlsUrl,
   parseXoredEsportexData,
   resolveEsportexEmbed,
+  resolveEsportexPlayer,
 } from "../lib/streams/esportex-resolver";
+import {
+  playerAssetOrigin,
+  rewriteGeneratedModuleImports,
+  rewriteGeneratedModuleUrl,
+  rewritePlayerAssetOrigin,
+  shim,
+} from "../lib/embed-shim";
+import { autoBootstrap } from "../lib/embed-bootstrap";
 import { probeStreamHealth, rankStreamsByHealth } from "../lib/streams/health";
-import { MEDIA_HOST_RULES } from "../lib/streams/providers";
+import {
+  MEDIA_HOST_RULES,
+  PLAYER_SCRIPT_HOSTS,
+  isAllowedPlayerScriptUrl,
+  playerScriptHostsCsp,
+} from "../lib/streams/providers";
 
 function stream(url: string, label: string): Stream {
   return { label, url, quality: "HD", language: "EN" };
@@ -109,6 +123,80 @@ async function main() {
     ),
     "EmbedIndia PPV HLS host should be proxied",
   );
+  assert.ok(PLAYER_SCRIPT_HOSTS.has("assets.embedindia.st"));
+  assert.equal(isAllowedPlayerScriptUrl(new URL("https://assets.embedindia.st/js/player.js")), true);
+  assert.equal(isAllowedPlayerScriptUrl(new URL("http://assets.embedindia.st/js/player.js")), false);
+  assert.match(playerScriptHostsCsp(), /https:\/\/assets\.embedindia\.st/);
+  assert.equal(
+    playerAssetOrigin(new URL("https://embedindia.st/embed/nba/date/game")),
+    "https://assets.embedindia.st",
+  );
+  assert.equal(
+    rewritePlayerAssetOrigin(
+      `var a=location.protocol+"//assets."+location.host;`,
+      new URL("https://embedindia.st/embed/nba/date/game"),
+    ),
+    `var a="https://assets.embedindia.st";`,
+  );
+  assert.equal(
+    rewritePlayerAssetOrigin(
+      `var a=location.protocol+"//assets."+location.host;`,
+      new URL("https://embed.st/embed/admin/game/1"),
+    ),
+    `var a=location.protocol+"//assets."+location.host;`,
+  );
+  assert.match(
+    shim(
+      "http://127.0.0.1:3000",
+      new URL("https://embedindia.st/embed/nba/date/game"),
+    ),
+    /var PLAYER_ASSET_ORIGIN="https:\/\/assets\.embedindia\.st"/,
+  );
+  assert.equal(
+    rewriteGeneratedModuleImports(
+      "const loaded=await import(assetOrigin+(pathPart()+filePart));return loaded;",
+    ),
+    "const loaded=await import(window.__valenceModuleUrl(assetOrigin+(pathPart()+filePart)));return loaded;",
+  );
+  assert.equal(
+    rewriteGeneratedModuleUrl(
+      "http://assets.127.0.0.1:3000/js/wasm/gasm.js",
+      "http://127.0.0.1:3000",
+    ),
+    "http://127.0.0.1:3000/api/wasm/gasm.js",
+  );
+  assert.equal(
+    rewriteGeneratedModuleUrl(
+      "https://untrusted.invalid/js/wasm/gasm.js",
+      "http://127.0.0.1:3000",
+    ),
+    "https://untrusted.invalid/js/wasm/gasm.js",
+  );
+  assert.match(
+    autoBootstrap(new URL("https://embedindia.st/embed/nba/date/game")),
+    /providerResolverActive=window\.__valenceResolverActive===true/,
+  );
+  assert.match(
+    shim(
+      "http://127.0.0.1:3000",
+      new URL("https://embedindia.st/embed/nba/date/game"),
+    ),
+    /var setStreamPromises=Object\.create\(null\)/,
+  );
+  assert.match(
+    shim(
+      "http://127.0.0.1:3000",
+      new URL("https://embedindia.st/embed/nba/date/game"),
+    ),
+    /if\(key==="embed"\) return Promise\.resolve\(\)/,
+  );
+  assert.match(
+    shim(
+      "http://127.0.0.1:3000",
+      new URL("https://embedindia.st/embed/nba/date/game"),
+    ),
+    /next\.base=APP_ORIGIN\+next\.base\.slice\(jwpPath\)/,
+  );
 
   const esportexData = JSON.stringify({
     id: "ehd/71",
@@ -127,14 +215,27 @@ async function main() {
     url: "https://embedindia.st/embed/wnba/2026-06-20/ind-atl",
   });
   const ppvXored = new Uint8Array(Buffer.from(ppvData).map((byte) => byte ^ 90));
-  const resolvedPpv = await resolveEsportexEmbed(
+  let ppvResolutionFetches = 0;
+  const resolvedPpv = await resolveEsportexPlayer(
     new URL("https://streams.esportex.site/player#cHB2LzIzNDM4"),
     {
-      fetcher: async () => new Response(ppvXored),
+      fetcher: async () => {
+        ppvResolutionFetches += 1;
+        return new Response(ppvXored);
+      },
     },
   );
+  assert.equal(resolvedPpv?.kind, "embed");
   assert.equal(
-    resolvedPpv?.embedUrl.href,
+    resolvedPpv?.kind === "embed" ? resolvedPpv.embedUrl.href : undefined,
+    "https://embedindia.st/embed/wnba/2026-06-20/ind-atl",
+  );
+  assert.equal(ppvResolutionFetches, 1, "PPV resolution should fetch Esportex data once");
+  assert.equal(
+    (await resolveEsportexEmbed(
+      new URL("https://streams.esportex.site/player#cHB2LzIzNDM4"),
+      { fetcher: async () => new Response(ppvXored) },
+    ))?.embedUrl.href,
     "https://embedindia.st/embed/wnba/2026-06-20/ind-atl",
   );
   assert.equal(parseEmbedhdFid(`<script>fid="ntsn1fhd";</script>`), "ntsn1fhd");

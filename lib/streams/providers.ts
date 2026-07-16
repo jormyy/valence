@@ -30,8 +30,19 @@ export const MEDIA_HOST_RULES: MediaHostRule[] = [
   ).values(),
 ];
 
+export const PLAYER_SCRIPT_HOSTS = new Set([
+  "cdn.jsdelivr.net",
+  "vjs.zencdn.net",
+  "cdnjs.cloudflare.com",
+  ...PROVIDERS.flatMap((provider) => provider.capabilities.playerScriptHosts ?? []),
+]);
+
 export function isAllowedEmbedUrl(url: URL): boolean {
   return url.protocol === "https:" && EMBED_HOST_BY_NAME.has(url.hostname);
+}
+
+export function isAllowedPlayerScriptUrl(url: URL): boolean {
+  return url.protocol === "https:" && PLAYER_SCRIPT_HOSTS.has(url.hostname);
 }
 
 function hostMatches(rule: MediaHostRule, hostname: string): boolean {
@@ -53,6 +64,10 @@ export function isAllowedStreamUrl(url: URL): boolean {
 
 export function embedHostsCsp(): string {
   return EMBED_HOSTS.map((rule) => `https://${rule.hostname}`).join(" ");
+}
+
+export function playerScriptHostsCsp(): string {
+  return [...PLAYER_SCRIPT_HOSTS].map((hostname) => `https://${hostname}`).join(" ");
 }
 
 export function defaultEmbedOrigin(fallback = "https://embed.st"): string {

@@ -1,10 +1,11 @@
-import { EMBED_HOSTS, MEDIA_HOST_RULES } from "@/lib/streams/providers";
-import { BLOCKED_HOST, BLOCKED_URL, PLAYER_SCRIPT_HOSTS } from "@/lib/embed-blocklist";
+import { EMBED_HOSTS, MEDIA_HOST_RULES, PLAYER_SCRIPT_HOSTS } from "@/lib/streams/providers";
+import { BLOCKED_HOST, BLOCKED_URL } from "@/lib/embed-blocklist";
+
+const GENERATED_MODULE_IMPORT = /await\s+import\(([^;\n]{1,512})\);return/g;
 
 // Injected as the first <script> in every proxied embed document. Runs in the
-// untrusted provider page context to re-route all network/DOM access through the
-// app proxy, strip ads/anti-debug, and harden iframes. Returned string is
-// byte-identical to the previous inline implementation.
+// untrusted provider page context to re-route network/DOM access through the
+// app proxy, strip ads/anti-debug behavior, and harden iframes.
 function normalizedHash(target: URL): string {
   if (!target.hash) return "";
   try {
@@ -12,6 +13,35 @@ function normalizedHash(target: URL): string {
   } catch {
     return target.hash;
   }
+}
+
+export function playerAssetOrigin(target: URL): string | null {
+  const hostname = `assets.${target.hostname}`;
+  return PLAYER_SCRIPT_HOSTS.has(hostname) ? `https://${hostname}` : null;
+}
+
+export function rewritePlayerAssetOrigin(source: string, target: URL): string {
+  const assetOrigin = playerAssetOrigin(target);
+  if (!assetOrigin) return source;
+
+  return source.replace(
+    /location\.protocol\s*\+\s*(["'])\/\/assets\.\1\s*\+\s*location\.host/g,
+    JSON.stringify(assetOrigin),
+  );
+}
+
+export function rewriteGeneratedModuleImports(source: string): string {
+  return source.replace(
+    GENERATED_MODULE_IMPORT,
+    (_match, expression: string) =>
+      `await import(window.__valenceModuleUrl(${expression}));return`,
+  );
+}
+
+export function rewriteGeneratedModuleUrl(input: string, appOrigin: string): string {
+  const pathIndex = input.indexOf("/js/wasm/");
+  if (pathIndex < 0 || !/^https?:\/\/assets\./i.test(input)) return input;
+  return `${appOrigin}/api/wasm/${input.slice(pathIndex + "/js/wasm/".length)}`;
 }
 
 export function shim(appOrigin: string, target: URL, parentTarget?: string): string {
@@ -29,7 +59,129 @@ export function shim(appOrigin: string, target: URL, parentTarget?: string): str
   var EMBED_TARGET=${JSON.stringify(target.href)};
   var PLAYER_TARGET=${JSON.stringify(parentTarget ?? target.href)};
   var EMBED_HASH=${JSON.stringify(normalizedHash(target))};
+  var PLAYER_ASSET_ORIGIN=${JSON.stringify(playerAssetOrigin(target))};
   var PROVIDER_GOAT="";
+
+  // Nested provider frames remain opaque-origin sandboxes. Their native
+  // storage getters throw, so player initialization gets isolated memory-only
+  // storage when it cannot use the browser implementation.
+  function installMemoryStorage(name){
+    try{ void window[name]; return; }catch(e){}
+    try{
+      var values=Object.create(null);
+      var storage={
+        getItem:function(key){ key=String(key); return Object.prototype.hasOwnProperty.call(values,key) ? values[key] : null; },
+        setItem:function(key,value){ values[String(key)]=String(value); },
+        removeItem:function(key){ delete values[String(key)]; },
+        clear:function(){ values=Object.create(null); },
+        key:function(index){ var keys=Object.keys(values); return keys[index]===undefined ? null : keys[index]; }
+      };
+      Object.defineProperty(storage,"length",{enumerable:true,get:function(){ return Object.keys(values).length; }});
+      Object.defineProperty(window,name,{configurable:true,value:storage});
+    }catch(e){}
+  }
+  installMemoryStorage("localStorage");
+  installMemoryStorage("sessionStorage");
+
+  function valenceModuleUrl(input){
+    try{
+      if(!PLAYER_ASSET_ORIGIN) return input;
+      var raw=String(input);
+      var wasmPathIndex=raw.indexOf("/js/wasm/");
+      if(wasmPathIndex!==-1 && /^https?:\\/\\/assets\\./i.test(raw)){
+        return APP_ORIGIN+"/api/wasm/"+raw.slice(wasmPathIndex+"/js/wasm/".length);
+      }
+      var candidate=new URL(input,EMBED_TARGET);
+      if(candidate.hostname.indexOf("assets.")!==0 || candidate.pathname.indexOf("/js/wasm/")!==0) return input;
+      return APP_ORIGIN+"/api/wasm/"+candidate.pathname.slice("/js/wasm/".length)+candidate.search;
+    }catch(e){ return input; }
+  }
+  try{
+    Object.defineProperty(window,"__valenceModuleUrl",{
+      configurable:false,
+      writable:false,
+      value:valenceModuleUrl
+    });
+  }catch(e){}
+
+  if(EMBED_ORIGIN==="https://embedindia.st"){
+    try{
+      var setStreamNative;
+      var setStreamPromises=Object.create(null);
+      var setStreamOnce=function(){
+        var key=Array.prototype.join.call(arguments,"/");
+        if(key==="embed") return Promise.resolve();
+        if(setStreamPromises[key]) return setStreamPromises[key];
+        if(typeof setStreamNative!=="function") return Promise.reject(new Error("stream resolver unavailable"));
+        window.__valenceResolverActive=true;
+        var result=setStreamNative.apply(this,arguments);
+        setStreamPromises[key]=result;
+        if(result && typeof result.catch==="function"){
+          result.catch(function(){ delete setStreamPromises[key]; });
+        }
+        return result;
+      };
+      Object.defineProperty(window,"setStream",{
+        configurable:true,
+        enumerable:true,
+        get:function(){ return typeof setStreamNative==="function" ? setStreamOnce : undefined; },
+        set:function(value){ setStreamNative=typeof value==="function" ? value : undefined; }
+      });
+    }catch(e){}
+
+    try{
+      var jwplayerNative;
+      function rewritePlayerFile(file){
+        return typeof file==="string" ? proxify(file) : file;
+      }
+      function rewritePlayerItem(item){
+        if(!item || typeof item!=="object") return item;
+        var next=Object.assign({},item);
+        if(next.file) next.file=rewritePlayerFile(next.file);
+        if(Array.isArray(next.sources)){
+          next.sources=next.sources.map(function(source){ return rewritePlayerItem(source); });
+        }
+        return next;
+      }
+      function rewritePlayerConfig(config){
+        if(!config || typeof config!=="object") return config;
+        var next=rewritePlayerItem(config);
+        if(typeof next.base==="string"){
+          var jwpPath=next.base.indexOf("/jwp/");
+          if(jwpPath!==-1) next.base=APP_ORIGIN+next.base.slice(jwpPath);
+        }
+        if(Array.isArray(next.playlist)){
+          next.playlist=next.playlist.map(function(item){ return rewritePlayerItem(item); });
+        }
+        return next;
+      }
+      function patchPlayer(player){
+        if(!player || player.__valenceSetupPatched || typeof player.setup!=="function") return player;
+        var setupNative=player.setup;
+        player.setup=function(config){ return setupNative.call(this,rewritePlayerConfig(config)); };
+        player.__valenceSetupPatched=true;
+        return player;
+      }
+      var jwplayerFacade=new Proxy(function(){},{
+        apply:function(target,thisArg,args){
+          return patchPlayer(jwplayerNative.apply(thisArg,args));
+        },
+        get:function(target,property){
+          return jwplayerNative ? jwplayerNative[property] : undefined;
+        },
+        set:function(target,property,value){
+          if(jwplayerNative) jwplayerNative[property]=value;
+          return true;
+        }
+      });
+      Object.defineProperty(window,"jwplayer",{
+        configurable:true,
+        enumerable:true,
+        get:function(){ return typeof jwplayerNative==="function" ? jwplayerFacade : undefined; },
+        set:function(value){ jwplayerNative=typeof value==="function" ? value : undefined; }
+      });
+    }catch(e){}
+  }
 
   try{
     var NativeFunction=window.Function;
@@ -38,6 +190,12 @@ export function shim(appOrigin: string, target: URL, parentTarget?: string): str
       var body="";
       try{ body=String(arguments[arguments.length-1]||""); }catch(e){}
       if(generatedDebugger.test(body)) return function(){};
+      if(PLAYER_ASSET_ORIGIN){
+        body=body.replace(new RegExp(${JSON.stringify(GENERATED_MODULE_IMPORT.source)},"g"),function(match,expression){
+          return "await import(window.__valenceModuleUrl("+expression+"));return";
+        });
+        arguments[arguments.length-1]=body;
+      }
       return NativeFunction.apply(this,arguments);
     };
     SafeFunction.prototype=NativeFunction.prototype;
@@ -90,7 +248,7 @@ export function shim(appOrigin: string, target: URL, parentTarget?: string): str
     );
   }
   function isTrustedScript(u){
-    return !!u && (isEmbed(u) || isAppPlayerScript(u) || PLAYER_SCRIPT_HOSTS.indexOf(u.hostname)!==-1);
+    return !!u && (isEmbed(u) || isAppPlayerScript(u) || (u.protocol==="https:" && PLAYER_SCRIPT_HOSTS.indexOf(u.hostname)!==-1));
   }
   function requestUrl(input){
     try{
@@ -214,7 +372,8 @@ export function shim(appOrigin: string, target: URL, parentTarget?: string): str
     }
     if(kind==="blocked") return "about:blank";
     if(u.origin===location.origin && u.pathname.indexOf("/api/wasm/")===0) return input;
-    if(u.origin===location.origin && (u.pathname.indexOf("/js/")===0 || u.pathname.indexOf("/jwp/")===0)){
+    if(u.origin===location.origin && u.pathname.indexOf("/jwp/")===0) return input;
+    if(u.origin===location.origin && u.pathname.indexOf("/js/")===0){
       return PROXY+encodeURIComponent(EMBED_ORIGIN+u.pathname+u.search+u.hash);
     }
     if(u.origin===location.origin && u.pathname==="/fetch") return PROXY+encodeURIComponent(EMBED_ORIGIN+"/fetch");

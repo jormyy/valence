@@ -88,17 +88,21 @@ function wasmGasmBootstrap(): string {
       if(typeof window.setStream!=="function"){
         throw new Error("stream resolver unavailable");
       }
-      var resolver=window.setStream(SOURCE+"/"+SLUG+"/"+CHANNEL).catch(function(error){
+      var providerResolverActive=window.__valenceResolverActive===true;
+      var resolver=providerResolverActive ? null : window.setStream(SOURCE+"/"+SLUG+"/"+CHANNEL).catch(function(error){
         window.__valenceResolverError=String(error||"");
       });
       for(var i=0;i<80 && !setupResolvedPlayer();i++){
         await sleep(250);
       }
-      if(!playerConfigured()) await resolver;
+      if(!playerConfigured() && resolver) await resolver;
       for(var j=0;j<20 && !setupResolvedPlayer();j++){
         await sleep(250);
       }
-      if(!playerConfigured()) throw new Error("no playable media resolved");
+      if(!playerConfigured()){
+        if(providerResolverActive) window.__valenceResolverActive=false;
+        throw new Error("no playable media resolved");
+      }
     }catch(e){
       window.__valenceResolverError=String(e||"");
       window.__valencePlayerStarted=false;

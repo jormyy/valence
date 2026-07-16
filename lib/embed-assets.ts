@@ -11,6 +11,7 @@ interface ProxyEmbedAssetOptions {
   readonly contentType: string;
   readonly accept?: string;
   readonly fallbackOrigin?: string;
+  readonly upstreamOrigin?: string;
 }
 
 export function wasmContentType(asset: string): string {
@@ -38,8 +39,9 @@ export async function proxyEmbedAsset({
   contentType,
   accept = "*/*",
   fallbackOrigin,
+  upstreamOrigin,
 }: ProxyEmbedAssetOptions): Promise<NextResponse> {
-  const origin = originFromEmbedReferer(request, fallbackOrigin);
+  const origin = upstreamOrigin ?? originFromEmbedReferer(request, fallbackOrigin);
   const target = `${origin}${pathname}`;
 
   let upstream: Response;

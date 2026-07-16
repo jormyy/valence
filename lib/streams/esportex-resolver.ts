@@ -31,6 +31,10 @@ export type ResolvedEsportexEmbed = {
   readonly playerId: string;
 };
 
+export type ResolvedEsportexPlayer =
+  | ({ readonly kind: "hls" } & ResolvedEsportexHls)
+  | ({ readonly kind: "embed" } & ResolvedEsportexEmbed);
+
 type ResolvedEsportexData = {
   readonly playerId: string;
   readonly data: EsportexData;
@@ -191,17 +195,7 @@ async function resolveEsportexData(
   return { playerId, data };
 }
 
-export async function resolveEsportexEmbed(
-  target: URL,
-  {
-    signal,
-    fetcher = fetchWithTimeout,
-  }: {
-    readonly signal?: AbortSignal;
-    readonly fetcher?: Fetcher;
-  } = {},
-): Promise<ResolvedEsportexEmbed | null> {
-  const resolved = await resolveEsportexData(target, { signal, fetcher });
+function resolveEmbedFromData(resolved: ResolvedEsportexData): ResolvedEsportexEmbed | null {
   if (!resolved?.playerId.startsWith("ppv/")) return null;
 
   let embedUrl: URL;
@@ -218,8 +212,8 @@ export async function resolveEsportexEmbed(
   return { embedUrl, playerId: resolved.playerId };
 }
 
-export async function resolveEsportexHls(
-  target: URL,
+async function resolveHlsFromData(
+  resolved: ResolvedEsportexData,
   {
     signal,
     fetcher = fetchWithTimeout,
@@ -228,7 +222,6 @@ export async function resolveEsportexHls(
     readonly fetcher?: Fetcher;
   } = {},
 ): Promise<ResolvedEsportexHls | null> {
-  const resolved = await resolveEsportexData(target, { signal, fetcher });
   if (!resolved?.playerId.startsWith("ehd/")) return null;
   const { data, playerId } = resolved;
 
@@ -288,4 +281,43 @@ export async function resolveEsportexHls(
   } catch {
     return null;
   }
+}
+
+export async function resolveEsportexPlayer(
+  target: URL,
+  options: {
+    readonly signal?: AbortSignal;
+    readonly fetcher?: Fetcher;
+  } = {},
+): Promise<ResolvedEsportexPlayer | null> {
+  const resolved = await resolveEsportexData(target, options);
+  if (!resolved) return null;
+
+  const embed = resolveEmbedFromData(resolved);
+  if (embed) return { kind: "embed", ...embed };
+
+  const hls = await resolveHlsFromData(resolved, options);
+  return hls ? { kind: "hls", ...hls } : null;
+}
+
+export async function resolveEsportexEmbed(
+  target: URL,
+  options: {
+    readonly signal?: AbortSignal;
+    readonly fetcher?: Fetcher;
+  } = {},
+): Promise<ResolvedEsportexEmbed | null> {
+  const resolved = await resolveEsportexData(target, options);
+  return resolved ? resolveEmbedFromData(resolved) : null;
+}
+
+export async function resolveEsportexHls(
+  target: URL,
+  options: {
+    readonly signal?: AbortSignal;
+    readonly fetcher?: Fetcher;
+  } = {},
+): Promise<ResolvedEsportexHls | null> {
+  const resolved = await resolveEsportexData(target, options);
+  return resolved ? resolveHlsFromData(resolved, options) : null;
 }

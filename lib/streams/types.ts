@@ -27,6 +27,7 @@ export interface MediaHostRule {
 export interface ProviderCapabilities {
   readonly embedHosts: readonly EmbedHostRule[];
   readonly mediaHosts?: readonly MediaHostRule[];
+  readonly playerScriptHosts?: readonly string[];
 }
 
 export interface Provider {

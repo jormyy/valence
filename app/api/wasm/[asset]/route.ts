@@ -17,6 +17,6 @@ export async function GET(
     pathname: `/js/wasm/${asset}`,
     contentType: wasmContentType(asset),
     accept: asset.endsWith(".wasm") ? "application/wasm,*/*;q=0.8" : "application/javascript,*/*;q=0.8",
-    fallbackOrigin: "https://embedindia.st",
+    upstreamOrigin: "https://assets.embedindia.st",
   });
 }

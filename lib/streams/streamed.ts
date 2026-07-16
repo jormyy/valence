@@ -118,6 +118,7 @@ export const streamed: Provider = {
       { hostname: "strmd.st", includeSubdomains: true },
       { hostname: "tiktokcdn.com", includeSubdomains: true, pathPrefix: "/obj/" },
     ],
+    playerScriptHosts: ["assets.embedindia.st"],
   },
 
   async getStreams(game, options) {

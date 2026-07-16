@@ -5,14 +5,16 @@ import {
   embedHostsCsp,
   isAllowedEmbedUrl,
   isAllowedMediaUrl,
+  isAllowedPlayerScriptUrl,
   originFromEmbedReferer,
+  playerScriptHostsCsp,
 } from "@/lib/streams/providers";
 import { PROXY_FETCH_TIMEOUT_MS, fetchWithTimeout } from "@/lib/upstream";
 import { autoBootstrap } from "@/lib/embed-bootstrap";
-import { BLOCKED_HOST, BLOCKED_URL, PLAYER_SCRIPT_HOSTS } from "@/lib/embed-blocklist";
-import { shim } from "@/lib/embed-shim";
+import { BLOCKED_HOST, BLOCKED_URL } from "@/lib/embed-blocklist";
+import { rewritePlayerAssetOrigin, shim } from "@/lib/embed-shim";
 import { publicRequestOrigin } from "@/lib/request-origin";
-import { resolveEsportexEmbed, resolveEsportexHls } from "@/lib/streams/esportex-resolver";
+import { resolveEsportexPlayer } from "@/lib/streams/esportex-resolver";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -57,7 +59,7 @@ function isBlockedUrl(url: URL): boolean {
 }
 
 function isTrustedScriptUrl(url: URL): boolean {
-  return isAllowedEmbedUrl(url) || PLAYER_SCRIPT_HOSTS.has(url.hostname);
+  return isAllowedEmbedUrl(url) || isAllowedPlayerScriptUrl(url);
 }
 
 function allowedEmbedOrigin(raw: string | undefined): string | undefined {
@@ -293,8 +295,8 @@ function stripBlockedScripts(
   );
 }
 
-function sanitizeInlineScriptBody(body: string): string {
-  return body
+function sanitizeInlineScriptBody(body: string, target: URL): string {
+  return rewritePlayerAssetOrigin(body, target)
     .replace(/_tR3Vx\(\{'disableMenu':!\[\][\s\S]*?void 0;\}\}\);/g, "void 0")
     .replace(/\bdebugger\b/g, "void 0")
     .replace(/\bwindow\s*\[\s*(["'])location\1\s*\]\s*\[\s*(["'])href\2\s*\]\s*=\s*(["'])\/\3/g, "void 0")
@@ -304,7 +306,7 @@ function sanitizeInlineScriptBody(body: string): string {
     .replace(/\bwindow\.location\.replace\(\s*(["'])https?:\/\/google\.com\/?\1\s*\)/gi, "void 0");
 }
 
-function stripBlockedInlineScripts(html: string): string {
+function stripBlockedInlineScripts(html: string, target: URL): string {
   return html.replace(
     /<script\b(?![^>]*\bsrc=)[^>]*>[\s\S]*?<\/script>/gi,
     (tag: string) => {
@@ -337,7 +339,7 @@ function stripBlockedInlineScripts(html: string): string {
       ) {
         return "";
       }
-      const sanitized = sanitizeInlineScriptBody(body);
+      const sanitized = sanitizeInlineScriptBody(body, target);
       if (sanitized === body) return tag;
       const open = tag.match(/^<script\b[^>]*>/i)?.[0] ?? "<script>";
       return `${open}${sanitized}</script>`;
@@ -433,7 +435,7 @@ function contentSecurityPolicy(appOrigin: string): string {
       ? `https://${rule.hostname} https://*.${rule.hostname}`
       : `https://${rule.hostname}`)
     .join(" ");
-  const playerAssetHosts = "https://cdn.jsdelivr.net https://vjs.zencdn.net https://cdnjs.cloudflare.com";
+  const playerAssetHosts = playerScriptHostsCsp();
   return [
     `default-src ${self} blob: data:`,
     `script-src ${self} ${inline} ${evalToken} 'wasm-unsafe-eval' blob: ${playerAssetHosts} ${embedHosts}`,
@@ -448,13 +450,15 @@ function contentSecurityPolicy(appOrigin: string): string {
     "object-src 'none'",
     "form-action 'none'",
     `base-uri ${self} ${appOrigin} ${embedHosts}`,
-    `navigate-to ${self} ${appOrigin}`,
   ].join("; ");
 }
 
 function rewriteHtml(html: string, target: URL, appOrigin: string, parentTarget?: string): string {
   const inject = shim(appOrigin, target, parentTarget) + autoBootstrap(target);
-  const cleaned = stripBlockedInlineScripts(stripBlockedScripts(html, target, appOrigin, parentTarget));
+  const cleaned = stripBlockedInlineScripts(
+    stripBlockedScripts(html, target, appOrigin, parentTarget),
+    target,
+  );
   const rewritten = hardenIframes(
     rewriteCssUrls(
       rewriteUrlAttributes(cleaned, target, appOrigin, parentTarget),
@@ -512,12 +516,12 @@ async function proxyEmbed(request: Request) {
     });
   }
 
-  const resolvedEsportexHls = await resolveEsportexHls(target, { signal: request.signal }).catch(
+  const resolvedEsportex = await resolveEsportexPlayer(target, { signal: request.signal }).catch(
     () => null,
   );
-  if (resolvedEsportexHls) {
-    return new NextResponse(hlsPlayerHtml(resolvedEsportexHls.hlsUrl, appOrigin, {
-      refererOrigin: resolvedEsportexHls.refererOrigin,
+  if (resolvedEsportex?.kind === "hls") {
+    return new NextResponse(hlsPlayerHtml(resolvedEsportex.hlsUrl, appOrigin, {
+      refererOrigin: resolvedEsportex.refererOrigin,
       playerTarget: parentTarget,
     }), {
       status: 200,
@@ -529,12 +533,9 @@ async function proxyEmbed(request: Request) {
     });
   }
 
-  const resolvedEsportexEmbed = await resolveEsportexEmbed(target, { signal: request.signal }).catch(
-    () => null,
-  );
-  if (resolvedEsportexEmbed) {
+  if (resolvedEsportex?.kind === "embed") {
     return NextResponse.redirect(
-      proxied(resolvedEsportexEmbed.embedUrl, appOrigin, resolvedEsportexEmbed.embedUrl.origin, parentTarget),
+      proxied(resolvedEsportex.embedUrl, appOrigin, resolvedEsportex.embedUrl.origin, parentTarget),
       302,
     );
   }

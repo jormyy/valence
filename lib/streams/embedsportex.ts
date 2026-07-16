@@ -124,6 +124,7 @@ export const embedsportex: Provider = {
       { hostname: "indianservers.st", includeSubdomains: true, pathPrefix: "/secure/" },
       { hostname: "zohanayaan.com", includeSubdomains: true, pathPrefix: "/hls/" },
     ],
+    playerScriptHosts: ["assets.embedindia.st"],
   },
 
   async getStreams(game, options) {
