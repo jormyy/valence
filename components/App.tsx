@@ -12,6 +12,7 @@ import GameFeed from "@/components/GameFeed";
 import LiveTicker from "@/components/LiveTicker";
 import WatchPanel from "@/components/WatchPanel";
 import type { LeagueDisplay, LeagueDisplayMap } from "@/lib/registry";
+import { readNdjson } from "@/lib/ndjson";
 
 interface Props {
   initialGames: GameWithStreams[];
@@ -122,14 +123,34 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
     setDateLoading(true);
     setActiveSelection({ id: null, automatic: false });
     setStatusFilter("all");
-    fetch(`/api/games?date=${dateStrForIdx(dateIdx)}`, { signal: controller.signal })
-      .then((r) => r.json())
-      .then((data: GamesResponse) => {
-        if (!controller.signal.aborted) {
-          setFetchedGames(data.games ?? []);
-          setFetchedLeagueDisplay(data.leagueDisplay ?? []);
-          setDateLoading(false);
+    fetch(`/api/games?date=${dateStrForIdx(dateIdx)}`, {
+      headers: { accept: "application/x-ndjson, application/json" },
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`game lookup failed: ${response.status}`);
+        if (!response.headers.get("content-type")?.includes("application/x-ndjson") || !response.body) {
+          const data = await response.json() as GamesResponse;
+          if (!controller.signal.aborted) {
+            setFetchedGames(data.games ?? []);
+            setFetchedLeagueDisplay(data.leagueDisplay ?? []);
+            setDateLoading(false);
+          }
+          return;
         }
+
+        let receivedGames = false;
+        let failed = false;
+        await readNdjson<GamesResponse & { type?: string }>(response.body, (update) => {
+          if ((update.type === "schedule" || update.type === "complete") && Array.isArray(update.games)) {
+            receivedGames = true;
+            setFetchedGames(update.games);
+            setFetchedLeagueDisplay(update.leagueDisplay ?? []);
+            setDateLoading(false);
+          }
+          if (update.type === "error") failed = true;
+        }, controller.signal);
+        if (failed && !receivedGames) throw new Error("game lookup failed");
       })
       .catch((e) => {
         if (controller.signal.aborted) return;

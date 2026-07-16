@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Stream } from "./types";
 import type { StreamLookup } from "./streams/types";
+import { readNdjson } from "./ndjson";
 
 interface StreamState {
   gameId: string | null;
@@ -65,25 +66,13 @@ export function useGameStreams(game: StreamLookup | null): StreamState {
           return;
         }
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let pending = "";
         let completed = false;
-        while (!controller.signal.aborted) {
-          const chunk = await reader.read();
-          pending += decoder.decode(chunk.value, { stream: !chunk.done });
-          const lines = pending.split("\n");
-          pending = lines.pop() ?? "";
-          for (const line of lines) {
-            if (!line) continue;
-            const update = JSON.parse(line) as { type?: string; streams?: Stream[] };
-            if ((update.type === "discovery" || update.type === "complete") && Array.isArray(update.streams)) {
-              completed = update.type === "complete";
-              setState({ gameId: lookup.id, streams: update.streams, loading: false });
-            }
+        await readNdjson<{ type?: string; streams?: Stream[] }>(response.body, (update) => {
+          if ((update.type === "discovery" || update.type === "complete") && Array.isArray(update.streams)) {
+            completed = update.type === "complete";
+            setState({ gameId: lookup.id, streams: update.streams, loading: false });
           }
-          if (chunk.done) break;
-        }
+        }, controller.signal);
         if (!controller.signal.aborted && !completed) {
           setState((current) => current.gameId === lookup.id
             ? { ...current, loading: false }

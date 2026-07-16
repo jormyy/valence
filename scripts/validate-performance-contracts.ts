@@ -1,6 +1,7 @@
 import { strict as assert } from "node:assert";
 import { AsyncTtlCache } from "../lib/async-ttl-cache";
 import { closeOnUpstreamFailure, shouldBufferMedia } from "../lib/media-body";
+import { readNdjson } from "../lib/ndjson";
 
 function delay(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -99,9 +100,24 @@ async function validateMediaBodies() {
   );
 }
 
+async function validateNdjson() {
+  const chunks = ["{\"id\":1}\n{\"", "id\":2}\n{\"id\":", "3}"];
+  const body = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      const chunk = chunks.shift();
+      if (chunk === undefined) controller.close();
+      else controller.enqueue(new TextEncoder().encode(chunk));
+    },
+  });
+  const values: Array<{ id: number }> = [];
+  await readNdjson<{ id: number }>(body, (value) => values.push(value));
+  assert.deepEqual(values, [{ id: 1 }, { id: 2 }, { id: 3 }]);
+}
+
 async function main() {
   await validateCache();
   await validateMediaBodies();
+  await validateNdjson();
   console.log("performance contracts: ok");
 }
 
