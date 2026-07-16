@@ -122,11 +122,19 @@
 
 .stream-tabs {
   display: flex; align-items: center; gap: 4px;
+  min-height: 42px;
   padding: 8px 12px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-2);
   overflow-x: auto;
   scrollbar-width: thin;
+}
+.stream-status {
+  color: var(--subtle);
+  font-family: monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 .stream-tab {
   display: inline-flex; align-items: center; gap: 5px;

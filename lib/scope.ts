@@ -1,14 +1,19 @@
 import type { Game } from "./types";
-import type { Sport } from "./registry";
-import { LEAGUE_BY_ID } from "./registry";
+import type { LeagueDisplayMap } from "./registry";
+import type { Sport } from "./sports";
 
 export type SportScope = "all" | Sport;
 export type StatusFilter = "all" | "live" | "upcoming" | "final";
 
-export function applyScope<T extends Game>(games: T[], sport: SportScope, league: Game["league"] | null): T[] {
+export function applyScope<T extends Game>(
+  games: T[],
+  sport: SportScope,
+  league: Game["league"] | null,
+  leagueById: LeagueDisplayMap,
+): T[] {
   return games.filter((g) => {
     if (league) return g.league === league;
-    if (sport !== "all") return LEAGUE_BY_ID[g.league]?.sport === sport;
+    if (sport !== "all") return leagueById[g.league]?.sport === sport;
     return true;
   });
 }

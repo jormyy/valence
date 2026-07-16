@@ -1,4 +1,4 @@
-import type { Sport } from "@/lib/registry";
+import type { Sport } from "@/lib/sports";
 
 interface IconProps { size?: number }
 

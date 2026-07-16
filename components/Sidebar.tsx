@@ -2,8 +2,9 @@
 
 import { useMemo, useState, memo } from "react";
 import type { GameWithStreams, League } from "@/lib/types";
-import type { Sport } from "@/lib/registry";
-import { SPORTS, LEAGUES, LEAGUE_BY_ID } from "@/lib/registry";
+import type { LeagueDisplay, LeagueDisplayMap } from "@/lib/registry";
+import { SPORTS } from "@/lib/sports";
+import type { Sport } from "@/lib/sports";
 import type { SportScope, StatusFilter } from "@/lib/scope";
 import { statusCounts } from "@/lib/scope";
 import { SportIcon, GridIcon, BellIcon } from "@/components/icons";
@@ -16,6 +17,8 @@ interface Props {
   setActiveLeague: (v: League | null) => void;
   statusFilter: StatusFilter;
   setStatusFilter: (v: StatusFilter) => void;
+  leagueDisplay: LeagueDisplay[];
+  leagueById: LeagueDisplayMap;
 }
 
 function Sidebar({
@@ -26,6 +29,8 @@ function Sidebar({
   setActiveLeague,
   statusFilter,
   setStatusFilter,
+  leagueDisplay,
+  leagueById,
 }: Props) {
   const [expanded, setExpanded] = useState(new Set(SPORTS.map((s) => s.id)));
   const isAllScope = activeSport === "all" && activeLeague === null;
@@ -34,7 +39,7 @@ function Sidebar({
     const sportGroups = new Map<string, GameWithStreams[]>();
     const leagueGroups = new Map<string, GameWithStreams[]>();
     for (const g of games) {
-      const lg = LEAGUE_BY_ID[g.league];
+      const lg = leagueById[g.league];
       if (!lg) continue;
       let sportBucket = sportGroups.get(lg.sport);
       if (!sportBucket) { sportBucket = []; sportGroups.set(lg.sport, sportBucket); }
@@ -45,10 +50,10 @@ function Sidebar({
     }
     const sportCounts = new Map([...sportGroups].map(([k, gs]) => [k, statusCounts(gs)]));
     const leagueCounts = new Map([...leagueGroups].map(([k, gs]) => [k, statusCounts(gs)]));
-    // Group leagues-with-games by sport once, in registry order, so the render
-    // doesn't re-filter the full LEAGUES table per expanded sport.
-    const leaguesBySport = new Map<string, (typeof LEAGUES)[number][]>();
-    for (const lg of LEAGUES) {
+    // Group active leagues by sport once, preserving registry order without
+    // re-filtering the list for every expanded sport.
+    const leaguesBySport = new Map<string, LeagueDisplay[]>();
+    for (const lg of leagueDisplay) {
       if (!leagueGroups.has(lg.id)) continue;
       const bucket = leaguesBySport.get(lg.sport);
       if (bucket) bucket.push(lg);
@@ -57,7 +62,7 @@ function Sidebar({
     let totalLive = 0, totalUp = 0;
     for (const c of sportCounts.values()) { totalLive += c.live; totalUp += c.upcoming; }
     return { sportCounts, leagueCounts, leaguesBySport, totalLive, totalUp };
-  }, [games]);
+  }, [games, leagueDisplay, leagueById]);
 
   function toggleSport(id: Sport) {
     setExpanded((prev) => {

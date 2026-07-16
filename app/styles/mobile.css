@@ -39,6 +39,8 @@
     grid-template-rows: auto minmax(0, 1fr);
   }
   .main.with-watch .center { display: none; }
+  .main.with-watch.auto-watch .center { display: flex; }
+  .main.auto-watch .watch { display: none; }
 
   /* Sidebar → horizontal scrolling pill strip */
   .rail {
@@ -162,6 +164,7 @@
     height: 44px;
   }
   .stream-tabs {
+    min-height: 61px;
     padding: 8px 10px;
     scrollbar-width: none;
   }

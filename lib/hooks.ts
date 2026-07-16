@@ -7,10 +7,11 @@ import type { StreamLookup } from "./streams/types";
 interface StreamState {
   gameId: string | null;
   streams: Stream[];
+  loading: boolean;
 }
 
 export function useGameStreams(game: StreamLookup | null): StreamState {
-  const [state, setState] = useState<StreamState>({ gameId: null, streams: [] });
+  const [state, setState] = useState<StreamState>({ gameId: null, streams: [], loading: false });
   const lookup = useMemo(
     () => game && ({
       id: game.id,
@@ -40,11 +41,11 @@ export function useGameStreams(game: StreamLookup | null): StreamState {
 
   useEffect(() => {
     if (!lookup) {
-      setState({ gameId: null, streams: [] });
+      setState({ gameId: null, streams: [], loading: false });
       return;
     }
     const controller = new AbortController();
-    setState({ gameId: lookup.id, streams: [] });
+    setState({ gameId: lookup.id, streams: [], loading: true });
     fetch("/api/streams", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -54,13 +55,13 @@ export function useGameStreams(game: StreamLookup | null): StreamState {
       .then((r) => r.json())
       .then((data: { streams?: Stream[] }) => {
         if (!controller.signal.aborted) {
-          setState({ gameId: lookup.id, streams: data.streams ?? [] });
+          setState({ gameId: lookup.id, streams: data.streams ?? [], loading: false });
         }
       })
       .catch((e) => {
         if (controller.signal.aborted) return;
         console.error("Failed to fetch streams:", e);
-        setState({ gameId: lookup.id, streams: [] });
+        setState({ gameId: lookup.id, streams: [], loading: false });
       });
     return () => controller.abort();
   }, [lookup]);

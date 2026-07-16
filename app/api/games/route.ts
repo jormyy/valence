@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAllGames, normalizeEspnDateParam } from "@/lib/espn";
 import { attachStreamCounts, prefetchStreamCounts } from "@/lib/streams";
+import { leagueDisplayForGames } from "@/lib/registry";
 
 export async function GET(request: Request) {
   const date = normalizeEspnDateParam(new URL(request.url).searchParams.get("date"));
@@ -9,5 +10,8 @@ export async function GET(request: Request) {
   const games = await getAllGames(date, { signal: request.signal });
   await warming;
   const gamesWithStreams = await attachStreamCounts(games, date, { signal: request.signal });
-  return NextResponse.json({ games: gamesWithStreams });
+  return NextResponse.json({
+    games: gamesWithStreams,
+    leagueDisplay: leagueDisplayForGames(gamesWithStreams),
+  });
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, memo } from "react";
 import type { GameWithStreams, Stream } from "@/lib/types";
-import { LEAGUE_BY_ID } from "@/lib/registry";
+import type { LeagueDisplayMap } from "@/lib/registry";
 import { teamColor } from "@/lib/colors";
 import { formatTimePT } from "@/lib/datetime";
 import { scoreView } from "@/lib/game";
@@ -14,12 +14,22 @@ import ShieldedPlayer from "@/components/ShieldedPlayer";
 interface Props {
   game: GameWithStreams;
   streams: Stream[];
+  streamsLoading: boolean;
+  leagueById: LeagueDisplayMap;
   onClose: () => void;
   allGames: GameWithStreams[];
   onPick: (id: string) => void;
 }
 
-function WatchPanel({ game, streams, onClose, allGames, onPick }: Props) {
+function WatchPanel({
+  game,
+  streams,
+  streamsLoading,
+  leagueById,
+  onClose,
+  allGames,
+  onPick,
+}: Props) {
   const [activeStream, setActiveStream] = useState(0);
   const [failedStreams, setFailedStreams] = useState<Set<number>>(() => new Set());
   const [tab, setTab] = useState<"info" | "stats">("info");
@@ -138,7 +148,7 @@ function WatchPanel({ game, streams, onClose, allGames, onPick }: Props) {
     setFullscreenFallback(true);
   }
 
-  const lg = LEAGUE_BY_ID[game.league];
+  const lg = leagueById[game.league];
   const s = game.status;
   const sv = scoreView(game);
   const streamHealthAt = (index: number) => failedStreams.has(index) ? "offline" : streams[index]?.health;
@@ -160,7 +170,7 @@ function WatchPanel({ game, streams, onClose, allGames, onPick }: Props) {
   return (
     <aside className="watch">
       <div className="watch-header">
-        <span className="league-tag">{lg.short}</span>
+        <span className="league-tag">{lg?.short ?? game.league}</span>
         <span className="watch-matchup">
           {game.awayTeam.abbreviation} <span className="dim">@</span> {game.homeTeam.abbreviation}
         </span>
@@ -213,44 +223,47 @@ function WatchPanel({ game, streams, onClose, allGames, onPick }: Props) {
         </div>
       </div>
 
-      {streams.length > 1 && (
-        <div className="stream-tabs">
-          {streams.map((st, i) => {
-            const health = streamHealthAt(i);
-            const title = failedStreams.has(i)
-              ? "Stream failed during playback"
-              : health === "online"
-                ? "Stream checked OK"
-                : health === "offline"
-                  ? "Stream check failed"
-                  : undefined;
-            return (
-              <button
-                key={i}
-                className={`stream-tab ${i === activeStream ? "active" : ""} ${health ? `health-${health}` : ""}`}
-                onClick={() => {
-                  setFailedStreams((failed) => {
-                    if (!failed.has(i)) return failed;
-                    const next = new Set(failed);
-                    next.delete(i);
-                    return next;
-                  });
-                  setActiveStream(i);
-                }}
-                title={title}
-              >
-                {st.label} <span className="q">{st.quality}</span>
-                {st.language && <span className="q">· {st.language}</span>}
-                {health && (
-                  <span className="stream-health">
-                    {health === "online" ? "OK" : "DOWN"}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      <div className="stream-tabs">
+        {streams.length === 0 && (
+          <span className="stream-status">
+            {streamsLoading ? "Checking sources…" : "No sources"}
+          </span>
+        )}
+        {streams.map((st, i) => {
+          const health = streamHealthAt(i);
+          const title = failedStreams.has(i)
+            ? "Stream failed during playback"
+            : health === "online"
+              ? "Stream checked OK"
+              : health === "offline"
+                ? "Stream check failed"
+                : undefined;
+          return (
+            <button
+              key={i}
+              className={`stream-tab ${i === activeStream ? "active" : ""} ${health ? `health-${health}` : ""}`}
+              onClick={() => {
+                setFailedStreams((failed) => {
+                  if (!failed.has(i)) return failed;
+                  const next = new Set(failed);
+                  next.delete(i);
+                  return next;
+                });
+                setActiveStream(i);
+              }}
+              title={title}
+            >
+              {st.label} <span className="q">{st.quality}</span>
+              {st.language && <span className="q">· {st.language}</span>}
+              {health && (
+                <span className="stream-health">
+                  {health === "online" ? "OK" : "DOWN"}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
       <div className="scorebox">
         <div className="matchup-grid">
@@ -287,11 +300,11 @@ function WatchPanel({ game, streams, onClose, allGames, onPick }: Props) {
       <div className="watch-info">
         {tab === "info" && (
           <>
-            <div className="info-row"><span className="lbl">League</span><span className="val">{lg.label}</span></div>
+            <div className="info-row"><span className="lbl">League</span><span className="val">{lg?.label ?? game.league}</span></div>
             <div className="info-row"><span className="lbl">Start</span><span className="val">{formatTimePT(game.startTime)}</span></div>
             <div className="info-row"><span className="lbl">Status</span><span className="val">{game.statusDisplay}</span></div>
             <div className="info-row"><span className="lbl">Streams</span><span className="val">{streamsText}</span></div>
-            <RelatedGames current={game} allGames={allGames} onPick={onPick} />
+            <RelatedGames current={game} allGames={allGames} onPick={onPick} leagueById={leagueById} />
           </>
         )}
         {tab === "stats" && <StatsPanel gameId={game.id} status={s} />}

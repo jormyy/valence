@@ -1,24 +1,9 @@
 import { LEAGUES } from "./registry-data";
+import { SPORTS } from "./sports";
+import type { Sport } from "./sports";
 export { LEAGUES };
-
-export const SPORTS = [
-  { id: "sports", label: "Sports" },
-  { id: "basketball", label: "Basketball" },
-  { id: "baseball", label: "Baseball" },
-  { id: "american-football", label: "Football" },
-  { id: "hockey", label: "Hockey" },
-  { id: "soccer", label: "Soccer" },
-  { id: "tennis", label: "Tennis" },
-  { id: "combat", label: "Combat" },
-  { id: "aussie-rules", label: "Aussie Rules" },
-  { id: "rugby", label: "Rugby" },
-  { id: "volleyball", label: "Volleyball" },
-  { id: "cricket", label: "Cricket" },
-  { id: "racing", label: "Racing" },
-  { id: "golf", label: "Golf" },
-] as const;
-
-export type Sport = (typeof SPORTS)[number]["id"];
+export { SPORTS };
+export type { Sport } from "./sports";
 export const STREAM_CATEGORIES = [
   "sports",
   "basketball",
@@ -56,7 +41,10 @@ export type LeagueRegistryEntry = {
 
 export type League = (typeof LEAGUES)[number]["id"];
 export type LeagueInfo = LeagueRegistryEntry & { readonly id: League };
-export type SportInfo = (typeof SPORTS)[number];
+export type LeagueDisplay = Pick<LeagueInfo, "id" | "sport" | "label" | "short" | "region"> & {
+  readonly scheduled: boolean;
+};
+export type LeagueDisplayMap = Readonly<Partial<Record<League, LeagueDisplay>>>;
 
 export const LEAGUE_IDS = LEAGUES.map((league) => league.id) as League[];
 const LEAGUE_ID_SET = new Set<string>(LEAGUE_IDS);
@@ -79,4 +67,20 @@ export function streamCategoryFor(league: League): StreamCategory {
 
 export function hasEspnSchedule(league: LeagueInfo): league is LeagueInfo & { readonly espn: EspnSchedule } {
   return Boolean(league.espn);
+}
+
+export function leagueDisplayForGames(
+  games: readonly { readonly league: League }[],
+): LeagueDisplay[] {
+  const active = new Set(games.map((game) => game.league));
+  return LEAGUES
+    .filter((league) => active.has(league.id))
+    .map((league) => ({
+      id: league.id,
+      sport: league.sport,
+      label: league.label,
+      short: league.short,
+      region: league.region,
+      scheduled: "espn" in league,
+    }));
 }

@@ -2,8 +2,8 @@
 
 import { useMemo, memo } from "react";
 import type { GameWithStreams, League } from "@/lib/types";
-import { LEAGUES, LEAGUE_BY_ID } from "@/lib/registry";
-import { STATUS_ORDER } from "@/lib/espn";
+import type { LeagueDisplay, LeagueDisplayMap } from "@/lib/registry";
+import { STATUS_ORDER } from "@/lib/game-status";
 import type { StatusFilter } from "@/lib/scope";
 import { applyStatusFilter } from "@/lib/scope";
 import { SportIcon } from "@/components/icons";
@@ -15,19 +15,28 @@ interface Props {
   onPick: (id: string) => void;
   statusFilter: StatusFilter;
   search: string;
+  leagueDisplay: LeagueDisplay[];
+  leagueById: LeagueDisplayMap;
 }
 
-const LEAGUE_ORDER: Record<string, number> = LEAGUES.reduce((acc, l, i) => {
-  acc[l.id] = i;
-  return acc;
-}, {} as Record<string, number>);
-
-function GameFeed({ games, activeGameId, onPick, statusFilter, search }: Props) {
+function GameFeed({
+  games,
+  activeGameId,
+  onPick,
+  statusFilter,
+  search,
+  leagueDisplay,
+  leagueById,
+}: Props) {
+  const leagueOrder = useMemo(
+    () => new Map(leagueDisplay.map((league, index) => [league.id, index])),
+    [leagueDisplay],
+  );
   const visible = useMemo(() => {
     const q = search.toLowerCase().trim();
     return applyStatusFilter(games, statusFilter).filter((g) => {
       if (!q) return true;
-      const lg = LEAGUE_BY_ID[g.league];
+      const lg = leagueById[g.league];
       const hay = [
         g.awayTeam.name, g.awayTeam.abbreviation,
         g.homeTeam.name, g.homeTeam.abbreviation,
@@ -35,7 +44,7 @@ function GameFeed({ games, activeGameId, onPick, statusFilter, search }: Props) 
       ].filter(Boolean).join(" ").toLowerCase();
       return hay.includes(q);
     });
-  }, [games, statusFilter, search]);
+  }, [games, statusFilter, search, leagueById]);
 
   const grouped = useMemo(() => {
     const out = new Map<League, GameWithStreams[]>();
@@ -51,17 +60,19 @@ function GameFeed({ games, activeGameId, onPick, statusFilter, search }: Props) 
           return diff !== 0 ? diff : new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
         });
         const live = gs.filter((x) => x.status === "in").length;
-        const lg = LEAGUE_BY_ID[lid];
+        const lg = leagueById[lid];
+        if (!lg) return null;
         // Generic 24/7 channel buckets (no scheduled fixtures) shouldn't bury real games.
-        const isChannel = !lg.espn;
+        const isChannel = !lg.scheduled;
         return { lg, games: gs, live, isChannel };
       })
+      .filter((group) => group !== null)
       .sort((a, b) => {
         if (a.isChannel !== b.isChannel) return a.isChannel ? 1 : -1;
         if (a.live !== b.live) return b.live - a.live;
-        return (LEAGUE_ORDER[a.lg.id] ?? 99) - (LEAGUE_ORDER[b.lg.id] ?? 99);
+        return (leagueOrder.get(a.lg.id) ?? 99) - (leagueOrder.get(b.lg.id) ?? 99);
       });
-  }, [visible]);
+  }, [visible, leagueById, leagueOrder]);
 
   if (visible.length === 0) {
     return (

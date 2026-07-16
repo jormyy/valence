@@ -11,12 +11,11 @@ import { getSourceGames } from "./source-events";
 import { mapLimit } from "./concurrency";
 import { dateInPT, formatTimePT, normalizeDate } from "./datetime";
 import { teamFromName } from "./team";
+import { STATUS_ORDER } from "./game-status";
 
 interface FetchOptions {
   readonly signal?: AbortSignal;
 }
-
-export const STATUS_ORDER: Record<Game["status"], number> = { in: 0, pre: 1, post: 2 };
 
 export function normalizeEspnDateParam(dateStr: string | null | undefined): string | undefined {
   if (!dateStr) return undefined;

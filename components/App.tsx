@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import type { Game, GameWithStreams, Stream } from "@/lib/types";
 import { PT_TZ, dateInPT } from "@/lib/datetime";
 import type { SportScope, StatusFilter } from "@/lib/scope";
@@ -11,9 +11,11 @@ import Sidebar from "@/components/Sidebar";
 import GameFeed from "@/components/GameFeed";
 import LiveTicker from "@/components/LiveTicker";
 import WatchPanel from "@/components/WatchPanel";
+import type { LeagueDisplay, LeagueDisplayMap } from "@/lib/registry";
 
 interface Props {
   initialGames: GameWithStreams[];
+  initialLeagueDisplay: LeagueDisplay[];
 }
 
 function ptCalendarDate(): { y: number; m: number; d: number } {
@@ -44,7 +46,15 @@ function makeDateLabels(): [string, string, string] {
   return [fmt(-1), fmt(0), fmt(1)];
 }
 
-interface GamesResponse { games: GameWithStreams[] }
+interface GamesResponse {
+  games: GameWithStreams[];
+  leagueDisplay: LeagueDisplay[];
+}
+
+interface ActiveSelection {
+  id: string | null;
+  automatic: boolean;
+}
 
 // Stable identity for "no streams" so WatchPanel's memoization isn't broken by a
 // fresh [] literal on every render.
@@ -61,18 +71,33 @@ function initialDesktopGame(games: readonly GameWithStreams[]): GameWithStreams 
     ?? games.find((g) => g.status === "in");
 }
 
-export default function App({ initialGames }: Props) {
+export default function App({ initialGames, initialLeagueDisplay }: Props) {
   const [search, setSearch] = useState("");
   const [dateIdx, setDateIdx] = useState(1);
   const [activeSport, setActiveSport] = useState<SportScope>("all");
   const [activeLeague, setActiveLeague] = useState<Game["league"] | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [activeGameId, setActiveGameId] = useState<string | null>(null);
+  const [activeSelection, setActiveSelection] = useState<ActiveSelection>(() => {
+    const game = initialDesktopGame(initialGames);
+    return { id: game?.id ?? null, automatic: Boolean(game) };
+  });
   const [now, setNow] = useState(() => Date.now());
   const [fetchedGames, setFetchedGames] = useState<GameWithStreams[] | null>(null);
+  const [fetchedLeagueDisplay, setFetchedLeagueDisplay] = useState<LeagueDisplay[] | null>(null);
   const [dateLoading, setDateLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const didInitialDesktopSelect = useRef(false);
+  const [autoStreamsEnabled, setAutoStreamsEnabled] = useState(false);
+  const activeGameId = activeSelection.id;
+  const displayedActiveGameId = activeSelection.automatic && !autoStreamsEnabled
+    ? null
+    : activeGameId;
+
+  useEffect(() => {
+    const compactLandscape = window.innerWidth <= 950
+      && window.innerHeight <= 500
+      && window.innerWidth > window.innerHeight;
+    if (window.innerWidth >= 900 && !compactLandscape) setAutoStreamsEnabled(true);
+  }, []);
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 30_000);
@@ -87,19 +112,22 @@ export default function App({ initialGames }: Props) {
   useEffect(() => {
     if (dateIdx === 1) {
       setFetchedGames(null);
+      setFetchedLeagueDisplay(null);
       setDateLoading(false);
       return;
     }
     const controller = new AbortController();
     setFetchedGames(null);
+    setFetchedLeagueDisplay(null);
     setDateLoading(true);
-    setActiveGameId(null);
+    setActiveSelection({ id: null, automatic: false });
     setStatusFilter("all");
     fetch(`/api/games?date=${dateStrForIdx(dateIdx)}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((data: GamesResponse) => {
         if (!controller.signal.aborted) {
           setFetchedGames(data.games ?? []);
+          setFetchedLeagueDisplay(data.leagueDisplay ?? []);
           setDateLoading(false);
         }
       })
@@ -107,12 +135,21 @@ export default function App({ initialGames }: Props) {
         if (controller.signal.aborted) return;
         console.error("Failed to fetch games for date:", dateIdx, e);
         setFetchedGames([]);
+        setFetchedLeagueDisplay([]);
         setDateLoading(false);
       });
     return () => controller.abort();
   }, [dateIdx]);
 
   const rawGames = fetchedGames ?? initialGames;
+  const leagueDisplay = fetchedGames === null
+    ? initialLeagueDisplay
+    : (fetchedLeagueDisplay ?? []);
+  const leagueById = useMemo<LeagueDisplayMap>(() => {
+    const out: Partial<Record<Game["league"], LeagueDisplay>> = {};
+    for (const league of leagueDisplay) out[league.id] = league;
+    return out;
+  }, [leagueDisplay]);
 
   // Promote scheduled-but-started games from "pre" to "in" via wall clock.
   // Reuse the same array reference when no game actually crossed its start time,
@@ -128,17 +165,6 @@ export default function App({ initialGames }: Props) {
     return changed ? promoted : rawGames;
   }, [rawGames, now]);
 
-  // Auto-select first live game once on mount, but only on desktop where the
-  // watch panel sits beside the feed. On mobile it covers the screen, so leave
-  // the game list visible as the landing view.
-  useEffect(() => {
-    if (didInitialDesktopSelect.current) return;
-    didInitialDesktopSelect.current = true;
-    if (typeof window !== "undefined" && window.innerWidth < 900) return;
-    const game = initialDesktopGame(games);
-    if (game) setActiveGameId(game.id);
-  }, [games]);
-
   const hasLive = useMemo(() => games.some((g) => g.status === "in"), [games]);
 
   useEffect(() => {
@@ -153,6 +179,7 @@ export default function App({ initialGames }: Props) {
         .then((data: GamesResponse) => {
           if (!controller.signal.aborted && Array.isArray(data.games) && data.games.length > 0) {
             setFetchedGames(data.games);
+            setFetchedLeagueDisplay(data.leagueDisplay ?? []);
             setLastUpdated(new Date());
           }
         })
@@ -167,8 +194,8 @@ export default function App({ initialGames }: Props) {
   }, [dateIdx, hasLive]);
 
   const filteredGames = useMemo(
-    () => applyScope(games, activeSport, activeLeague),
-    [games, activeSport, activeLeague]
+    () => applyScope(games, activeSport, activeLeague, leagueById),
+    [games, activeSport, activeLeague, leagueById]
   );
 
   const counts = useMemo(() => statusCounts(filteredGames), [filteredGames]);
@@ -177,9 +204,17 @@ export default function App({ initialGames }: Props) {
     () => games.find((g) => g.id === activeGameId) ?? null,
     [games, activeGameId]
   );
-  const closeWatch = useCallback(() => setActiveGameId(null), []);
-  const streamState = useGameStreams(activeGame);
+  const pickGame = useCallback((id: string) => {
+    setActiveSelection({ id, automatic: false });
+  }, []);
+  const closeWatch = useCallback(() => {
+    setActiveSelection({ id: null, automatic: false });
+  }, []);
+  const streamGame = activeSelection.automatic && !autoStreamsEnabled ? null : activeGame;
+  const streamState = useGameStreams(streamGame);
   const activeStreams = streamState.gameId === activeGame?.id ? streamState.streams : NO_STREAMS;
+  const activeStreamsLoading = activeGame !== null
+    && (streamState.gameId !== activeGame.id || streamState.loading);
   const statusTabs: { id: StatusFilter; label: string; count: number; live: boolean }[] = [
     { id: "all", label: "All", count: counts.total, live: false },
     { id: "live", label: "Live", count: counts.live, live: true },
@@ -199,7 +234,7 @@ export default function App({ initialGames }: Props) {
         dateLoading={dateLoading}
         lastUpdated={lastUpdated}
       />
-      <div className={`main ${activeGame ? "with-watch" : ""}`}>
+      <div className={`main ${activeGame ? "with-watch" : ""} ${activeSelection.automatic ? "auto-watch" : ""}`}>
         <Sidebar
           games={games}
           activeSport={activeSport}
@@ -208,6 +243,8 @@ export default function App({ initialGames }: Props) {
           setActiveLeague={setActiveLeague}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
+          leagueDisplay={leagueDisplay}
+          leagueById={leagueById}
         />
         <div className="center">
           <div className="filterbar">
@@ -224,24 +261,29 @@ export default function App({ initialGames }: Props) {
           </div>
           <LiveTicker
             games={games}
-            activeGameId={activeGameId}
-            onPick={setActiveGameId}
+            activeGameId={displayedActiveGameId}
+            onPick={pickGame}
+            leagueById={leagueById}
           />
           <GameFeed
             games={filteredGames}
-            activeGameId={activeGameId}
-            onPick={setActiveGameId}
+            activeGameId={displayedActiveGameId}
+            onPick={pickGame}
             statusFilter={statusFilter}
             search={search}
+            leagueDisplay={leagueDisplay}
+            leagueById={leagueById}
           />
         </div>
         {activeGame && (
           <WatchPanel
             game={activeGame}
             streams={activeStreams}
+            streamsLoading={activeStreamsLoading}
+            leagueById={leagueById}
             onClose={closeWatch}
             allGames={games}
-            onPick={setActiveGameId}
+            onPick={pickGame}
           />
         )}
       </div>
