@@ -51,11 +51,13 @@ interface GamesResponse {
   games: GameWithStreams[];
   leagueDisplay: LeagueDisplay[];
   partial?: boolean;
+  loading?: boolean;
 }
 
 interface ActiveSelection {
   id: string | null;
   automatic: boolean;
+  settled: boolean;
 }
 
 // Stable identity for "no streams" so WatchPanel's memoization isn't broken by a
@@ -70,7 +72,9 @@ function initialDesktopGame(games: readonly GameWithStreams[]): GameWithStreams 
   return games.find((g) => g.status === "in" && hasStreamBadge(g))
     ?? games.find((g) => g.status === "pre" && hasStreamBadge(g))
     ?? games.find(hasStreamBadge)
-    ?? games.find((g) => g.status === "in");
+    ?? games.find((g) => g.status === "in")
+    ?? games.find((g) => g.status === "pre")
+    ?? games[0];
 }
 
 export default function App({ initialGames, initialLeagueDisplay }: Props) {
@@ -81,7 +85,7 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [activeSelection, setActiveSelection] = useState<ActiveSelection>(() => {
     const game = initialDesktopGame(initialGames);
-    return { id: game?.id ?? null, automatic: true };
+    return { id: game?.id ?? null, automatic: true, settled: initialGames.length > 0 };
   });
   const [now, setNow] = useState(() => Date.now());
   const [fetchedGames, setFetchedGames] = useState<GameWithStreams[] | null>(null);
@@ -133,7 +137,7 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
       setFetchedLeagueDisplay(null);
       setDateLoading(initialGames.length === 0);
       setSchedulePartial(false);
-      setActiveSelection({ id: null, automatic: true });
+      setActiveSelection({ id: null, automatic: true, settled: false });
       return;
     }
     const controller = new AbortController();
@@ -142,7 +146,7 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
     setFetchedLeagueDisplay(null);
     setDateLoading(true);
     setSchedulePartial(false);
-    setActiveSelection({ id: null, automatic: false });
+    setActiveSelection({ id: null, automatic: false, settled: true });
     setStatusFilter("all");
     async function load(attempt: number) {
       let receivedGames = false;
@@ -171,7 +175,7 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
               partial = update.partial === true;
               setFetchedGames(update.games);
               setFetchedLeagueDisplay(update.leagueDisplay ?? []);
-              setDateLoading(false);
+              setDateLoading(update.loading === true);
               setSchedulePartial(partial);
             }
             if (update.type === "error") failed = true;
@@ -228,6 +232,7 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
     if (dateIdx !== 1) return;
     let inFlight: AbortController | null = null;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let hasSettledSnapshot = initialGames.length > 0;
     async function poll(attempt = 0) {
       if (retryTimer) {
         clearTimeout(retryTimer);
@@ -238,20 +243,25 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
       inFlight = controller;
       let partial = false;
       let failedRequest = false;
-      const accept = (data: GamesResponse, selectAutomatic: boolean) => {
+      const accept = (data: GamesResponse, reconcileAutomatic: boolean) => {
         if (controller.signal.aborted || !Array.isArray(data.games)) return;
+        if (!reconcileAutomatic && hasSettledSnapshot) return;
+        if (reconcileAutomatic) hasSettledSnapshot = true;
         partial = data.partial === true;
         setFetchedGames(data.games);
         setFetchedLeagueDisplay(data.leagueDisplay ?? []);
-        setDateLoading(false);
+        setDateLoading(data.loading === true);
         setSchedulePartial(partial);
         setLastUpdated(new Date());
         setActiveSelection((selection) => {
           if (!selection.automatic) return selection;
           const retained = data.games.find((game) => game.id === selection.id);
-          if (retained) return selection;
-          if (!selectAutomatic) return { id: null, automatic: true };
-          return { id: initialDesktopGame(data.games)?.id ?? null, automatic: true };
+          if (retained && !reconcileAutomatic) return selection;
+          return {
+            id: initialDesktopGame(data.games)?.id ?? null,
+            automatic: true,
+            settled: reconcileAutomatic,
+          };
         });
       };
 
@@ -307,17 +317,18 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
     [games, activeGameId]
   );
   const pickGame = useCallback((id: string) => {
-    setActiveSelection({ id, automatic: false });
+    setActiveSelection({ id, automatic: false, settled: true });
   }, []);
   const closeWatch = useCallback(() => {
-    setActiveSelection({ id: null, automatic: false });
+    setActiveSelection({ id: null, automatic: false, settled: true });
   }, []);
-  const streamGame = activeSelection.automatic && !autoStreamsEnabled ? null : activeGame;
-  const watchVisible = streamGame !== null;
+  const watchGame = activeSelection.automatic && !autoStreamsEnabled ? null : activeGame;
+  const streamGame = activeSelection.automatic && !activeSelection.settled ? null : watchGame;
+  const watchVisible = watchGame !== null;
   const streamState = useGameStreams(streamGame);
-  const activeStreams = streamState.gameId === activeGame?.id ? streamState.streams : NO_STREAMS;
-  const activeStreamsLoading = activeGame !== null
-    && (streamState.gameId !== activeGame.id || streamState.loading);
+  const activeStreams = streamState.gameId === watchGame?.id ? streamState.streams : NO_STREAMS;
+  const activeStreamsLoading = watchGame !== null
+    && (!activeSelection.settled || streamState.gameId !== watchGame.id || streamState.loading);
   const statusTabs: { id: StatusFilter; label: string; count: number; live: boolean }[] = [
     { id: "all", label: "All", count: counts.total, live: false },
     { id: "live", label: "Live", count: counts.live, live: true },
@@ -380,9 +391,9 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
             loading={dateLoading || (schedulePartial && games.length === 0)}
           />
         </div>
-        {watchVisible && activeGame && (
+        {watchVisible && watchGame && (
           <WatchPanel
-            game={activeGame}
+            game={watchGame}
             streams={activeStreams}
             streamsLoading={activeStreamsLoading}
             leagueById={leagueById}

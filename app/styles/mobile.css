@@ -30,7 +30,8 @@
   .updated-label { display: none; }
 
   /* Main: collapse to single column */
-  .main {
+  .main,
+  .main.auto-watch {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
   }

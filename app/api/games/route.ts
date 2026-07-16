@@ -32,10 +32,25 @@ function progressiveGames(date: string | undefined, signal: AbortSignal): Respon
 
       try {
         const warming = prefetchStreamCounts(date, { signal: workSignal });
-        const snapshot = await getAllGamesSnapshot(date, { signal: workSignal });
+        const snapshot = await getAllGamesSnapshot(date, {
+          signal: workSignal,
+          onProgress(update) {
+            send({
+              type: "schedule",
+              ...payload(update.games),
+              loading: true,
+              scheduleMs: performance.now() - startedAt,
+            });
+          },
+        });
         const games = snapshot.games;
         const scheduleMs = performance.now() - startedAt;
-        send({ type: "schedule", ...payload(games, !snapshot.complete), scheduleMs });
+        send({
+          type: "schedule",
+          ...payload(games, !snapshot.complete),
+          loading: false,
+          scheduleMs,
+        });
 
         await warming;
         const gamesWithStreams = await attachStreamCounts(games, date, { signal: workSignal });

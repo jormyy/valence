@@ -17,6 +17,7 @@ import { fetchWithValidatedRedirects } from "./validated-redirect";
 
 interface FetchOptions {
   readonly signal?: AbortSignal;
+  readonly onProgress?: (snapshot: GamesSnapshot) => void;
 }
 
 export interface GamesSnapshot {
@@ -254,6 +255,7 @@ export async function getGames(league: League, dateStr?: string, options?: Fetch
 // by the bounded 60s aggregate cache below; gating leagues blindly would silently
 // drop in-season games because the registry does not carry season metadata.
 const SCOREBOARD_CONCURRENCY = 16;
+const PROGRESS_BATCH_GAMES = 32;
 const GAMES_CACHE_MS = 60_000;
 const GAMES_CACHE_DATES = 3;
 const LEAGUE_CACHE_ENTRIES = 1_200;
@@ -273,28 +275,81 @@ const gamesCache = new AsyncTtlCache<string, GamesSnapshot>(
 );
 const summaryCache = new AsyncTtlCache<string, EspnSummary | null>(30_000, 64);
 
-async function loadAllGames(dateStr: string, signal: AbortSignal): Promise<GamesSnapshot> {
-  const [espnResults, sourceGames] = await Promise.all([
-    mapLimit(
-      ESPN_LEAGUES,
-      SCOREBOARD_CONCURRENCY,
-      (league) => leagueGamesCache.get(
-        `${dateStr}:${league.id}`,
-        (leagueSignal) => loadGamesForLeague(league.id, dateStr, { signal: leagueSignal }),
-        signal,
-      ),
-      signal,
-    ),
-    getSourceGames(dateStr, { signal }),
-  ]);
-  const games = [...espnResults.flatMap((result) => result.games), ...sourceGames].sort((a, b) => {
+interface ProgressChannel {
+  readonly listeners: Map<symbol, (snapshot: GamesSnapshot) => void>;
+  users: number;
+  latest?: GamesSnapshot;
+}
+
+const progressChannels = new Map<string, ProgressChannel>();
+
+function publishProgress(channel: ProgressChannel, snapshot: GamesSnapshot) {
+  channel.latest = snapshot;
+  for (const listener of channel.listeners.values()) {
+    try {
+      listener(snapshot);
+    } catch {
+      // One disconnected response must not stop shared schedule work or other callers.
+    }
+  }
+}
+
+function sortGames(games: Game[]): Game[] {
+  return games.sort((a, b) => {
     const diff = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
     if (diff !== 0) return diff;
     return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
   });
+}
+
+async function loadAllGames(
+  dateStr: string,
+  signal: AbortSignal,
+  onProgress?: (snapshot: GamesSnapshot) => void,
+): Promise<GamesSnapshot> {
+  const espnResults = new Array<LeagueGamesSnapshot | undefined>(ESPN_LEAGUES.length);
+  const settled = new Array<boolean>(ESPN_LEAGUES.length).fill(false);
+  const progressiveGames: Game[] = [];
+  let settledPrefix = -1;
+  let emittedGames = 0;
+
+  const [loadedResults, sourceGames] = await Promise.all([
+    mapLimit(
+      ESPN_LEAGUES,
+      SCOREBOARD_CONCURRENCY,
+      async (league, index) => {
+        const result = await leagueGamesCache.get(
+          `${dateStr}:${league.id}`,
+          (leagueSignal) => loadGamesForLeague(league.id, dateStr, { signal: leagueSignal }),
+          signal,
+        );
+        espnResults[index] = result;
+        settled[index] = true;
+        while (settled[settledPrefix + 1]) {
+          settledPrefix += 1;
+          progressiveGames.push(...(espnResults[settledPrefix]?.games ?? []));
+          if (
+            onProgress
+            && progressiveGames.length > emittedGames
+            && (
+              emittedGames === 0
+              || progressiveGames.length - emittedGames >= PROGRESS_BATCH_GAMES
+            )
+          ) {
+            emittedGames = progressiveGames.length;
+            onProgress({ games: sortGames([...progressiveGames]), complete: false });
+          }
+        }
+        return result;
+      },
+      signal,
+    ),
+    getSourceGames(dateStr, { signal }),
+  ]);
+  const games = sortGames([...loadedResults.flatMap((result) => result.games), ...sourceGames]);
   return {
     games,
-    complete: espnResults.every((result) => result.complete),
+    complete: loadedResults.every((result) => result.complete),
   };
 }
 
@@ -304,11 +359,35 @@ export async function getAllGamesSnapshot(
 ): Promise<GamesSnapshot> {
   const targetDate = normalizeDate(dateStr);
   if (!targetDate) return { games: [], complete: true };
-  return gamesCache.get(
-    targetDate,
-    (signal) => loadAllGames(targetDate, signal),
-    options?.signal,
-  );
+  let channel = progressChannels.get(targetDate);
+  if (!channel) {
+    channel = { listeners: new Map(), users: 0 };
+    progressChannels.set(targetDate, channel);
+  }
+  channel.users += 1;
+  const listenerId = Symbol(targetDate);
+  if (options?.onProgress) {
+    channel.listeners.set(listenerId, options.onProgress);
+    if (channel.latest) options.onProgress(channel.latest);
+  }
+
+  try {
+    return await gamesCache.get(
+      targetDate,
+      (signal) => loadAllGames(
+        targetDate,
+        signal,
+        (snapshot) => publishProgress(channel, snapshot),
+      ),
+      options?.signal,
+    );
+  } finally {
+    channel.listeners.delete(listenerId);
+    channel.users -= 1;
+    if (channel.users === 0 && progressChannels.get(targetDate) === channel) {
+      progressChannels.delete(targetDate);
+    }
+  }
 }
 
 export async function getAllGames(dateStr?: string, options?: FetchOptions): Promise<Game[]> {

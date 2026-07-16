@@ -194,21 +194,18 @@ function WatchPanel({
       </div>
 
       <div ref={playerRef} className={`player ${fullscreenFallback ? "fullscreen-fallback" : ""}`}>
-        {current ? (
-          <ShieldedPlayer url={current.url} />
-        ) : (
-          <div className="player-empty">
-            {playableStreams > 0 && <div className="player-play"><PlayIcon /></div>}
-            <div className="player-placeholder">
-              <span className="big">{game.awayTeam.name} <span className="dim">vs</span> {game.homeTeam.name}</span>
-              {streams.length > 0
-                ? playableStreams > 0 ? "stream embed" : "all streams down"
-                : s === "post"
-                  ? "game finished — no stream"
-                  : "no stream available yet"}
-            </div>
+        <div className="player-empty" aria-hidden={current ? true : undefined}>
+          {playableStreams > 0 && <div className="player-play"><PlayIcon /></div>}
+          <div className="player-placeholder">
+            <span className="big">{game.awayTeam.name} <span className="dim">vs</span> {game.homeTeam.name}</span>
+            {streams.length > 0
+              ? playableStreams > 0 ? "stream embed" : "all streams down"
+              : s === "post"
+                ? "game finished — no stream"
+                : "no stream available yet"}
           </div>
-        )}
+        </div>
+        {current && <ShieldedPlayer url={current.url} />}
         <div className="player-controls">
           {s === "in" && <span className="live-marker"><span className="live-dot" /> LIVE</span>}
           {s === "pre" && <span>STARTS {formatTimePT(game.startTime)}</span>}
