@@ -5,6 +5,8 @@ import { readNdjson } from "../lib/ndjson";
 import { nextViableStream } from "../lib/stream-failover";
 import type { Stream } from "../lib/types";
 import { fetchWithValidatedRedirects } from "../lib/validated-redirect";
+import { GAME_BOOTSTRAP_TTL_MS, isGameBootstrapFresh, type GameBootstrap } from "../lib/game-bootstrap";
+import { todayInPT } from "../lib/datetime";
 
 function delay(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -85,6 +87,23 @@ async function validateCache() {
     "partial upstream snapshots must be retried instead of cached",
   );
   assert.equal((await snapshots.get("today", loadSnapshot)).generation, 2);
+
+  let ageBoundedLoads = 0;
+  const ageBounded = new AsyncTtlCache<string, { loadedAt: number; generation: number }>(
+    1_000,
+    1,
+    () => true,
+    (snapshot, now) => 20 - (now - snapshot.loadedAt),
+  );
+  const loadAgeBounded = async () => ({ loadedAt: Date.now(), generation: ++ageBoundedLoads });
+  assert.equal((await ageBounded.get("today", loadAgeBounded)).generation, 1);
+  assert.equal((await ageBounded.get("today", loadAgeBounded)).generation, 1);
+  await delay(25);
+  assert.equal(
+    (await ageBounded.get("today", loadAgeBounded)).generation,
+    2,
+    "value age must cap cache lifetime even when the default TTL is longer",
+  );
 }
 
 async function validateRedirects() {
@@ -193,12 +212,28 @@ function validateFailover() {
   );
 }
 
+function validateGameBootstrap() {
+  const now = Date.now();
+  const bootstrap: GameBootstrap = {
+    games: [],
+    leagueDisplay: [],
+    date: todayInPT(),
+    loadedAt: now,
+  };
+  assert.equal(isGameBootstrapFresh(bootstrap, now), true);
+  assert.equal(isGameBootstrapFresh(bootstrap, now + GAME_BOOTSTRAP_TTL_MS - 1), true);
+  assert.equal(isGameBootstrapFresh(bootstrap, now + GAME_BOOTSTRAP_TTL_MS), false);
+  assert.equal(isGameBootstrapFresh({ ...bootstrap, loadedAt: now + 1 }, now), false);
+  assert.equal(isGameBootstrapFresh({ ...bootstrap, date: "2000-01-01" }, now), false);
+}
+
 async function main() {
   await validateCache();
   await validateMediaBodies();
   await validateNdjson();
   await validateRedirects();
   validateFailover();
+  validateGameBootstrap();
   console.log("performance contracts: ok");
 }
 

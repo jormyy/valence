@@ -18,6 +18,7 @@ interface Props {
   leagueDisplay: LeagueDisplay[];
   leagueById: LeagueDisplayMap;
   loading: boolean;
+  unavailable: boolean;
 }
 
 function GameFeed({
@@ -29,6 +30,7 @@ function GameFeed({
   leagueDisplay,
   leagueById,
   loading,
+  unavailable,
 }: Props) {
   const leagueOrder = useMemo(
     () => new Map(leagueDisplay.map((league, index) => [league.id, index])),
@@ -77,6 +79,14 @@ function GameFeed({
   }, [visible, leagueById, leagueOrder]);
 
   if (visible.length === 0) {
+    if (unavailable) {
+      return (
+        <div className="empty" role="status" aria-live="polite">
+          <div className="empty-title">Schedule unavailable</div>
+          Valence will retry automatically.
+        </div>
+      );
+    }
     if (loading) {
       return (
         <div className="game-area schedule-loading" role="status" aria-live="polite">

@@ -31,6 +31,7 @@ export class AsyncTtlCache<K, T> {
     private readonly ttlMs: number,
     private readonly maxEntries: number,
     private readonly cacheable: (value: T) => boolean = () => true,
+    private readonly ttlForValue?: (value: T, now: number) => number,
   ) {}
 
   async get(key: K, load: Loader<T>, signal?: AbortSignal): Promise<T> {
@@ -71,8 +72,12 @@ export class AsyncTtlCache<K, T> {
   }
 
   private remember(key: K, value: T) {
+    const now = Date.now();
+    const valueTtl = this.ttlForValue?.(value, now) ?? this.ttlMs;
+    if (!Number.isFinite(valueTtl) || valueTtl <= 0) return;
+    const ttl = Math.min(this.ttlMs, valueTtl);
     this.values.delete(key);
-    this.values.set(key, { value, expiresAt: Date.now() + this.ttlMs });
+    this.values.set(key, { value, expiresAt: now + ttl });
     while (this.values.size > this.maxEntries) {
       const oldest = this.values.keys().next().value;
       if (oldest === undefined) break;

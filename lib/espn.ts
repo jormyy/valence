@@ -23,9 +23,14 @@ interface FetchOptions {
 export interface GamesSnapshot {
   readonly games: Game[];
   readonly complete: boolean;
+  readonly loadedAt: number;
 }
 
 type LeagueGamesSnapshot = GamesSnapshot;
+
+function leagueSnapshot(games: Game[], complete: boolean): LeagueGamesSnapshot {
+  return { games, complete, loadedAt: Date.now() };
+}
 
 export function normalizeEspnDateParam(dateStr: string | null | undefined): string | undefined {
   if (!dateStr) return undefined;
@@ -206,10 +211,10 @@ async function loadGamesForLeague(
   options?: FetchOptions,
 ): Promise<LeagueGamesSnapshot> {
   const leagueInfo = LEAGUE_BY_ID[league];
-  if (!hasEspnSchedule(leagueInfo)) return { games: [], complete: true };
+  if (!hasEspnSchedule(leagueInfo)) return leagueSnapshot([], true);
 
   const targetDate = normalizeDate(dateStr);
-  if (!targetDate) return { games: [], complete: true };
+  if (!targetDate) return leagueSnapshot([], true);
 
   const config = leagueInfo.espn;
   const query = `?dates=${targetDate.replaceAll("-", "")}`;
@@ -222,25 +227,25 @@ async function loadGamesForLeague(
       fetchWithTimeout,
     );
   } catch {
-    return { games: [], complete: false };
+    return leagueSnapshot([], false);
   }
-  if (!res.ok) return { games: [], complete: false };
+  if (!res.ok) return leagueSnapshot([], false);
 
   let data: unknown;
   try {
     data = await res.json();
   } catch {
-    return { games: [], complete: false };
+    return leagueSnapshot([], false);
   }
   const parser: EspnParser = config.parser;
 
   switch (parser) {
     case "team":
-      return { games: parseTeamEvents(data, league, targetDate), complete: true };
+      return leagueSnapshot(parseTeamEvents(data, league, targetDate), true);
     case "tennis":
-      return { games: flattenTennisEvents(data, league, targetDate), complete: true };
+      return leagueSnapshot(flattenTennisEvents(data, league, targetDate), true);
     case "event":
-      return { games: parseTeamEvents(data, league, targetDate), complete: true };
+      return leagueSnapshot(parseTeamEvents(data, league, targetDate), true);
   }
   return unreachableParser(parser);
 }
@@ -267,11 +272,13 @@ const leagueGamesCache = new AsyncTtlCache<string, LeagueGamesSnapshot>(
   GAMES_CACHE_MS,
   LEAGUE_CACHE_ENTRIES,
   (snapshot) => snapshot.complete,
+  (snapshot, now) => GAMES_CACHE_MS - (now - snapshot.loadedAt),
 );
 const gamesCache = new AsyncTtlCache<string, GamesSnapshot>(
   GAMES_CACHE_MS,
   GAMES_CACHE_DATES,
   (snapshot) => snapshot.complete,
+  (snapshot, now) => GAMES_CACHE_MS - (now - snapshot.loadedAt),
 );
 const summaryCache = new AsyncTtlCache<string, EspnSummary | null>(30_000, 64);
 
@@ -337,7 +344,10 @@ async function loadAllGames(
             )
           ) {
             emittedGames = progressiveGames.length;
-            onProgress({ games: sortGames([...progressiveGames]), complete: false });
+            const loadedAt = Math.min(
+              ...espnResults.slice(0, settledPrefix + 1).map((result) => result?.loadedAt ?? Date.now()),
+            );
+            onProgress({ games: sortGames([...progressiveGames]), complete: false, loadedAt });
           }
         }
         return result;
@@ -350,6 +360,7 @@ async function loadAllGames(
   return {
     games,
     complete: loadedResults.every((result) => result.complete),
+    loadedAt: Math.min(...loadedResults.map((result) => result.loadedAt)),
   };
 }
 
@@ -358,7 +369,7 @@ export async function getAllGamesSnapshot(
   options?: FetchOptions,
 ): Promise<GamesSnapshot> {
   const targetDate = normalizeDate(dateStr);
-  if (!targetDate) return { games: [], complete: true };
+  if (!targetDate) return { games: [], complete: true, loadedAt: Date.now() };
   let channel = progressChannels.get(targetDate);
   if (!channel) {
     channel = { listeners: new Map(), users: 0 };

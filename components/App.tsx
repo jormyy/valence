@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import type { Game, GameWithStreams, Stream } from "@/lib/types";
 import { PT_TZ, dateInPT } from "@/lib/datetime";
 import type { SportScope, StatusFilter } from "@/lib/scope";
@@ -13,10 +13,16 @@ import LiveTicker from "@/components/LiveTicker";
 import WatchPanel from "@/components/WatchPanel";
 import type { LeagueDisplay, LeagueDisplayMap } from "@/lib/registry";
 import { readNdjson } from "@/lib/ndjson";
+import {
+  GAME_BOOTSTRAP_TTL_MS,
+  isGameBootstrapFresh,
+  type GameBootstrap,
+} from "@/lib/game-bootstrap";
 
 interface Props {
   initialGames: GameWithStreams[];
   initialLeagueDisplay: LeagueDisplay[];
+  bootstrap: GameBootstrap | null;
 }
 
 function ptCalendarDate(): { y: number; m: number; d: number } {
@@ -60,6 +66,8 @@ interface ActiveSelection {
   settled: boolean;
 }
 
+type SchedulePhase = "prefix" | "schedule" | "complete";
+
 // Stable identity for "no streams" so WatchPanel's memoization isn't broken by a
 // fresh [] literal on every render.
 const NO_STREAMS: Stream[] = [];
@@ -77,7 +85,7 @@ function initialDesktopGame(games: readonly GameWithStreams[]): GameWithStreams 
     ?? games[0];
 }
 
-export default function App({ initialGames, initialLeagueDisplay }: Props) {
+export default function App({ initialGames, initialLeagueDisplay, bootstrap }: Props) {
   const [search, setSearch] = useState("");
   const [dateIdx, setDateIdx] = useState(1);
   const [activeSport, setActiveSport] = useState<SportScope>("all");
@@ -93,7 +101,12 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
   const [dateLoading, setDateLoading] = useState(initialGames.length === 0);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [schedulePartial, setSchedulePartial] = useState(false);
+  const [scheduleUnavailable, setScheduleUnavailable] = useState(false);
   const [autoStreamsEnabled, setAutoStreamsEnabled] = useState(false);
+  const [manualGame, setManualGame] = useState<GameWithStreams | null>(null);
+  const hasCompleteDisplay = useRef(initialGames.length > 0);
+  const freshScheduleReceived = useRef(initialGames.length > 0);
+  const manualGameRef = useRef<GameWithStreams | null>(null);
   const activeGameId = activeSelection.id;
   const displayedActiveGameId = activeSelection.automatic && !autoStreamsEnabled
     ? null
@@ -133,24 +146,39 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
 
   useEffect(() => {
     if (dateIdx === 1) {
+      hasCompleteDisplay.current = initialGames.length > 0;
+      freshScheduleReceived.current = initialGames.length > 0;
       setFetchedGames(null);
       setFetchedLeagueDisplay(null);
       setDateLoading(initialGames.length === 0);
       setSchedulePartial(false);
+      setScheduleUnavailable(false);
       setActiveSelection({ id: null, automatic: true, settled: false });
+      manualGameRef.current = null;
+      setManualGame(null);
       return;
     }
+    hasCompleteDisplay.current = false;
+    freshScheduleReceived.current = false;
     const controller = new AbortController();
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
     setFetchedGames(null);
     setFetchedLeagueDisplay(null);
     setDateLoading(true);
     setSchedulePartial(false);
+    setScheduleUnavailable(false);
     setActiveSelection({ id: null, automatic: false, settled: true });
+    manualGameRef.current = null;
+    setManualGame(null);
     setStatusFilter("all");
     async function load(attempt: number) {
+      if (attempt === 0) {
+        setDateLoading(true);
+        setScheduleUnavailable(false);
+      }
       let receivedGames = false;
       let partial = false;
+      let failedRequest = false;
       try {
         const response = await fetch(`/api/games?date=${dateStrForIdx(dateIdx)}`, {
           headers: { accept: "application/x-ndjson, application/json" },
@@ -166,6 +194,7 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
             setFetchedLeagueDisplay(data.leagueDisplay ?? []);
             setDateLoading(false);
             setSchedulePartial(partial);
+            setScheduleUnavailable(false);
           }
         } else {
           let failed = false;
@@ -177,6 +206,7 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
               setFetchedLeagueDisplay(update.leagueDisplay ?? []);
               setDateLoading(update.loading === true);
               setSchedulePartial(partial);
+              setScheduleUnavailable(false);
             }
             if (update.type === "error") failed = true;
           }, controller.signal);
@@ -184,17 +214,26 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
         }
       } catch (error) {
         if (controller.signal.aborted) return;
+        failedRequest = true;
         console.error("Failed to fetch games for date:", dateIdx, error);
         if (!receivedGames) {
-          setFetchedGames([]);
-          setFetchedLeagueDisplay([]);
-          setDateLoading(false);
-          setSchedulePartial(false);
+          const retrying = attempt < 2;
+          if (!retrying) {
+            setFetchedGames([]);
+            setFetchedLeagueDisplay([]);
+          }
+          setDateLoading(retrying);
+          setSchedulePartial(retrying);
+          setScheduleUnavailable(!retrying);
         }
       }
 
-      if (partial && attempt < 2 && !controller.signal.aborted) {
-        retryTimer = setTimeout(() => void load(attempt + 1), 2_000 * (2 ** attempt));
+      if ((partial || failedRequest) && !controller.signal.aborted) {
+        const retryingImmediately = attempt < 2;
+        retryTimer = setTimeout(
+          () => void load(retryingImmediately ? attempt + 1 : 0),
+          retryingImmediately ? 2_000 * (2 ** attempt) : 30_000,
+        );
       }
     }
     void load(0);
@@ -203,6 +242,39 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
       if (retryTimer) clearTimeout(retryTimer);
     };
   }, [dateIdx]);
+
+  useEffect(() => {
+    if (dateIdx !== 1 || !bootstrap || !isGameBootstrapFresh(bootstrap)) return;
+    hasCompleteDisplay.current = true;
+    freshScheduleReceived.current = false;
+    setFetchedGames(bootstrap.games);
+    setFetchedLeagueDisplay(bootstrap.leagueDisplay);
+    setDateLoading(true);
+    setSchedulePartial(false);
+    setScheduleUnavailable(false);
+    setActiveSelection({
+      id: initialDesktopGame(bootstrap.games)?.id ?? null,
+      automatic: true,
+      settled: false,
+    });
+    const expiresIn = Math.max(0, bootstrap.loadedAt + GAME_BOOTSTRAP_TTL_MS - Date.now());
+    const expiryTimer = setTimeout(() => {
+      if (freshScheduleReceived.current) return;
+      hasCompleteDisplay.current = false;
+      setFetchedGames([]);
+      setFetchedLeagueDisplay((current) => {
+        const retainedLeague = manualGameRef.current?.league;
+        return retainedLeague ? (current ?? []).filter((league) => league.id === retainedLeague) : [];
+      });
+      setDateLoading(false);
+      setSchedulePartial(false);
+      setScheduleUnavailable(true);
+      setActiveSelection((selection) => selection.automatic
+        ? { id: null, automatic: true, settled: false }
+        : selection);
+    }, expiresIn);
+    return () => clearTimeout(expiryTimer);
+  }, [bootstrap, dateIdx]);
 
   const rawGames = fetchedGames ?? initialGames;
   const leagueDisplay = fetchedGames === null
@@ -232,7 +304,6 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
     if (dateIdx !== 1) return;
     let inFlight: AbortController | null = null;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
-    let hasSettledSnapshot = initialGames.length > 0;
     async function poll(attempt = 0) {
       if (retryTimer) {
         clearTimeout(retryTimer);
@@ -243,24 +314,37 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
       inFlight = controller;
       let partial = false;
       let failedRequest = false;
-      const accept = (data: GamesResponse, reconcileAutomatic: boolean) => {
+      const accept = (data: GamesResponse, phase: SchedulePhase) => {
         if (controller.signal.aborted || !Array.isArray(data.games)) return;
-        if (!reconcileAutomatic && hasSettledSnapshot) return;
-        if (reconcileAutomatic) hasSettledSnapshot = true;
         partial = data.partial === true;
+        if (phase === "prefix" && hasCompleteDisplay.current) return;
+        if (partial && hasCompleteDisplay.current) {
+          setDateLoading(data.loading === true);
+          setSchedulePartial(true);
+          setScheduleUnavailable(false);
+          return;
+        }
+
+        const authoritativeSchedule = phase !== "prefix" && !partial;
+        const countedSchedule = phase === "complete" && !partial;
+        if (authoritativeSchedule) {
+          hasCompleteDisplay.current = true;
+          freshScheduleReceived.current = true;
+        }
         setFetchedGames(data.games);
         setFetchedLeagueDisplay(data.leagueDisplay ?? []);
         setDateLoading(data.loading === true);
         setSchedulePartial(partial);
+        setScheduleUnavailable(false);
         setLastUpdated(new Date());
         setActiveSelection((selection) => {
           if (!selection.automatic) return selection;
           const retained = data.games.find((game) => game.id === selection.id);
-          if (retained && !reconcileAutomatic) return selection;
+          if (retained && !countedSchedule) return { ...selection, settled: false };
           return {
             id: initialDesktopGame(data.games)?.id ?? null,
             automatic: true,
-            settled: reconcileAutomatic,
+            settled: countedSchedule,
           };
         });
       };
@@ -272,24 +356,31 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
         });
         if (!response.ok) throw new Error(`game lookup failed: ${response.status}`);
         if (!response.headers.get("content-type")?.includes("application/x-ndjson") || !response.body) {
-          accept(await response.json() as GamesResponse, true);
+          accept(await response.json() as GamesResponse, "complete");
         } else {
           let receivedGames = false;
           let failed = false;
           await readNdjson<GamesResponse & { type?: string }>(response.body, (update) => {
             if ((update.type === "schedule" || update.type === "complete") && Array.isArray(update.games)) {
               receivedGames = true;
-              accept(update, update.type === "complete");
+              const phase: SchedulePhase = update.type === "complete"
+                ? "complete"
+                : update.loading === true ? "prefix" : "schedule";
+              accept(update, phase);
             }
             if (update.type === "error") failed = true;
           }, controller.signal);
           if (failed && !receivedGames) throw new Error("game lookup failed");
+          if (failed) failedRequest = true;
         }
       } catch (error) {
         if (!controller.signal.aborted) {
           failedRequest = true;
           console.error("Live poll failed:", error);
-          setDateLoading(false);
+          const retrying = attempt < 2;
+          setDateLoading(retrying);
+          setSchedulePartial(true);
+          setScheduleUnavailable(!retrying && !hasCompleteDisplay.current);
         }
       }
       if ((partial || failedRequest) && attempt < 2 && !controller.signal.aborted) {
@@ -313,13 +404,19 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
   const counts = useMemo(() => statusCounts(filteredGames), [filteredGames]);
 
   const activeGame = useMemo(
-    () => games.find((g) => g.id === activeGameId) ?? null,
-    [games, activeGameId]
+    () => games.find((g) => g.id === activeGameId)
+      ?? (!activeSelection.automatic && manualGame?.id === activeGameId ? manualGame : null),
+    [games, activeGameId, activeSelection.automatic, manualGame]
   );
   const pickGame = useCallback((id: string) => {
+    const game = games.find((candidate) => candidate.id === id) ?? null;
+    manualGameRef.current = game;
+    setManualGame(game);
     setActiveSelection({ id, automatic: false, settled: true });
-  }, []);
+  }, [games]);
   const closeWatch = useCallback(() => {
+    manualGameRef.current = null;
+    setManualGame(null);
     setActiveSelection({ id: null, automatic: false, settled: true });
   }, []);
   const watchGame = activeSelection.automatic && !autoStreamsEnabled ? null : activeGame;
@@ -389,6 +486,7 @@ export default function App({ initialGames, initialLeagueDisplay }: Props) {
             leagueDisplay={leagueDisplay}
             leagueById={leagueById}
             loading={dateLoading || (schedulePartial && games.length === 0)}
+            unavailable={scheduleUnavailable}
           />
         </div>
         {watchVisible && watchGame && (
