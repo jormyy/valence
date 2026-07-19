@@ -46,13 +46,17 @@ export function GET(request: Request) {
 
   const appOrigin = publicRequestOrigin(request);
   const playerOrigin = dedicatedPlayerOrigin(appOrigin);
-  if (!playerOrigin || playerOrigin === appOrigin) {
-    return new NextResponse("dedicated player origin unavailable", { status: 503 });
-  }
 
-  const destination = new URL("/api/embed", playerOrigin);
+  // Isolate the provider document on a dedicated origin when one is configured.
+  // Otherwise embed on the app origin: the frame still gets a real origin (which
+  // iOS requires for native HLS) but is not fenced off from the app. This app
+  // stores nothing sensitive, so same-origin is the pragmatic default; setting
+  // VALENCE_APP_ORIGIN and VALENCE_PLAYER_ORIGIN restores isolation automatically.
+  const embedOrigin = playerOrigin ?? appOrigin;
+
+  const destination = new URL("/api/embed", embedOrigin);
   destination.searchParams.set("u", target.href);
   destination.searchParams.set("p", target.href);
-  destination.searchParams.set("a", appOrigin);
+  if (embedOrigin !== appOrigin) destination.searchParams.set("a", appOrigin);
   return NextResponse.redirect(destination, 307);
 }
